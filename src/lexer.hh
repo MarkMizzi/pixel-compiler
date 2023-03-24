@@ -2,6 +2,7 @@
 #define LEXER_H_
 
 #include <stdexcept>
+#include <string>
 
 namespace lexer {
 
@@ -53,7 +54,7 @@ enum CharClass {
   DIGIT,       // [0-9]
 };
 
-enum Token {
+enum TokenType {
   // literals
   TRUE,  // true
   FALSE, // false
@@ -113,10 +114,19 @@ enum Token {
 
 };
 
+struct Token {
+  TokenType type;
+  std::string value;
+};
+
 CharClass characterClass(char c);
 
 class Lexer {
+private:
+  std::string input;
+
 public:
+  Lexer(std::string input) : input(input){};
   Token GetNextToken();
 };
 
