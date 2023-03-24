@@ -1,0 +1,13 @@
+.DS_Store
+.idea
+*.log
+tmp/
+
+
+CMakeCache.txt
+_deps/**
+generated-includes/**
+cmake_install.cmake
+CMakeFiles/**
+build/**
+Makefile
