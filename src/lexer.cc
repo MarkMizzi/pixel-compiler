@@ -11,6 +11,8 @@ namespace lexer {
 enum LexerState {
   START,
 
+  ERROR_STATE,
+
   // literals
   TRUE_STATE,
   FALSE_STATE,
@@ -141,28 +143,29 @@ Token Lexer::nextToken() {
   Token token;
 
   if (input.empty()) {
-    return {END, ""};
+    return {TokenType::END, ""};
   }
 
-  while (!isFinal(state) && !input.empty()) {
+  while (!input.empty()) {
     char c = input[0];
-    CharClass charClass = characterClass(c);
+    CharClass cclass = characterClass(c);
 
-    try {
-      state = tt.at({state, charClass});
-    } catch (std::out_of_range &) {
-      // bad character encountered.
-      throw LexerError("Bad character " + std::string{c});
+    if (!tt.count({state, cclass})) {
+      // no transition to make
+      break;
     }
 
+    state = tt.at({state, cclass});
     token.value.push_back(c);
     input.erase(0, 1);
   }
 
-  if (!input.empty()) {
-    token.type = tokenType(state);
+  if (state == LexerState::ERROR_STATE) {
+    // bad character encountered.
+    throw LexerError("Hit lexer error");
   }
 
+  token.type = tokenType(state);
   return token;
 }
 
