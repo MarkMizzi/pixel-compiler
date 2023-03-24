@@ -11,53 +11,10 @@ class LexerError : public std::runtime_error {
   using std::runtime_error::runtime_error;
 };
 
-enum CharClass {
-  A,
-  B,
-  C,
-  D,
-  E,
-  F,
-  G,
-  H,
-  I,
-  L,
-  N,
-  O,
-  P,
-  R,
-  S,
-  T,
-  U,
-  W,
-  X,
-  Y,
-  HASH,        // #
-  UNDERSCORE,  // _
-  COMMA,       // ,
-  STAR,        // *
-  DIV,         // /
-  PLUS,        // +
-  MINUS,       // -
-  GREATER,     // >
-  LESS,        // <
-  EQ,          // =
-  EXCLAMATION, // !
-  COLON,       // :
-  SEMICOLON,   // ;
-  DOT,         // .
-  LBRACKET,    // (
-  RBRACKET,    // )
-  LBRACE,      // {
-  RBRACE,      // }
-  ALPHA,       // [a-z] that doesn't have its own character class.
-  DIGIT,       // [0-9]
-};
-
 enum TokenType {
   // literals
-  TRUE,  // true
-  FALSE, // false
+  TRUE_LITERAL,  // true
+  FALSE_LITERAL, // false
   INTEGER_LITERAL,
   FLOAT_LITERAL,
   COLOUR_LITERAL,
@@ -118,8 +75,6 @@ struct Token {
   TokenType type;
   std::string value;
 };
-
-CharClass characterClass(char c);
 
 class Lexer {
 private:
