@@ -69,6 +69,8 @@ enum TokenType {
   SEMICOLON_TOK, // ;
   DOT_TOK,       // .
 
+  WHITESPACE, // comments, and whitespace.
+  END,        // EOF
 };
 
 struct Token {
@@ -80,8 +82,12 @@ class Lexer {
 private:
   std::string input;
 
+  // internal, table-driven lexing function
+  Token nextToken();
+
 public:
   Lexer(std::string input) : input(input){};
+  // calls nextToken(), but filters some of the output (whitespace tokens)
   Token GetNextToken();
 };
 

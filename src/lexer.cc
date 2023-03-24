@@ -129,8 +129,20 @@ CharClass characterClass(char c);
 static const LexerTransitionTable tt{{{START, COMMA}, COMMA_STATE}};
 
 Token Lexer::GetNextToken() {
+  Token token;
+  // filter out whitespace tokens.
+  while ((token = nextToken()).type == WHITESPACE)
+    ;
+  return token;
+}
+
+Token Lexer::nextToken() {
   LexerState state = START;
   Token token;
+
+  if (input.empty()) {
+    return {END, ""};
+  }
 
   while (!isFinal(state) && !input.empty()) {
     char c = input[0];
