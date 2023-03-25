@@ -89,7 +89,8 @@ private:
   Token nextToken();
 
 public:
-  Lexer(std::string input) : input(input){};
+  Lexer(std::string &input) : input(input){};
+  Lexer(std::string &&input) : input(std::move(input)){};
   // calls nextToken(), but filters some of the output (whitespace tokens)
   Token GetNextToken();
 };
