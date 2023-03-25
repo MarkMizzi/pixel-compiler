@@ -54,6 +54,10 @@ enum LexerState {
   S5,
   S6,
   S7,
+
+  S8,
+  S9,
+  S10,
 };
 
 enum CharClass {
@@ -78,7 +82,8 @@ enum CharClass {
   HEX,         // [a-fA-F]
   ALPHA,       // [g-zG-Z]
   DIGIT,       // [0-9]
-  WHITESPACE,  // [\n\r\t\v\f]
+  NEWLINE,     // \n
+  WHITESPACE,  // [\r\t\v\f]
 };
 
 using LexerTransitionTable =
@@ -152,6 +157,63 @@ static const LexerTransitionTable tt{
     // whitespace
     {{START, WHITESPACE}, WHITESPACE_STATE},
     {{WHITESPACE_STATE, WHITESPACE}, WHITESPACE_STATE},
+    {{START, NEWLINE}, WHITESPACE_STATE},
+    {{WHITESPACE_STATE, NEWLINE}, WHITESPACE_STATE},
+
+    // /, comments
+    {{START, DIV}, DIV_STATE},
+    // block comments
+    {{DIV_STATE, STAR}, S8},
+    {{S8, HASH}, S8},
+    {{S8, UNDERSCORE}, S8},
+    {{S8, COMMA}, S8},
+    {{S8, DIV}, S8},
+    {{S8, PLUS}, S8},
+    {{S8, MINUS}, S8},
+    {{S8, GREATER}, S8},
+    {{S8, LESS}, S8},
+    {{S8, EQ}, S8},
+    {{S8, EXCLAMATION}, S8},
+    {{S8, COLON}, S8},
+    {{S8, SEMICOLON}, S8},
+    {{S8, DOT}, S8},
+    {{S8, LBRACKET}, S8},
+    {{S8, RBRACKET}, S8},
+    {{S8, LBRACE}, S8},
+    {{S8, RBRACE}, S8},
+    {{S8, HEX}, S8},
+    {{S8, ALPHA}, S8},
+    {{S8, DIGIT}, S8},
+    {{S8, NEWLINE}, S8},
+    {{S8, WHITESPACE}, S8},
+    {{S8, STAR}, S9},
+    {{S9, DIV}, WHITESPACE_STATE},
+    // single line comments
+    {{DIV_STATE, DIV}, S10},
+    {{S10, HASH}, S10},
+    {{S10, UNDERSCORE}, S10},
+    {{S10, COMMA}, S10},
+    {{S10, DIV}, S10},
+    {{S10, STAR}, S10},
+    {{S10, PLUS}, S10},
+    {{S10, MINUS}, S10},
+    {{S10, GREATER}, S10},
+    {{S10, LESS}, S10},
+    {{S10, EQ}, S10},
+    {{S10, EXCLAMATION}, S10},
+    {{S10, COLON}, S10},
+    {{S10, SEMICOLON}, S10},
+    {{S10, DOT}, S10},
+    {{S10, LBRACKET}, S10},
+    {{S10, RBRACKET}, S10},
+    {{S10, LBRACE}, S10},
+    {{S10, RBRACE}, S10},
+    {{S10, HEX}, S10},
+    {{S10, ALPHA}, S10},
+    {{S10, DIGIT}, S10},
+    {{S10, WHITESPACE}, S10},
+    {{S10, NEWLINE}, WHITESPACE_STATE},
+
 };
 
 static const std::map<std::string, TokenType> keywords{
@@ -322,6 +384,8 @@ CharClass characterClass(char c) {
     return LBRACE;
   case '}':
     return RBRACE;
+  case '\n':
+    return NEWLINE;
   default:
     if (std::set<char>{'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E',
                        'F'}
