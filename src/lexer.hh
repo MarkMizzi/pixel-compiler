@@ -67,10 +67,9 @@ enum TokenType {
   ARROW,         // ->
   COLON_TOK,     // :
   SEMICOLON_TOK, // ;
-  DOT_TOK,       // .
 
-  WHITESPACE, // comments, and whitespace.
-  END,        // EOF
+  WHITESPACE_TOK, // comments, and whitespace.
+  END,            // EOF
 };
 
 struct Token {

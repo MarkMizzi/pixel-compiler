@@ -2,6 +2,7 @@
 
 #include <cctype>
 #include <map>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -40,8 +41,19 @@ enum LexerState {
   ARROW_STATE,
   COLON_STATE,
   SEMICOLON_STATE,
-  DOT_STATE,
 
+  WHITESPACE_STATE,
+
+  // intermediate states
+  S0,
+  S1,
+
+  S2,
+  S3,
+  S4,
+  S5,
+  S6,
+  S7,
 };
 
 enum CharClass {
@@ -63,8 +75,10 @@ enum CharClass {
   RBRACKET,    // )
   LBRACE,      // {
   RBRACE,      // }
-  ALPHA,       // [a-zA-Z]
+  HEX,         // [a-fA-F]
+  ALPHA,       // [g-zG-Z]
   DIGIT,       // [0-9]
+  WHITESPACE,  // [\n\r\t\v\f]
 };
 
 using LexerTransitionTable =
@@ -77,11 +91,68 @@ TokenType tokenType(LexerState finalState);
 CharClass characterClass(char c);
 
 // the lexer's transition table
-static const LexerTransitionTable tt{{{START, COMMA}, COMMA_STATE},
-                                     {{START, GREATER}, GREATER_STATE},
-                                     {{GREATER_STATE, EQ}, GE_STATE},
-                                     {{START, LESS}, LESS_STATE},
-                                     {{LESS_STATE, EQ}, LE_STATE}};
+static const LexerTransitionTable tt{
+    // identifiers
+    {{START, ALPHA}, {IDENTIFIER_STATE}},
+    {{START, HEX}, {IDENTIFIER_STATE}},
+    {{IDENTIFIER_STATE, ALPHA}, IDENTIFIER_STATE},
+    {{IDENTIFIER_STATE, HEX}, IDENTIFIER_STATE},
+    {{IDENTIFIER_STATE, DIGIT}, IDENTIFIER_STATE},
+    {{IDENTIFIER_STATE, UNDERSCORE}, IDENTIFIER_STATE},
+
+    // integer and float literals
+    {{START, DIGIT}, INTEGER_LITERAL_STATE},
+    {{INTEGER_LITERAL_STATE, DIGIT}, INTEGER_LITERAL_STATE},
+    {{INTEGER_LITERAL_STATE, DOT}, S0},
+    {{S0, DIGIT}, FLOAT_LITERAL_STATE},
+    {{FLOAT_LITERAL_STATE, DIGIT}, FLOAT_LITERAL_STATE},
+
+    // colour literals
+    {{START, HASH}, S2},
+    {{S2, HEX}, S3},
+    {{S3, HEX}, S4},
+    {{S4, HEX}, S5},
+    {{S5, HEX}, S6},
+    {{S6, HEX}, S7},
+    {{S7, HEX}, COLOUR_LITERAL_STATE},
+
+    // ,
+    {{START, COMMA}, COMMA_STATE},
+
+    // =, ==
+    {{START, EQ}, ASSIGN_STATE},
+    {{ASSIGN_STATE, EQ}, EQ_STATE},
+
+    // !=
+    {{START, EXCLAMATION}, S1},
+    {{S1, EQ}, NEQ_STATE},
+
+    // >, >=
+    {{START, GREATER}, GREATER_STATE},
+    {{GREATER_STATE, EQ}, GE_STATE},
+
+    // <, <=
+    {{START, LESS}, LESS_STATE},
+    {{LESS_STATE, EQ}, LE_STATE},
+
+    // -, ->
+    {{START, MINUS}, MINUS_STATE},
+    {{MINUS_STATE, GREATER}, ARROW_STATE},
+
+    // +, *, (, ), {, }, :, ;
+    {{START, PLUS}, PLUS_STATE},
+    {{START, STAR}, STAR_STATE},
+    {{START, LBRACKET}, LBRACKET_STATE},
+    {{START, RBRACKET}, RBRACKET_STATE},
+    {{START, LBRACE}, LBRACE_STATE},
+    {{START, RBRACE}, RBRACE_STATE},
+    {{START, COLON}, COLON_STATE},
+    {{START, SEMICOLON}, SEMICOLON_STATE},
+
+    // whitespace
+    {{START, WHITESPACE}, WHITESPACE_STATE},
+    {{WHITESPACE_STATE, WHITESPACE}, WHITESPACE_STATE},
+};
 
 static const std::map<std::string, TokenType> keywords{
     {"true", TokenType::TRUE_LITERAL},
@@ -112,7 +183,7 @@ static const std::map<std::string, TokenType> keywords{
 Token Lexer::GetNextToken() {
   Token token;
   // filter out whitespace tokens.
-  while ((token = nextToken()).type == WHITESPACE)
+  while ((token = nextToken()).type == TokenType::WHITESPACE_TOK)
     ;
   // check if an identifier is actually a keyword.
   if (token.type == TokenType::IDENTIFIER && keywords.count(token.value)) {
@@ -205,8 +276,8 @@ TokenType tokenType(LexerState finalState) {
     return COLON_TOK;
   case SEMICOLON_STATE:
     return SEMICOLON_TOK;
-  case DOT_STATE:
-    return DOT_TOK;
+  case WHITESPACE_STATE:
+    return WHITESPACE_TOK;
   default:
     throw std::logic_error("Called tokenType() with invalid state " +
                            std::to_string(finalState));
@@ -252,11 +323,19 @@ CharClass characterClass(char c) {
   case '}':
     return RBRACE;
   default:
+    if (std::set<char>{'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E',
+                       'F'}
+            .count(c)) {
+      return HEX;
+    }
     if (isalpha(c)) {
       return ALPHA;
     }
     if (isdigit(c)) {
       return DIGIT;
+    }
+    if (isspace(c)) {
+      return WHITESPACE;
     }
     throw LexerError("Unrecognized character " + std::string{c});
   }
