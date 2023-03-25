@@ -7,8 +7,10 @@
 namespace lexer {
 
 class LexerError : public std::runtime_error {
-  // inherit constructors.
-  using std::runtime_error::runtime_error;
+public:
+  LexerError(std::string errmsg, size_t line, size_t col)
+      : std::runtime_error("Lexer error at [" + std::to_string(line) + ":" +
+                           std::to_string(col) + "]: " + errmsg) {}
 };
 
 enum TokenType {
@@ -80,6 +82,7 @@ struct Token {
 class Lexer {
 private:
   std::string input;
+  size_t line = 0, col = 0;
 
   // internal, table-driven lexing function
   Token nextToken();

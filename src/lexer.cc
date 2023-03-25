@@ -84,6 +84,8 @@ enum CharClass {
   DIGIT,       // [0-9]
   NEWLINE,     // \n
   WHITESPACE,  // [\r\t\v\f]
+
+  UNRECOGNIZED, // error character class.
 };
 
 using LexerTransitionTable =
@@ -256,7 +258,7 @@ Token Lexer::GetNextToken() {
       // the spec explicitly forbids identifiers that start with an underscore.
       // Some keywords start with an underscore, so we handle this here instead
       // of in the lexer.
-      throw LexerError("Identifier cannot start with _.");
+      throw LexerError("Identifier cannot start with _.", line, col);
     }
   }
   return token;
@@ -274,6 +276,10 @@ Token Lexer::nextToken() {
     char c = input[0];
     CharClass cclass = characterClass(c);
 
+    if (cclass == UNRECOGNIZED) {
+      throw LexerError("Unrecognized character", line, col);
+    }
+
     if (!tt.count({state, cclass})) {
       // no transition to make
       break;
@@ -282,11 +288,17 @@ Token Lexer::nextToken() {
     state = tt.at({state, cclass});
     token.value.push_back(c);
     input.erase(0, 1);
+    if (c == '\n') {
+      line++;
+      col = 0;
+    } else {
+      col++;
+    }
   }
 
   if (state == LexerState::ERROR_STATE) {
     // bad character encountered.
-    throw LexerError("Hit lexer error");
+    throw LexerError("Lexer got into bad state", line, col);
   }
 
   token.type = tokenType(state);
@@ -411,7 +423,7 @@ CharClass characterClass(char c) {
     if (isspace(c)) {
       return WHITESPACE;
     }
-    throw LexerError("Unrecognized character " + std::string{c});
+    return UNRECOGNIZED;
   }
 }
 
