@@ -19,3 +19,12 @@ add_executable(pixarc
   src/lexer.cc
   src/parser.cc
   src/main.cc)
+
+add_executable(pixarc_tests
+  src/lexer.hh
+  src/parser.hh
+  src/lexer.cc
+  src/parser.cc
+  tests/lexer_tests.cc)
+
+target_link_libraries(pixarc_tests PRIVATE Catch2::Catch2WithMain)
