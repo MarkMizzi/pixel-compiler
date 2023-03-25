@@ -9,6 +9,12 @@ namespace parser {
 
 struct Location {
   size_t sline, scol, eline, ecol;
+
+  Location merge(Location &other) {
+    return Location{
+        std::min(this->sline, other.sline), std::min(this->scol, other.scol),
+        std::max(this->eline, other.eline), std::max(this->ecol, other.ecol)};
+  }
 };
 
 class ASTNode {

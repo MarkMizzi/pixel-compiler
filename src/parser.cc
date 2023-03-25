@@ -56,8 +56,8 @@ ExprNodePtr Parser::parseExpr() {
     BinaryExprNode::BinaryOp op = tokenTypeToBinaryOp(consume().type);
     ExprNodePtr right = parseSimpleExpr();
 
-    return std::make_unique<BinaryExprNode>(op, std::move(left),
-                                            std::move(right), Location{});
+    return std::make_unique<BinaryExprNode>(
+        op, std::move(left), std::move(right), left->loc.merge(right->loc));
   }
   default:
     return left;
