@@ -77,6 +77,7 @@ enum TokenType {
 struct Token {
   TokenType type;
   std::string value;
+  size_t sline, scol, eline, ecol;
 };
 
 class Lexer {

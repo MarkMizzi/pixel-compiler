@@ -268,7 +268,12 @@ Token Lexer::nextToken() {
   LexerState state = START;
   Token token;
 
+  token.sline = line;
+  token.scol = col;
+
   if (input.empty()) {
+    token.eline = token.sline;
+    token.ecol = token.scol;
     return {TokenType::END, ""};
   }
 
@@ -302,6 +307,8 @@ Token Lexer::nextToken() {
   }
 
   token.type = tokenType(state);
+  token.eline = line;
+  token.ecol = col;
   return token;
 }
 
