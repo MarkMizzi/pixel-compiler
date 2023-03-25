@@ -15,6 +15,7 @@ include_directories(src)
 
 add_executable(pixarc
   src/lexer.hh
+  src/ast.hh
   src/parser.hh
   src/lexer.cc
   src/parser.cc
@@ -22,6 +23,7 @@ add_executable(pixarc
 
 add_executable(pixarc_tests
   src/lexer.hh
+  src/ast.hh
   src/parser.hh
   src/lexer.cc
   src/parser.cc
