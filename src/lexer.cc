@@ -14,36 +14,11 @@ enum LexerState {
   ERROR_STATE,
 
   // literals
-  TRUE_STATE,
-  FALSE_STATE,
   INTEGER_LITERAL_STATE,
   FLOAT_LITERAL_STATE,
   COLOUR_LITERAL_STATE,
 
   IDENTIFIER_STATE,
-
-  // typenames
-  FLOAT_STATE,
-  INT_STATE,
-  BOOL_STATE,
-  COLOUR_STATE,
-
-  // keywords
-  PAD_WIDTH_STATE,
-  PAD_HEIGHT_STATE,
-  READ_STATE,
-  RANDI_STATE,
-  LET_STATE,
-  PRINT_STATE,
-  DELAY_STATE,
-  PIXELR_STATE,
-  PIXEL_STATE,
-  RETURN_STATE,
-  IF_STATE,
-  ELSE_STATE,
-  FOR_STATE,
-  WHILE_STATE,
-  FUN_STATE,
 
   // operators
   COMMA_STATE,
@@ -58,9 +33,6 @@ enum LexerState {
   STAR_STATE,
   DIV_STATE,
   ASSIGN_STATE,
-  AND_STATE,
-  OR_STATE,
-  NOT_STATE,
   LBRACKET_STATE,
   RBRACKET_STATE,
   LBRACE_STATE,
@@ -73,26 +45,6 @@ enum LexerState {
 };
 
 enum CharClass {
-  A,
-  B,
-  C,
-  D,
-  E,
-  F,
-  G,
-  H,
-  I,
-  L,
-  N,
-  O,
-  P,
-  R,
-  S,
-  T,
-  U,
-  W,
-  X,
-  Y,
   HASH,        // #
   UNDERSCORE,  // _
   COMMA,       // ,
@@ -111,7 +63,7 @@ enum CharClass {
   RBRACKET,    // )
   LBRACE,      // {
   RBRACE,      // }
-  ALPHA,       // [a-z] that doesn't have its own character class.
+  ALPHA,       // [a-zA-Z]
   DIGIT,       // [0-9]
 };
 
@@ -121,20 +73,51 @@ using LexerTransitionTable =
 // return the token type corresponding to the final state of the lexer.
 TokenType tokenType(LexerState finalState);
 
-// is this state a final state of the lexer?
-bool isFinal(LexerState state);
-
 // return the character class of c.
 CharClass characterClass(char c);
 
 // the lexer's transition table
-static const LexerTransitionTable tt{{{START, COMMA}, COMMA_STATE}};
+static const LexerTransitionTable tt{{{START, COMMA}, COMMA_STATE},
+                                     {{START, GREATER}, GREATER_STATE},
+                                     {{GREATER_STATE, EQ}, GE_STATE},
+                                     {{START, LESS}, LESS_STATE},
+                                     {{LESS_STATE, EQ}, LE_STATE}};
+
+static const std::map<std::string, TokenType> keywords{
+    {"true", TokenType::TRUE_LITERAL},
+    {"false", TokenType::FALSE_LITERAL},
+    {"float", TokenType::FLOAT},
+    {"int", TokenType::INT},
+    {"bool", TokenType::BOOL},
+    {"colour", TokenType::COLOUR},
+    {"__width", TokenType::PAD_WIDTH},
+    {"__height", TokenType::PAD_HEIGHT},
+    {"__read", TokenType::READ},
+    {"__randi", TokenType::RANDI},
+    {"let", TokenType::LET},
+    {"__print", TokenType::PRINT},
+    {"__delay", TokenType::DELAY},
+    {"__pixelr", TokenType::PIXELR},
+    {"__pixel", TokenType::PIXEL},
+    {"return", TokenType::RETURN},
+    {"if", TokenType::IF},
+    {"else", TokenType::ELSE},
+    {"for", TokenType::FOR},
+    {"while", TokenType::WHILE},
+    {"fun", TokenType::FUN},
+    {"and", TokenType::AND},
+    {"or", TokenType::OR},
+    {"not", TokenType::NOT}};
 
 Token Lexer::GetNextToken() {
   Token token;
   // filter out whitespace tokens.
   while ((token = nextToken()).type == WHITESPACE)
     ;
+  // check if an identifier is actually a keyword.
+  if (token.type == TokenType::IDENTIFIER && keywords.count(token.value)) {
+    token.type = keywords.at(token.value);
+  }
   return token;
 }
 
@@ -173,10 +156,6 @@ TokenType tokenType(LexerState finalState) {
 
   switch (finalState) {
     // literals
-  case TRUE_STATE:
-    return TRUE_LITERAL;
-  case FALSE_STATE:
-    return FALSE_LITERAL;
   case INTEGER_LITERAL_STATE:
     return INTEGER_LITERAL;
   case FLOAT_LITERAL_STATE:
@@ -186,48 +165,6 @@ TokenType tokenType(LexerState finalState) {
 
   case IDENTIFIER_STATE:
     return IDENTIFIER;
-
-    // typenames
-  case FLOAT_STATE:
-    return FLOAT;
-  case INT_STATE:
-    return INT;
-  case BOOL_STATE:
-    return BOOL;
-  case COLOUR_STATE:
-    return COLOUR;
-
-    // keywords
-  case PAD_WIDTH_STATE:
-    return PAD_WIDTH;
-  case PAD_HEIGHT_STATE:
-    return PAD_HEIGHT;
-  case READ_STATE:
-    return READ;
-  case RANDI_STATE:
-    return RANDI;
-  case LET_STATE:
-    return LET;
-  case PRINT_STATE:
-    return PRINT;
-  case DELAY_STATE:
-    return DELAY;
-  case PIXELR_STATE:
-    return PIXELR;
-  case PIXEL_STATE:
-    return PIXEL;
-  case RETURN_STATE:
-    return RETURN;
-  case IF_STATE:
-    return IF;
-  case ELSE_STATE:
-    return ELSE;
-  case FOR_STATE:
-    return FOR;
-  case WHILE_STATE:
-    return WHILE;
-  case FUN_STATE:
-    return FUN;
 
     // operators
   case COMMA_STATE:
@@ -254,12 +191,6 @@ TokenType tokenType(LexerState finalState) {
     return DIV_TOK;
   case ASSIGN_STATE:
     return ASSIGN;
-  case AND_STATE:
-    return AND;
-  case OR_STATE:
-    return OR;
-  case NOT_STATE:
-    return NOT;
   case LBRACKET_STATE:
     return LBRACKET_TOK;
   case RBRACKET_STATE:
@@ -282,113 +213,8 @@ TokenType tokenType(LexerState finalState) {
   }
 }
 
-bool isFinal(LexerState state) {
-
-  switch (state) {
-    // literals
-  case TRUE_STATE:
-  case FALSE_STATE:
-  case INTEGER_LITERAL_STATE:
-  case FLOAT_LITERAL_STATE:
-  case COLOUR_LITERAL_STATE:
-
-  case IDENTIFIER_STATE:
-
-    // typenames
-  case FLOAT_STATE:
-  case INT_STATE:
-  case BOOL_STATE:
-  case COLOUR_STATE:
-
-    // keywords
-  case PAD_WIDTH_STATE:
-  case PAD_HEIGHT_STATE:
-  case READ_STATE:
-  case RANDI_STATE:
-  case LET_STATE:
-  case PRINT_STATE:
-  case DELAY_STATE:
-  case PIXELR_STATE:
-  case PIXEL_STATE:
-  case RETURN_STATE:
-  case IF_STATE:
-  case ELSE_STATE:
-  case FOR_STATE:
-  case WHILE_STATE:
-  case FUN_STATE:
-
-    // operators
-  case COMMA_STATE:
-  case GREATER_STATE:
-  case LESS_STATE:
-  case EQ_STATE:
-  case NEQ_STATE:
-  case GE_STATE:
-  case LE_STATE:
-  case PLUS_STATE:
-  case MINUS_STATE:
-  case STAR_STATE:
-  case DIV_STATE:
-  case ASSIGN_STATE:
-  case AND_STATE:
-  case OR_STATE:
-  case NOT_STATE:
-  case LBRACKET_STATE:
-  case RBRACKET_STATE:
-  case LBRACE_STATE:
-  case RBRACE_STATE:
-  case ARROW_STATE:
-  case COLON_STATE:
-  case SEMICOLON_STATE:
-  case DOT_STATE:
-    return true;
-  default:
-    return false;
-  }
-}
-
 CharClass characterClass(char c) {
   switch (c) {
-  case 'a':
-    return A;
-  case 'b':
-    return B;
-  case 'c':
-    return C;
-  case 'd':
-    return D;
-  case 'e':
-    return E;
-  case 'f':
-    return F;
-  case 'g':
-    return G;
-  case 'h':
-    return H;
-  case 'i':
-    return I;
-  case 'l':
-    return L;
-  case 'n':
-    return N;
-  case 'o':
-    return O;
-  case 'p':
-    return P;
-  case 'r':
-    return R;
-  case 's':
-    return S;
-  case 't':
-    return T;
-  case 'u':
-    return U;
-  case 'w':
-    return W;
-  case 'x':
-    return X;
-  case 'y':
-    return Y;
   case '#':
     return HASH;
   case '_':
