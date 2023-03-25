@@ -100,6 +100,7 @@ static const LexerTransitionTable tt{
     // identifiers
     {{START, ALPHA}, {IDENTIFIER_STATE}},
     {{START, HEX}, {IDENTIFIER_STATE}},
+    {{START, UNDERSCORE}, {IDENTIFIER_STATE}},
     {{IDENTIFIER_STATE, ALPHA}, IDENTIFIER_STATE},
     {{IDENTIFIER_STATE, HEX}, IDENTIFIER_STATE},
     {{IDENTIFIER_STATE, DIGIT}, IDENTIFIER_STATE},
@@ -248,8 +249,15 @@ Token Lexer::GetNextToken() {
   while ((token = nextToken()).type == TokenType::WHITESPACE_TOK)
     ;
   // check if an identifier is actually a keyword.
-  if (token.type == TokenType::IDENTIFIER && keywords.count(token.value)) {
-    token.type = keywords.at(token.value);
+  if (token.type == TokenType::IDENTIFIER) {
+    if (keywords.count(token.value)) {
+      token.type = keywords.at(token.value);
+    } else if (token.value[0] == '_') {
+      // the spec explicitly forbids identifiers that start with an underscore.
+      // Some keywords start with an underscore, so we handle this here instead
+      // of in the lexer.
+      throw LexerError("Identifier cannot start with _.");
+    }
   }
   return token;
 }
