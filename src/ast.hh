@@ -3,6 +3,7 @@
 
 #include "visitor.hh"
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <vector>
@@ -34,6 +35,7 @@ public:
   ASTNode(Location loc) : loc(loc) {}
 
   virtual void accept(AbstractVisitor *v) = 0;
+  virtual std::vector<ASTNode *> children() = 0;
 };
 
 class ExprNode : public ASTNode {
@@ -71,6 +73,9 @@ public:
         right(std::move(right)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override {
+    return {left.get(), right.get()};
+  };
 };
 
 class UnaryExprNode : public ExprNode {
@@ -89,6 +94,7 @@ public:
       : ExprNode(loc), op(op), operand(std::move(operand)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {operand.get()}; };
 };
 
 class FunctionCallNode : public ExprNode {
@@ -102,6 +108,12 @@ public:
       : ExprNode(loc), funcName(funcName), args(std::move(args)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override {
+    std::vector<ASTNode *> children(args.size());
+    std::transform(args.begin(), args.end(), children.begin(),
+                   [](ExprNodePtr &arg) { return arg.get(); });
+    return children;
+  };
 };
 
 class IdExprNode : public ExprNode {
@@ -112,6 +124,7 @@ public:
   IdExprNode(std::string &id, Location loc) : ExprNode(loc), id(id) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {}; };
 };
 
 class BoolLiteralExprNode : public ExprNode {
@@ -122,6 +135,7 @@ public:
   BoolLiteralExprNode(bool x, Location loc) : ExprNode(loc), x(x) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {}; };
 };
 
 class IntLiteralExprNode : public ExprNode {
@@ -132,6 +146,7 @@ public:
   IntLiteralExprNode(int x, Location loc) : ExprNode(loc), x(x) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {}; };
 };
 
 class FloatLiteralExprNode : public ExprNode {
@@ -142,6 +157,7 @@ public:
   FloatLiteralExprNode(float x, Location loc) : ExprNode(loc), x(x) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {}; };
 };
 
 class ColourLiteralExprNode : public ExprNode {
@@ -153,6 +169,7 @@ public:
       : ExprNode(loc), colour(colour) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {}; };
 };
 
 class PadWidthExprNode : public ExprNode {
@@ -160,6 +177,7 @@ public:
   using ExprNode::ExprNode;
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {}; };
 };
 
 class PadHeightExprNode : public ExprNode {
@@ -167,6 +185,7 @@ public:
   using ExprNode::ExprNode;
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {}; };
 };
 
 class ReadExprNode : public ExprNode {
@@ -178,17 +197,19 @@ public:
       : ExprNode(loc), x(std::move(x)), y(std::move(y)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {x.get(), y.get()}; };
 };
 
 class RandiExprNode : public ExprNode {
 private:
-  ExprNodePtr op;
+  ExprNodePtr operand;
 
 public:
-  RandiExprNode(ExprNodePtr &&op, Location loc)
-      : ExprNode(loc), op(std::move(op)) {}
+  RandiExprNode(ExprNodePtr &&operand, Location loc)
+      : ExprNode(loc), operand(std::move(operand)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {operand.get()}; };
 };
 
 class StmtNode : public ASTNode {
@@ -208,6 +229,7 @@ public:
       : StmtNode(loc), id(id), expr(std::move(expr)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {expr.get()}; };
 };
 
 class VariableDeclStmt : public StmtNode {
@@ -222,6 +244,7 @@ public:
       : StmtNode(loc), id(id), type(type), initExpr(std::move(initExpr)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {initExpr.get()}; };
 };
 
 class PrintStmt : public StmtNode {
@@ -233,6 +256,7 @@ public:
       : StmtNode(loc), expr(std::move(expr)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {expr.get()}; };
 };
 
 class DelayStmt : public StmtNode {
@@ -244,6 +268,7 @@ public:
       : StmtNode(loc), expr(std::move(expr)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {expr.get()}; };
 };
 
 class PixelStmt : public StmtNode {
@@ -258,6 +283,9 @@ public:
         colour(std::move(colour)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override {
+    return {x.get(), y.get(), colour.get()};
+  };
 };
 
 class PixelRStmt : public StmtNode {
@@ -273,6 +301,9 @@ public:
         h(std::move(h)), colour(std::move(colour)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override {
+    return {x.get(), y.get(), w.get(), h.get(), colour.get()};
+  };
 };
 
 class ReturnStmt : public StmtNode {
@@ -284,6 +315,7 @@ public:
       : StmtNode(loc), expr(std::move(expr)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {expr.get()}; };
 };
 
 class IfElseStmt : public StmtNode {
@@ -299,6 +331,16 @@ public:
         elseBody(std::move(elseBody)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override {
+    std::vector<ASTNode *> children(ifBody.size() + elseBody.size());
+    children[0] = cond.get();
+    std::transform(ifBody.begin(), ifBody.end(), children.begin() + 1,
+                   [](StmtNodePtr &stmt) { return stmt.get(); });
+    std::transform(elseBody.begin(), elseBody.end(),
+                   children.begin() + ifBody.size() + 1,
+                   [](StmtNodePtr &stmt) { return stmt.get(); });
+    return children;
+  }
 };
 
 class ForStmt : public StmtNode {
@@ -315,6 +357,15 @@ public:
         assignment(std::move(assignment)), body(std::move(body)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override {
+    std::vector<ASTNode *> children(3 + body.size());
+    children[0] = varDecl.get();
+    children[1] = cond.get();
+    children[2] = assignment.get();
+    std::transform(body.begin(), body.end(), children.begin() + 3,
+                   [](StmtNodePtr &stmt) { return stmt.get(); });
+    return children;
+  }
 };
 
 class WhileStmt : public StmtNode {
@@ -327,6 +378,13 @@ public:
       : StmtNode(loc), cond(std::move(cond)), body(std::move(body)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override {
+    std::vector<ASTNode *> children(1 + body.size());
+    children[0] = cond.get();
+    std::transform(body.begin(), body.end(), children.begin() + 1,
+                   [](StmtNodePtr &stmt) { return stmt.get(); });
+    return children;
+  }
 };
 
 using FormalParam = std::pair<std::string, Type>;
@@ -345,6 +403,12 @@ public:
         body(std::move(body)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override {
+    std::vector<ASTNode *> children(body.size());
+    std::transform(body.begin(), body.end(), children.begin(),
+                   [](StmtNodePtr &stmt) { return stmt.get(); });
+    return children;
+  }
 };
 
 class BlockStmt : public StmtNode {
@@ -356,6 +420,12 @@ public:
       : StmtNode(loc), body(std::move(body)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override {
+    std::vector<ASTNode *> children(body.size());
+    std::transform(body.begin(), body.end(), children.begin(),
+                   [](StmtNodePtr &stmt) { return stmt.get(); });
+    return children;
+  }
 };
 
 } // namespace parser

@@ -3,6 +3,8 @@
 
 namespace parser {
 
+class ASTNode;
+
 class BinaryExprNode;
 class UnaryExprNode;
 class FunctionCallNode;
@@ -56,6 +58,8 @@ public:
   virtual void visit(WhileStmt &node) = 0;
   virtual void visit(FuncDeclStmt &node) = 0;
   virtual void visit(BlockStmt &node) = 0;
+
+  void visitChildren(ASTNode *node);
 };
 
 } // namespace parser
