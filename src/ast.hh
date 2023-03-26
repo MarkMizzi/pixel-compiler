@@ -301,9 +301,9 @@ public:
 
 class ForStmt : public StmtNode {
 private:
-  std::unique_ptr<VariableDeclStmt> varDecl;
+  ExprNodePtr varDecl;
   ExprNodePtr cond;
-  std::unique_ptr<AssignmentStmt> assignment;
+  ExprNodePtr assignment;
   std::vector<StmtNodePtr> body;
 
 public:
