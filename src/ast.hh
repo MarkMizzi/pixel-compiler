@@ -171,11 +171,11 @@ public:
 
 class ReadExprNode : public ExprNode {
 private:
-  ExprNodePtr op1, op2;
+  ExprNodePtr x, y;
 
 public:
-  ReadExprNode(ExprNodePtr &&op1, ExprNodePtr &&op2, Location loc)
-      : ExprNode(loc), op1(std::move(op1)), op2(std::move(op2)) {}
+  ReadExprNode(ExprNodePtr &&x, ExprNodePtr &&y, Location loc)
+      : ExprNode(loc), x(std::move(x)), y(std::move(y)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
 };
@@ -244,6 +244,31 @@ public:
       : StmtNode(loc), expr(std::move(expr)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
+};
+
+class PixelStmt : public StmtNode {
+private:
+  ExprNodePtr x, y;
+  ExprNodePtr colour;
+
+public:
+  PixelStmt(ExprNodePtr &&x, ExprNodePtr &&y, ExprNodePtr &&colour,
+            Location loc)
+      : StmtNode(loc), x(std::move(x)), y(std::move(y)),
+        colour(std::move(colour)) {}
+};
+
+class PixelRStmt : public StmtNode {
+private:
+  ExprNodePtr x, y;
+  ExprNodePtr w, h;
+  ExprNodePtr colour;
+
+public:
+  PixelRStmt(ExprNodePtr &&x, ExprNodePtr &&y, ExprNodePtr &&w, ExprNodePtr &&h,
+             ExprNodePtr &&colour, Location loc)
+      : StmtNode(loc), x(std::move(x)), y(std::move(y)), w(std::move(w)),
+        h(std::move(h)), colour(std::move(colour)) {}
 };
 
 // TODO: __pixelr, __pixel nodes.
