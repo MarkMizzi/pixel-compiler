@@ -16,6 +16,17 @@ class PadHeightExprNode;
 class ReadExprNode;
 class RandiExprNode;
 
+class AssignmentStmt;
+class VariableDeclStmt;
+class PrintStmt;
+class DelayStmt;
+class ReturnStmt;
+class IfElseStmt;
+class ForStmt;
+class WhileStmt;
+class FuncDeclStmt;
+class BlockStmt;
+
 class AbstractVisitor {
 public:
   virtual void visit(BinaryExprNode &node) = 0;
@@ -30,6 +41,17 @@ public:
   virtual void visit(PadHeightExprNode &node) = 0;
   virtual void visit(ReadExprNode &node) = 0;
   virtual void visit(RandiExprNode &node) = 0;
+
+  virtual void visit(AssignmentStmt &node) = 0;
+  virtual void visit(VariableDeclStmt &node) = 0;
+  virtual void visit(PrintStmt &node) = 0;
+  virtual void visit(DelayStmt &node) = 0;
+  virtual void visit(ReturnStmt &node) = 0;
+  virtual void visit(IfElseStmt &node) = 0;
+  virtual void visit(ForStmt &node) = 0;
+  virtual void visit(WhileStmt &node) = 0;
+  virtual void visit(FuncDeclStmt &node) = 0;
+  virtual void visit(BlockStmt &node) = 0;
 };
 
 } // namespace parser

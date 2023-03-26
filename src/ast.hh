@@ -19,6 +19,15 @@ struct Location {
   }
 };
 
+// since the number of types is finite, we can represent them using an enum,
+// rather than an AST node.
+enum Type {
+  FLOAT,
+  INT,
+  BOOL,
+  COLOUR,
+};
+
 class ASTNode {
 public:
   Location loc;
@@ -178,6 +187,147 @@ private:
 public:
   RandiExprNode(ExprNodePtr &&op, Location loc)
       : ExprNode(loc), op(std::move(op)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+};
+
+class StmtNode : public ASTNode {
+public:
+  using ASTNode::ASTNode;
+};
+
+using StmtNodePtr = std::unique_ptr<StmtNode>;
+
+class AssignmentStmt : public StmtNode {
+private:
+  std::string id;
+  ExprNodePtr expr;
+
+public:
+  AssignmentStmt(std::string &id, ExprNodePtr &&expr, Location loc)
+      : StmtNode(loc), id(id), expr(std::move(expr)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+};
+
+class VariableDeclStmt : public StmtNode {
+private:
+  std::string id;
+  Type type;
+  ExprNodePtr initExpr;
+
+public:
+  VariableDeclStmt(std::string &id, Type type, ExprNodePtr &&initExpr,
+                   Location loc)
+      : StmtNode(loc), id(id), type(type), initExpr(std::move(initExpr)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+};
+
+class PrintStmt : public StmtNode {
+private:
+  ExprNodePtr expr;
+
+public:
+  PrintStmt(ExprNodePtr &&expr, Location loc)
+      : StmtNode(loc), expr(std::move(expr)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+};
+
+class DelayStmt : public StmtNode {
+private:
+  ExprNodePtr expr;
+
+public:
+  DelayStmt(ExprNodePtr &&expr, Location loc)
+      : StmtNode(loc), expr(std::move(expr)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+};
+
+// TODO: __pixelr, __pixel nodes.
+
+class ReturnStmt : public StmtNode {
+private:
+  ExprNodePtr expr;
+
+public:
+  ReturnStmt(ExprNodePtr &&expr, Location loc)
+      : StmtNode(loc), expr(std::move(expr)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+};
+
+class IfElseStmt : public StmtNode {
+private:
+  ExprNodePtr cond;
+  std::vector<StmtNodePtr> ifBody;
+  std::vector<StmtNodePtr> elseBody;
+
+public:
+  IfElseStmt(ExprNodePtr &&cond, std::vector<StmtNodePtr> &&ifBody,
+             std::vector<StmtNodePtr> &&elseBody, Location loc)
+      : StmtNode(loc), cond(std::move(cond)), ifBody(std::move(ifBody)),
+        elseBody(std::move(elseBody)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+};
+
+class ForStmt : public StmtNode {
+private:
+  std::unique_ptr<VariableDeclStmt> varDecl;
+  ExprNodePtr cond;
+  std::unique_ptr<AssignmentStmt> assignment;
+  std::vector<StmtNodePtr> body;
+
+public:
+  ForStmt(std::unique_ptr<VariableDeclStmt> &&varDecl, ExprNodePtr &&cond,
+          std::unique_ptr<AssignmentStmt> &&assignment,
+          std::vector<StmtNodePtr> &&body, Location loc)
+      : StmtNode(loc), varDecl(std::move(varDecl)), cond(std::move(cond)),
+        assignment(std::move(assignment)), body(std::move(body)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+};
+
+class WhileStmt : public StmtNode {
+private:
+  ExprNodePtr cond;
+  std::vector<StmtNodePtr> body;
+
+public:
+  WhileStmt(ExprNodePtr &&cond, std::vector<StmtNodePtr> &&body, Location loc)
+      : StmtNode(loc), cond(std::move(cond)), body(std::move(body)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+};
+
+using FormalParam = std::pair<std::string, Type>;
+
+class FuncDeclStmt : public StmtNode {
+private:
+  std::string funcName;
+  std::vector<FormalParam> params;
+  Type retType;
+  std::vector<StmtNodePtr> body;
+
+public:
+  FuncDeclStmt(std::string &funcName, std::vector<FormalParam> &params,
+               Type retType, std::vector<StmtNodePtr> &&body, Location loc)
+      : StmtNode(loc), funcName(funcName), params(params), retType(retType),
+        body(std::move(body)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+};
+
+class BlockStmt : public StmtNode {
+private:
+  std::vector<StmtNodePtr> body;
+
+public:
+  BlockStmt(std::vector<StmtNodePtr> &&body, Location loc)
+      : StmtNode(loc), body(std::move(body)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
 };
