@@ -307,8 +307,7 @@ private:
   std::vector<StmtNodePtr> body;
 
 public:
-  ForStmt(std::unique_ptr<VariableDeclStmt> &&varDecl, ExprNodePtr &&cond,
-          std::unique_ptr<AssignmentStmt> &&assignment,
+  ForStmt(ExprNodePtr &&varDecl, ExprNodePtr &&cond, ExprNodePtr &&assignment,
           std::vector<StmtNodePtr> &&body, Location loc)
       : StmtNode(loc), varDecl(std::move(varDecl)), cond(std::move(cond)),
         assignment(std::move(assignment)), body(std::move(body)) {}
