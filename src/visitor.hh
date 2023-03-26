@@ -20,6 +20,8 @@ class AssignmentStmt;
 class VariableDeclStmt;
 class PrintStmt;
 class DelayStmt;
+class PixelStmt;
+class PixelRStmt;
 class ReturnStmt;
 class IfElseStmt;
 class ForStmt;
@@ -46,6 +48,8 @@ public:
   virtual void visit(VariableDeclStmt &node) = 0;
   virtual void visit(PrintStmt &node) = 0;
   virtual void visit(DelayStmt &node) = 0;
+  virtual void visit(PixelStmt &node) = 0;
+  virtual void visit(PixelRStmt &node) = 0;
   virtual void visit(ReturnStmt &node) = 0;
   virtual void visit(IfElseStmt &node) = 0;
   virtual void visit(ForStmt &node) = 0;

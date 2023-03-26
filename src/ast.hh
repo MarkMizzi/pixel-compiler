@@ -256,6 +256,8 @@ public:
             Location loc)
       : StmtNode(loc), x(std::move(x)), y(std::move(y)),
         colour(std::move(colour)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
 };
 
 class PixelRStmt : public StmtNode {
@@ -269,9 +271,9 @@ public:
              ExprNodePtr &&colour, Location loc)
       : StmtNode(loc), x(std::move(x)), y(std::move(y)), w(std::move(w)),
         h(std::move(h)), colour(std::move(colour)) {}
-};
 
-// TODO: __pixelr, __pixel nodes.
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+};
 
 class ReturnStmt : public StmtNode {
 private:
