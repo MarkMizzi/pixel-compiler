@@ -17,6 +17,7 @@ add_executable(pixarc
   src/lexer.hh
   src/ast.hh
   src/parser.hh
+  src/visitor.hh
   src/lexer.cc
   src/parser.cc
   src/main.cc)
@@ -25,6 +26,7 @@ add_executable(pixarc_tests
   src/lexer.hh
   src/ast.hh
   src/parser.hh
+  src/visitor.hh
   src/lexer.cc
   src/parser.cc
   tests/lexer_tests.cc)
