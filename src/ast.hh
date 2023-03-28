@@ -329,13 +329,13 @@ public:
 
 class ForStmt : public StmtNode {
 private:
-  ExprNodePtr varDecl;
+  StmtNodePtr varDecl;
   ExprNodePtr cond;
-  ExprNodePtr assignment;
+  StmtNodePtr assignment;
   StmtNodePtr body;
 
 public:
-  ForStmt(ExprNodePtr &&varDecl, ExprNodePtr &&cond, ExprNodePtr &&assignment,
+  ForStmt(StmtNodePtr &&varDecl, ExprNodePtr &&cond, StmtNodePtr &&assignment,
           StmtNodePtr &&body, Location loc)
       : StmtNode(loc), varDecl(std::move(varDecl)), cond(std::move(cond)),
         assignment(std::move(assignment)), body(std::move(body)) {}
@@ -371,10 +371,10 @@ private:
   StmtNodePtr body;
 
 public:
-  FuncDeclStmt(std::string &funcName, std::vector<FormalParam> &params,
+  FuncDeclStmt(std::string &funcName, std::vector<FormalParam> &&params,
                Typename retType, StmtNodePtr &&body, Location loc)
-      : StmtNode(loc), funcName(funcName), params(params), retType(retType),
-        body(std::move(body)) {}
+      : StmtNode(loc), funcName(funcName), params(std::move(params)),
+        retType(retType), body(std::move(body)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
   std::vector<ASTNode *> children() override { return {body.get()}; }
