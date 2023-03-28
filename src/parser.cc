@@ -223,11 +223,16 @@ StmtNodePtr Parser::parseAssignment() {
 
   ExprNodePtr expr = parseExpr();
 
-  lexer::Token semicolon = consume();
-  CHECK_TOKEN(semicolon, lexer::SEMICOLON_TOK);
+  Location loc = iden.loc.merge(expr->loc);
 
-  return std::make_unique<AssignmentStmt>(iden.value, std::move(expr),
-                                          iden.loc.merge(semicolon.loc));
+  if (peek(0).type != lexer::RBRACKET_TOK) {
+    // caters for the case when an assignment is used in a for loop.
+    lexer::Token semicolon = consume();
+    CHECK_TOKEN(semicolon, lexer::SEMICOLON_TOK);
+    loc.merge(semicolon.loc);
+  }
+
+  return std::make_unique<AssignmentStmt>(iden.value, std::move(expr), loc);
 }
 
 StmtNodePtr Parser::parsePrint() {
@@ -315,32 +320,6 @@ StmtNodePtr Parser::parsePixelR() {
       std::move(expr), loc.merge(semicolon.loc));
 }
 
-StmtNodePtr Parser::parseReturn() {
-  Location loc = consume().loc;
-
-  ExprNodePtr expr = parseExpr();
-
-  lexer::Token semicolon = consume();
-  CHECK_TOKEN(semicolon, lexer::SEMICOLON_TOK);
-
-  return std::make_unique<ReturnStmt>(std::move(expr),
-                                      loc.merge(semicolon.loc));
-}
-
-StmtNodePtr Parser::parseBlock() {
-  Location loc = consume().loc;
-
-  std::vector<StmtNodePtr> stmts;
-
-  while (peek(0).type != lexer::LBRACE_TOK) {
-    stmts.push_back(std::move(parseStatement()));
-  }
-
-  Location endloc = consume().loc; // consume }.
-
-  return std::make_unique<BlockStmt>(std::move(stmts), loc.merge(endloc));
-}
-
 StmtNodePtr Parser::parseIfElse() {
   Location loc = consume().loc; // consume if token.
 
@@ -365,6 +344,115 @@ StmtNodePtr Parser::parseIfElse() {
 
   return std::make_unique<IfElseStmt>(std::move(cond), std::move(ifBody),
                                       std::move(elseBody), loc);
+}
+
+StmtNodePtr Parser::parseFor() {
+  Location loc = consume().loc; // consume for token.
+
+  lexer::Token lbracket = consume();
+  CHECK_TOKEN(lbracket, lexer::LBRACKET_TOK);
+
+  StmtNodePtr varDecl = parseVariableDecl();
+
+  ExprNodePtr cond = parseExpr();
+
+  lexer::Token semicolon = consume();
+  CHECK_TOKEN(semicolon, lexer::SEMICOLON_TOK);
+
+  StmtNodePtr assignment = parseAssignment();
+
+  lexer::Token rbracket = consume();
+  CHECK_TOKEN(lbracket, lexer::RBRACKET_TOK);
+
+  StmtNodePtr body = parseBlock();
+
+  return std::make_unique<ForStmt>(std::move(varDecl), std::move(cond),
+                                   std::move(assignment), std::move(body),
+                                   loc.merge(body->loc));
+}
+
+StmtNodePtr Parser::parseWhile() {
+  Location loc = consume().loc; // consume while token.
+
+  lexer::Token lbracket = consume();
+  CHECK_TOKEN(lbracket, lexer::LBRACKET_TOK);
+
+  ExprNodePtr cond = parseExpr();
+
+  lexer::Token rbracket = consume();
+  CHECK_TOKEN(lbracket, lexer::RBRACKET_TOK);
+
+  StmtNodePtr body = parseBlock();
+
+  return std::make_unique<WhileStmt>(std::move(cond), std::move(body),
+                                     loc.merge(body->loc));
+}
+
+StmtNodePtr Parser::parseReturn() {
+  Location loc = consume().loc;
+
+  ExprNodePtr expr = parseExpr();
+
+  lexer::Token semicolon = consume();
+  CHECK_TOKEN(semicolon, lexer::SEMICOLON_TOK);
+
+  return std::make_unique<ReturnStmt>(std::move(expr),
+                                      loc.merge(semicolon.loc));
+}
+
+FormalParam Parser::parseFormalParam() {
+  lexer::Token iden = consume();
+  CHECK_TOKEN(iden, lexer::IDENTIFIER);
+
+  lexer::Token semicolon = consume();
+  CHECK_TOKEN(semicolon, lexer::SEMICOLON_TOK);
+
+  Typename type = parseTypename();
+
+  return {iden.value, type};
+}
+
+StmtNodePtr Parser::parseFun() {
+  Location loc = consume().loc; // consume fun token
+
+  lexer::Token iden = consume();
+  CHECK_TOKEN(iden, lexer::IDENTIFIER);
+
+  lexer::Token lbracket = consume();
+  CHECK_TOKEN(lbracket, lexer::LBRACKET_TOK);
+
+  std::vector<FormalParam> formalParams;
+
+  while (peek(0).type != lexer::RBRACKET_TOK) {
+    formalParams.push_back(parseFormalParam());
+  }
+
+  consume(); // consume ) token.
+
+  lexer::Token arrow = consume();
+  CHECK_TOKEN(arrow, lexer::ARROW);
+
+  Typename type = parseTypename();
+
+  StmtNodePtr body = parseBlock();
+
+  return std::make_unique<FuncDeclStmt>(iden.value, std::move(formalParams),
+                                        type, std::move(body),
+                                        loc.merge(body->loc));
+}
+
+StmtNodePtr Parser::parseBlock() {
+  Location loc = consume().loc;
+
+  std::vector<StmtNodePtr> stmts;
+
+  while (peek(0).type != lexer::LBRACE_TOK) {
+    stmts.push_back(std::move(parseStatement()));
+  }
+
+  Location endloc = consume().loc; // consume }.
+
+  return std::make_unique<BlockStmt>(std::move(stmts), loc.merge(endloc));
 }
 
 StmtNodePtr Parser::parseStatement() {

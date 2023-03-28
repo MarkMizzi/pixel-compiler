@@ -54,6 +54,8 @@ public:
 
   Typename parseTypename();
 
+  FormalParam parseFormalParam();
+
   StmtNodePtr parseVariableDecl();
   StmtNodePtr parseAssignment();
   StmtNodePtr parsePrint();
