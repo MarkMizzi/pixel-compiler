@@ -1,10 +1,10 @@
 #include "visitor.hh"
 #include "ast.hh"
 
-namespace parser {
+namespace ast {
 void AbstractVisitor::visitChildren(ASTNode *node) {
   for (ASTNode *node : node->children()) {
     node->accept(this);
   }
 }
-} // end namespace parser
+} // namespace ast

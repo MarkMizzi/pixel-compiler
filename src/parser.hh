@@ -47,28 +47,28 @@ private:
 public:
   Parser(lexer::Lexer *lexer) : lexer(lexer) {}
 
-  ExprNodePtr parseFactor();
-  ExprNodePtr parseTerm();
-  ExprNodePtr parseSimpleExpr();
-  ExprNodePtr parseExpr();
+  ast::ExprNodePtr parseFactor();
+  ast::ExprNodePtr parseTerm();
+  ast::ExprNodePtr parseSimpleExpr();
+  ast::ExprNodePtr parseExpr();
 
-  Typename parseTypename();
+  ast::Typename parseTypename();
 
-  FormalParam parseFormalParam();
+  ast::FormalParam parseFormalParam();
 
-  StmtNodePtr parseVariableDecl();
-  StmtNodePtr parseAssignment();
-  StmtNodePtr parsePrint();
-  StmtNodePtr parseDelay();
-  StmtNodePtr parsePixel();
-  StmtNodePtr parsePixelR();
-  StmtNodePtr parseIfElse();
-  StmtNodePtr parseFor();
-  StmtNodePtr parseWhile();
-  StmtNodePtr parseReturn();
-  StmtNodePtr parseFun();
-  StmtNodePtr parseBlock();
-  StmtNodePtr parseStatement();
+  ast::StmtNodePtr parseVariableDecl();
+  ast::StmtNodePtr parseAssignment();
+  ast::StmtNodePtr parsePrint();
+  ast::StmtNodePtr parseDelay();
+  ast::StmtNodePtr parsePixel();
+  ast::StmtNodePtr parsePixelR();
+  ast::StmtNodePtr parseIfElse();
+  ast::StmtNodePtr parseFor();
+  ast::StmtNodePtr parseWhile();
+  ast::StmtNodePtr parseReturn();
+  ast::StmtNodePtr parseFun();
+  ast::StmtNodePtr parseBlock();
+  ast::StmtNodePtr parseStatement();
 };
 } // namespace parser
 

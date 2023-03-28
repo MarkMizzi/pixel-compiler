@@ -1,7 +1,7 @@
 #ifndef VISITOR_H_
 #define VISITOR_H_
 
-namespace parser {
+namespace ast {
 
 class ASTNode;
 
@@ -62,6 +62,6 @@ public:
   void visitChildren(ASTNode *node);
 };
 
-} // namespace parser
+} // namespace ast
 
 #endif // VISITOR_H_

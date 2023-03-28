@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace parser {
+namespace ast {
 
 // since the number of types is finite, we can represent them using an enum,
 // rather than an AST node.
@@ -373,6 +373,6 @@ public:
   }
 };
 
-} // namespace parser
+} // namespace ast
 
 #endif // AST_H_
