@@ -332,42 +332,32 @@ private:
   ExprNodePtr varDecl;
   ExprNodePtr cond;
   ExprNodePtr assignment;
-  std::vector<StmtNodePtr> body;
+  StmtNodePtr body;
 
 public:
   ForStmt(ExprNodePtr &&varDecl, ExprNodePtr &&cond, ExprNodePtr &&assignment,
-          std::vector<StmtNodePtr> &&body, Location loc)
+          StmtNodePtr &&body, Location loc)
       : StmtNode(loc), varDecl(std::move(varDecl)), cond(std::move(cond)),
         assignment(std::move(assignment)), body(std::move(body)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
   std::vector<ASTNode *> children() override {
-    std::vector<ASTNode *> children(3 + body.size());
-    children[0] = varDecl.get();
-    children[1] = cond.get();
-    children[2] = assignment.get();
-    std::transform(body.begin(), body.end(), children.begin() + 3,
-                   [](StmtNodePtr &stmt) { return stmt.get(); });
-    return children;
+    return {varDecl.get(), cond.get(), assignment.get(), body.get()};
   }
 };
 
 class WhileStmt : public StmtNode {
 private:
   ExprNodePtr cond;
-  std::vector<StmtNodePtr> body;
+  StmtNodePtr body;
 
 public:
-  WhileStmt(ExprNodePtr &&cond, std::vector<StmtNodePtr> &&body, Location loc)
+  WhileStmt(ExprNodePtr &&cond, StmtNodePtr &&body, Location loc)
       : StmtNode(loc), cond(std::move(cond)), body(std::move(body)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
   std::vector<ASTNode *> children() override {
-    std::vector<ASTNode *> children(1 + body.size());
-    children[0] = cond.get();
-    std::transform(body.begin(), body.end(), children.begin() + 1,
-                   [](StmtNodePtr &stmt) { return stmt.get(); });
-    return children;
+    return {cond.get(), body.get()};
   }
 };
 
@@ -378,35 +368,30 @@ private:
   std::string funcName;
   std::vector<FormalParam> params;
   Typename retType;
-  std::vector<StmtNodePtr> body;
+  StmtNodePtr body;
 
 public:
   FuncDeclStmt(std::string &funcName, std::vector<FormalParam> &params,
-               Typename retType, std::vector<StmtNodePtr> &&body, Location loc)
+               Typename retType, StmtNodePtr &&body, Location loc)
       : StmtNode(loc), funcName(funcName), params(params), retType(retType),
         body(std::move(body)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
-  std::vector<ASTNode *> children() override {
-    std::vector<ASTNode *> children(body.size());
-    std::transform(body.begin(), body.end(), children.begin(),
-                   [](StmtNodePtr &stmt) { return stmt.get(); });
-    return children;
-  }
+  std::vector<ASTNode *> children() override { return {body.get()}; }
 };
 
 class BlockStmt : public StmtNode {
 private:
-  std::vector<StmtNodePtr> body;
+  std::vector<StmtNodePtr> stmts;
 
 public:
-  BlockStmt(std::vector<StmtNodePtr> &&body, Location loc)
-      : StmtNode(loc), body(std::move(body)) {}
+  BlockStmt(std::vector<StmtNodePtr> &&stmts, Location loc)
+      : StmtNode(loc), stmts(std::move(stmts)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
   std::vector<ASTNode *> children() override {
-    std::vector<ASTNode *> children(body.size());
-    std::transform(body.begin(), body.end(), children.begin(),
+    std::vector<ASTNode *> children(stmts.size());
+    std::transform(stmts.begin(), stmts.end(), children.begin(),
                    [](StmtNodePtr &stmt) { return stmt.get(); });
     return children;
   }
