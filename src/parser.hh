@@ -60,6 +60,12 @@ public:
   StmtNodePtr parseDelay();
   StmtNodePtr parsePixel();
   StmtNodePtr parsePixelR();
+  StmtNodePtr parseIfElse();
+  StmtNodePtr parseFor();
+  StmtNodePtr parseWhile();
+  StmtNodePtr parseReturn();
+  StmtNodePtr parseFun();
+  StmtNodePtr parseBlock();
   StmtNodePtr parseStatement();
 };
 } // namespace parser

@@ -252,6 +252,32 @@ StmtNodePtr Parser::parseDelay() {
   return std::make_unique<DelayStmt>(std::move(expr), loc.merge(semicolon.loc));
 }
 
+StmtNodePtr Parser::parsePixel() {
+  lexer::Token comma;
+  Location loc = consume().loc;
+
+  ExprNodePtr xExpr = parseExpr();
+
+  comma = consume();
+  CHECK_TOKEN(comma, lexer::COMMA_TOK);
+
+  ExprNodePtr yExpr = parseExpr();
+
+  comma = consume();
+  CHECK_TOKEN(comma, lexer::COMMA_TOK);
+
+  ExprNodePtr expr = parseExpr();
+
+  comma = consume();
+  CHECK_TOKEN(comma, lexer::COMMA_TOK);
+
+  lexer::Token semicolon = consume();
+  CHECK_TOKEN(semicolon, lexer::SEMICOLON_TOK);
+
+  return std::make_unique<PixelStmt>(std::move(xExpr), std::move(yExpr),
+                                     std::move(expr), loc.merge(semicolon.loc));
+}
+
 StmtNodePtr Parser::parsePixelR() {
   lexer::Token comma;
   Location loc = consume().loc;
@@ -289,6 +315,58 @@ StmtNodePtr Parser::parsePixelR() {
       std::move(expr), loc.merge(semicolon.loc));
 }
 
+StmtNodePtr Parser::parseReturn() {
+  Location loc = consume().loc;
+
+  ExprNodePtr expr = parseExpr();
+
+  lexer::Token semicolon = consume();
+  CHECK_TOKEN(semicolon, lexer::SEMICOLON_TOK);
+
+  return std::make_unique<ReturnStmt>(std::move(expr),
+                                      loc.merge(semicolon.loc));
+}
+
+StmtNodePtr Parser::parseBlock() {
+  Location loc = consume().loc;
+
+  std::vector<StmtNodePtr> stmts;
+
+  while (peek(0).type != lexer::LBRACE_TOK) {
+    stmts.push_back(std::move(parseStatement()));
+  }
+
+  Location endloc = consume().loc; // consume }.
+
+  return std::make_unique<BlockStmt>(std::move(stmts), loc.merge(endloc));
+}
+
+StmtNodePtr Parser::parseIfElse() {
+  Location loc = consume().loc; // consume if token.
+
+  lexer::Token lbracket = consume();
+  CHECK_TOKEN(lbracket, lexer::LBRACKET_TOK);
+
+  ExprNodePtr cond = parseExpr();
+
+  lexer::Token rbracket = consume();
+  CHECK_TOKEN(lbracket, lexer::RBRACKET_TOK);
+
+  StmtNodePtr ifBody = parseBlock();
+
+  loc = loc.merge(ifBody->loc);
+
+  StmtNodePtr elseBody = nullptr;
+  if (peek(0).type == lexer::ELSE) {
+    consume(); // consume else token
+    elseBody = parseBlock();
+    loc = loc.merge(elseBody->loc);
+  }
+
+  return std::make_unique<IfElseStmt>(std::move(cond), std::move(ifBody),
+                                      std::move(elseBody), loc);
+}
+
 StmtNodePtr Parser::parseStatement() {
   switch (peek(0).type) {
   case lexer::LET:
@@ -300,15 +378,21 @@ StmtNodePtr Parser::parseStatement() {
   case lexer::DELAY:
     return parseDelay();
   case lexer::PIXEL:
-
+    return parsePixel();
   case lexer::PIXELR:
     return parsePixelR();
   case lexer::IF:
+    return parseIfElse();
   case lexer::FOR:
+    return parseFor();
   case lexer::WHILE:
+    return parseWhile();
   case lexer::RETURN:
+    return parseReturn();
   case lexer::FUN:
+    return parseFun();
   case lexer::LBRACE_TOK:
+    return parseBlock();
   default:
     throw ParserError("Failed in parseStmt", consume().loc);
   }

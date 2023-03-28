@@ -312,25 +312,18 @@ public:
 class IfElseStmt : public StmtNode {
 private:
   ExprNodePtr cond;
-  std::vector<StmtNodePtr> ifBody;
-  std::vector<StmtNodePtr> elseBody;
+  StmtNodePtr ifBody;
+  StmtNodePtr elseBody;
 
 public:
-  IfElseStmt(ExprNodePtr &&cond, std::vector<StmtNodePtr> &&ifBody,
-             std::vector<StmtNodePtr> &&elseBody, Location loc)
+  IfElseStmt(ExprNodePtr &&cond, StmtNodePtr &&ifBody, StmtNodePtr &&elseBody,
+             Location loc)
       : StmtNode(loc), cond(std::move(cond)), ifBody(std::move(ifBody)),
         elseBody(std::move(elseBody)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
   std::vector<ASTNode *> children() override {
-    std::vector<ASTNode *> children(ifBody.size() + elseBody.size());
-    children[0] = cond.get();
-    std::transform(ifBody.begin(), ifBody.end(), children.begin() + 1,
-                   [](StmtNodePtr &stmt) { return stmt.get(); });
-    std::transform(elseBody.begin(), elseBody.end(),
-                   children.begin() + ifBody.size() + 1,
-                   [](StmtNodePtr &stmt) { return stmt.get(); });
-    return children;
+    return {cond.get(), ifBody.get(), elseBody.get()};
   }
 };
 
