@@ -53,11 +53,9 @@ public:
     LE,
   };
 
-private:
   BinaryOp operand;
   ExprNodePtr left, right;
 
-public:
   BinaryExprNode(BinaryOp operand, ExprNodePtr &&left, ExprNodePtr &&right,
                  Location loc)
       : ExprNode(loc), operand(operand), left(std::move(left)),
@@ -76,11 +74,9 @@ public:
     NOT,
   };
 
-private:
   UnaryOp op;
   ExprNodePtr operand;
 
-public:
   UnaryExprNode(UnaryOp op, ExprNodePtr &&operand, Location loc)
       : ExprNode(loc), op(op), operand(std::move(operand)) {}
 
@@ -89,11 +85,10 @@ public:
 };
 
 class FunctionCallNode : public ExprNode {
-private:
+public:
   std::string funcName;
   std::vector<ExprNodePtr> args;
 
-public:
   FunctionCallNode(std::string &funcName, std::vector<ExprNodePtr> &&args,
                    Location loc)
       : ExprNode(loc), funcName(funcName), args(std::move(args)) {}
@@ -108,10 +103,9 @@ public:
 };
 
 class IdExprNode : public ExprNode {
-private:
+public:
   std::string id;
 
-public:
   IdExprNode(std::string &id, Location loc) : ExprNode(loc), id(id) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
@@ -119,10 +113,9 @@ public:
 };
 
 class BoolLiteralExprNode : public ExprNode {
-private:
+public:
   bool x;
 
-public:
   BoolLiteralExprNode(bool x, Location loc) : ExprNode(loc), x(x) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
@@ -130,10 +123,9 @@ public:
 };
 
 class IntLiteralExprNode : public ExprNode {
-private:
+public:
   int x;
 
-public:
   IntLiteralExprNode(int x, Location loc) : ExprNode(loc), x(x) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
@@ -141,10 +133,9 @@ public:
 };
 
 class FloatLiteralExprNode : public ExprNode {
-private:
+public:
   float x;
 
-public:
   FloatLiteralExprNode(float x, Location loc) : ExprNode(loc), x(x) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
@@ -152,10 +143,9 @@ public:
 };
 
 class ColourLiteralExprNode : public ExprNode {
-private:
+public:
   unsigned char colour;
 
-public:
   ColourLiteralExprNode(unsigned char colour, Location loc)
       : ExprNode(loc), colour(colour) {}
 
@@ -180,10 +170,9 @@ public:
 };
 
 class ReadExprNode : public ExprNode {
-private:
+public:
   ExprNodePtr x, y;
 
-public:
   ReadExprNode(ExprNodePtr &&x, ExprNodePtr &&y, Location loc)
       : ExprNode(loc), x(std::move(x)), y(std::move(y)) {}
 
@@ -192,10 +181,9 @@ public:
 };
 
 class RandiExprNode : public ExprNode {
-private:
+public:
   ExprNodePtr operand;
 
-public:
   RandiExprNode(ExprNodePtr &&operand, Location loc)
       : ExprNode(loc), operand(std::move(operand)) {}
 
@@ -211,11 +199,10 @@ public:
 using StmtNodePtr = std::unique_ptr<StmtNode>;
 
 class AssignmentStmt : public StmtNode {
-private:
+public:
   std::string id;
   ExprNodePtr expr;
 
-public:
   AssignmentStmt(std::string &id, ExprNodePtr &&expr, Location loc)
       : StmtNode(loc), id(id), expr(std::move(expr)) {}
 
@@ -224,12 +211,11 @@ public:
 };
 
 class VariableDeclStmt : public StmtNode {
-private:
+public:
   std::string id;
   Typename type;
   ExprNodePtr initExpr;
 
-public:
   VariableDeclStmt(std::string &id, Typename type, ExprNodePtr &&initExpr,
                    Location loc)
       : StmtNode(loc), id(id), type(type), initExpr(std::move(initExpr)) {}
@@ -239,10 +225,9 @@ public:
 };
 
 class PrintStmt : public StmtNode {
-private:
+public:
   ExprNodePtr expr;
 
-public:
   PrintStmt(ExprNodePtr &&expr, Location loc)
       : StmtNode(loc), expr(std::move(expr)) {}
 
@@ -251,10 +236,9 @@ public:
 };
 
 class DelayStmt : public StmtNode {
-private:
+public:
   ExprNodePtr expr;
 
-public:
   DelayStmt(ExprNodePtr &&expr, Location loc)
       : StmtNode(loc), expr(std::move(expr)) {}
 
@@ -263,11 +247,10 @@ public:
 };
 
 class PixelStmt : public StmtNode {
-private:
+public:
   ExprNodePtr x, y;
   ExprNodePtr colour;
 
-public:
   PixelStmt(ExprNodePtr &&x, ExprNodePtr &&y, ExprNodePtr &&colour,
             Location loc)
       : StmtNode(loc), x(std::move(x)), y(std::move(y)),
@@ -280,12 +263,11 @@ public:
 };
 
 class PixelRStmt : public StmtNode {
-private:
+public:
   ExprNodePtr x, y;
   ExprNodePtr w, h;
   ExprNodePtr colour;
 
-public:
   PixelRStmt(ExprNodePtr &&x, ExprNodePtr &&y, ExprNodePtr &&w, ExprNodePtr &&h,
              ExprNodePtr &&colour, Location loc)
       : StmtNode(loc), x(std::move(x)), y(std::move(y)), w(std::move(w)),
@@ -298,10 +280,9 @@ public:
 };
 
 class ReturnStmt : public StmtNode {
-private:
+public:
   ExprNodePtr expr;
 
-public:
   ReturnStmt(ExprNodePtr &&expr, Location loc)
       : StmtNode(loc), expr(std::move(expr)) {}
 
@@ -310,12 +291,11 @@ public:
 };
 
 class IfElseStmt : public StmtNode {
-private:
+public:
   ExprNodePtr cond;
   StmtNodePtr ifBody;
   StmtNodePtr elseBody;
 
-public:
   IfElseStmt(ExprNodePtr &&cond, StmtNodePtr &&ifBody, StmtNodePtr &&elseBody,
              Location loc)
       : StmtNode(loc), cond(std::move(cond)), ifBody(std::move(ifBody)),
@@ -328,13 +308,12 @@ public:
 };
 
 class ForStmt : public StmtNode {
-private:
+public:
   StmtNodePtr varDecl;
   ExprNodePtr cond;
   StmtNodePtr assignment;
   StmtNodePtr body;
 
-public:
   ForStmt(StmtNodePtr &&varDecl, ExprNodePtr &&cond, StmtNodePtr &&assignment,
           StmtNodePtr &&body, Location loc)
       : StmtNode(loc), varDecl(std::move(varDecl)), cond(std::move(cond)),
@@ -347,11 +326,10 @@ public:
 };
 
 class WhileStmt : public StmtNode {
-private:
+public:
   ExprNodePtr cond;
   StmtNodePtr body;
 
-public:
   WhileStmt(ExprNodePtr &&cond, StmtNodePtr &&body, Location loc)
       : StmtNode(loc), cond(std::move(cond)), body(std::move(body)) {}
 
@@ -364,13 +342,12 @@ public:
 using FormalParam = std::pair<std::string, Typename>;
 
 class FuncDeclStmt : public StmtNode {
-private:
+public:
   std::string funcName;
   std::vector<FormalParam> params;
   Typename retType;
   StmtNodePtr body;
 
-public:
   FuncDeclStmt(std::string &funcName, std::vector<FormalParam> &&params,
                Typename retType, StmtNodePtr &&body, Location loc)
       : StmtNode(loc), funcName(funcName), params(std::move(params)),
@@ -381,10 +358,9 @@ public:
 };
 
 class BlockStmt : public StmtNode {
-private:
+public:
   std::vector<StmtNodePtr> stmts;
 
-public:
   BlockStmt(std::vector<StmtNodePtr> &&stmts, Location loc)
       : StmtNode(loc), stmts(std::move(stmts)) {}
 
