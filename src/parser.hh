@@ -26,7 +26,7 @@ private:
 
   lexer::Token peek(size_t i) {
     if (i > lookahead.size()) {
-      lexer::Token tok = lexer->GetNextToken();
+      lexer::Token tok = lexer->getNextToken();
       lookahead.push_back(tok);
       return tok;
     }
@@ -39,7 +39,7 @@ private:
       tok = lookahead.front();
       lookahead.pop_front();
     }
-    tok = lexer->GetNextToken();
+    tok = lexer->getNextToken();
     loc = tok.loc;
     return tok;
   }

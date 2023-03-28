@@ -245,7 +245,7 @@ static const std::map<std::string, TokenType> keywords{
     {"or", TokenType::OR},
     {"not", TokenType::NOT}};
 
-Token Lexer::GetNextToken() {
+Token Lexer::getNextToken() {
   Token token;
   // filter out whitespace tokens.
   while ((token = nextToken()).type == TokenType::WHITESPACE_TOK)

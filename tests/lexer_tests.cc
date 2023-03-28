@@ -8,7 +8,7 @@
   TEST_CASE(std::string("Keyword ") + MATCH_STR + " is matched correctly",     \
             "[lexer]") {                                                       \
     lexer::Lexer lexer{MATCH_STR};                                             \
-    REQUIRE(lexer.GetNextToken().type == lexer::TokenType::TOKEN_TYPE);        \
+    REQUIRE(lexer.getNextToken().type == lexer::TokenType::TOKEN_TYPE);        \
   }
 
 TEST_KEYWORD_MATCH("float", FLOAT)
@@ -33,40 +33,40 @@ TEST_KEYWORD_MATCH("fun", FUN)
 
 TEST_CASE("Maximal munch for >= works", "[lexer]") {
   lexer::Lexer lexer{">="};
-  REQUIRE(lexer.GetNextToken().type == lexer::TokenType::GE);
+  REQUIRE(lexer.getNextToken().type == lexer::TokenType::GE);
 }
 
 TEST_CASE("Maximal munch for <= works", "[lexer]") {
   lexer::Lexer lexer{"<="};
-  REQUIRE(lexer.GetNextToken().type == lexer::TokenType::LE);
+  REQUIRE(lexer.getNextToken().type == lexer::TokenType::LE);
 }
 
 TEST_CASE("Maximal munch for == works", "[lexer]") {
   lexer::Lexer lexer{"=="};
-  REQUIRE(lexer.GetNextToken().type == lexer::TokenType::EQ_TOK);
+  REQUIRE(lexer.getNextToken().type == lexer::TokenType::EQ_TOK);
 }
 
 TEST_CASE("Maximal munch for -> works", "[lexer]") {
   lexer::Lexer lexer{"->"};
-  REQUIRE(lexer.GetNextToken().type == lexer::TokenType::ARROW);
+  REQUIRE(lexer.getNextToken().type == lexer::TokenType::ARROW);
 }
 
 TEST_CASE("Identifiers cannot start with underscore", "[lexer]") {
   lexer::Lexer lexer{"__not_a_keyword"};
-  REQUIRE_THROWS_AS(lexer.GetNextToken(), lexer::LexerError);
+  REQUIRE_THROWS_AS(lexer.getNextToken(), lexer::LexerError);
 }
 
 TEST_CASE("Whitespace is filtered out", "[lexer]") {
   lexer::Lexer lexer{"    \n\t\v     \r \t   \v\t"};
-  REQUIRE(lexer.GetNextToken().type == lexer::TokenType::END);
+  REQUIRE(lexer.getNextToken().type == lexer::TokenType::END);
 }
 
 TEST_CASE("Line comments are filtered out", "[lexer]") {
   lexer::Lexer lexer{"// This is a comment."};
-  REQUIRE(lexer.GetNextToken().type == lexer::TokenType::END);
+  REQUIRE(lexer.getNextToken().type == lexer::TokenType::END);
 }
 
 TEST_CASE("Multi-line comments are filtered out", "[lexer]") {
   lexer::Lexer lexer{"/* Hello, I am a multi-\n\nline comment \v\t */"};
-  REQUIRE(lexer.GetNextToken().type == lexer::TokenType::END);
+  REQUIRE(lexer.getNextToken().type == lexer::TokenType::END);
 }
