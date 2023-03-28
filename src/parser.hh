@@ -51,6 +51,16 @@ public:
   ExprNodePtr parseTerm();
   ExprNodePtr parseSimpleExpr();
   ExprNodePtr parseExpr();
+
+  Typename parseTypename();
+
+  StmtNodePtr parseVariableDecl();
+  StmtNodePtr parseAssignment();
+  StmtNodePtr parsePrint();
+  StmtNodePtr parseDelay();
+  StmtNodePtr parsePixel();
+  StmtNodePtr parsePixelR();
+  StmtNodePtr parseStatement();
 };
 } // namespace parser
 
