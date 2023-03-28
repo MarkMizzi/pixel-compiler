@@ -1,6 +1,7 @@
 #ifndef AST_H_
 #define AST_H_
 
+#include "location.hh"
 #include "visitor.hh"
 
 #include <algorithm>
@@ -9,16 +10,6 @@
 #include <vector>
 
 namespace parser {
-
-struct Location {
-  size_t sline, scol, eline, ecol;
-
-  Location merge(Location &other) {
-    return Location{
-        std::min(this->sline, other.sline), std::min(this->scol, other.scol),
-        std::max(this->eline, other.eline), std::max(this->ecol, other.ecol)};
-  }
-};
 
 // since the number of types is finite, we can represent them using an enum,
 // rather than an AST node.

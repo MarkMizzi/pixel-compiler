@@ -1,6 +1,8 @@
 #ifndef LEXER_H_
 #define LEXER_H_
 
+#include "location.hh"
+
 #include <stdexcept>
 #include <string>
 
@@ -77,7 +79,7 @@ enum TokenType {
 struct Token {
   TokenType type;
   std::string value;
-  size_t sline, scol, eline, ecol;
+  Location loc;
 };
 
 class Lexer {

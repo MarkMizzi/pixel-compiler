@@ -14,6 +14,7 @@ FetchContent_MakeAvailable(Catch2)
 include_directories(src)
 
 add_executable(pixarc
+  src/location.hh
   src/lexer.hh
   src/ast.hh
   src/parser.hh
@@ -24,6 +25,7 @@ add_executable(pixarc
   src/main.cc)
 
 add_executable(pixarc_tests
+  src/location.hh
   src/lexer.hh
   src/ast.hh
   src/parser.hh
