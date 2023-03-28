@@ -13,7 +13,7 @@ namespace parser {
 
 // since the number of types is finite, we can represent them using an enum,
 // rather than an AST node.
-enum Type {
+enum Typename {
   FLOAT,
   INT,
   BOOL,
@@ -226,11 +226,11 @@ public:
 class VariableDeclStmt : public StmtNode {
 private:
   std::string id;
-  Type type;
+  Typename type;
   ExprNodePtr initExpr;
 
 public:
-  VariableDeclStmt(std::string &id, Type type, ExprNodePtr &&initExpr,
+  VariableDeclStmt(std::string &id, Typename type, ExprNodePtr &&initExpr,
                    Location loc)
       : StmtNode(loc), id(id), type(type), initExpr(std::move(initExpr)) {}
 
@@ -378,18 +378,18 @@ public:
   }
 };
 
-using FormalParam = std::pair<std::string, Type>;
+using FormalParam = std::pair<std::string, Typename>;
 
 class FuncDeclStmt : public StmtNode {
 private:
   std::string funcName;
   std::vector<FormalParam> params;
-  Type retType;
+  Typename retType;
   std::vector<StmtNodePtr> body;
 
 public:
   FuncDeclStmt(std::string &funcName, std::vector<FormalParam> &params,
-               Type retType, std::vector<StmtNodePtr> &&body, Location loc)
+               Typename retType, std::vector<StmtNodePtr> &&body, Location loc)
       : StmtNode(loc), funcName(funcName), params(params), retType(retType),
         body(std::move(body)) {}
 
