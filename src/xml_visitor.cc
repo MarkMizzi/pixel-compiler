@@ -127,8 +127,8 @@ void XMLVisitor::visit(AssignmentStmt &node) {
 
 void XMLVisitor::visit(VariableDeclStmt &node) {
   XML_ELEM_WITH_CHILDREN(node, "VariableDeclStmt",
-                         " id = \"" << node.id << "\" type=\"" << node.type
-                                    << "\"");
+                         " id = \"" << node.id << "\" type=\""
+                                    << to_string(node.type) << "\"");
 }
 
 void XMLVisitor::visit(PrintStmt &node) {
@@ -171,8 +171,12 @@ void XMLVisitor::visit(FuncDeclStmt &node) {
 
   for (FormalParam param : node.params) {
     ss << std::string(indent, ' ') << "<FormalParam name=\"" << param.first
-       << "\" type=\"" << param.second << "\"></FormalParam>" << std::endl;
+       << "\" type=\"" << to_string(param.second) << "\"></FormalParam>"
+       << std::endl;
   }
+
+  ss << std::string(indent, ' ') << "<Returns type=\""
+     << to_string(node.retType) << "\"></Returns>" << std::endl;
 
   visitChildren(&node);
 

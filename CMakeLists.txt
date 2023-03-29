@@ -22,6 +22,7 @@ add_executable(pixarc
   src/xml_visitor.hh
   src/xml_printer.hh
   src/lexer.cc
+  src/ast.cc
   src/parser.cc
   src/visitor.cc
   src/xml_visitor.cc
@@ -36,6 +37,7 @@ add_executable(pixarc_tests
   src/xml_visitor.hh
   src/xml_printer.hh
   src/lexer.cc
+  src/ast.cc
   src/parser.cc
   src/visitor.cc
   src/xml_visitor.cc

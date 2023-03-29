@@ -20,6 +20,8 @@ enum Typename {
   COLOUR,
 };
 
+std::string to_string(Typename type);
+
 class ASTNode {
 public:
   Location loc;
