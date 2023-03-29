@@ -53,13 +53,12 @@ public:
     LE,
   };
 
-  BinaryOp operand;
+  BinaryOp op;
   ExprNodePtr left, right;
 
-  BinaryExprNode(BinaryOp operand, ExprNodePtr &&left, ExprNodePtr &&right,
+  BinaryExprNode(BinaryOp op, ExprNodePtr &&left, ExprNodePtr &&right,
                  Location loc)
-      : ExprNode(loc), operand(operand), left(std::move(left)),
-        right(std::move(right)) {}
+      : ExprNode(loc), op(op), left(std::move(left)), right(std::move(right)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
   std::vector<ASTNode *> children() override {
