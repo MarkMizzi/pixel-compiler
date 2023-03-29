@@ -20,6 +20,7 @@ add_executable(pixarc
   src/parser.hh
   src/visitor.hh
   src/xml_visitor.hh
+  src/xml_printer.hh
   src/lexer.cc
   src/parser.cc
   src/visitor.cc
@@ -33,6 +34,7 @@ add_executable(pixarc_tests
   src/parser.hh
   src/visitor.hh
   src/xml_visitor.hh
+  src/xml_printer.hh
   src/lexer.cc
   src/parser.cc
   src/visitor.cc
