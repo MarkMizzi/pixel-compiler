@@ -189,7 +189,32 @@ static const LexerTransitionTable tt{
     {{S8, DIGIT}, S8},
     {{S8, NEWLINE}, S8},
     {{S8, WHITESPACE}, S8},
+
     {{S8, STAR}, S9},
+
+    {{S9, HASH}, S8},
+    {{S9, UNDERSCORE}, S8},
+    {{S9, COMMA}, S8},
+    {{S9, STAR}, S8},
+    {{S9, PLUS}, S8},
+    {{S9, MINUS}, S8},
+    {{S9, GREATER}, S8},
+    {{S9, LESS}, S8},
+    {{S9, EQ}, S8},
+    {{S9, EXCLAMATION}, S8},
+    {{S9, COLON}, S8},
+    {{S9, SEMICOLON}, S8},
+    {{S9, DOT}, S8},
+    {{S9, LBRACKET}, S8},
+    {{S9, RBRACKET}, S8},
+    {{S9, LBRACE}, S8},
+    {{S9, RBRACE}, S8},
+    {{S9, HEX}, S8},
+    {{S9, ALPHA}, S8},
+    {{S9, DIGIT}, S8},
+    {{S9, NEWLINE}, S8},
+    {{S9, WHITESPACE}, S8},
+
     {{S9, DIV}, WHITESPACE_STATE},
     // single line comments
     {{DIV_STATE, DIV}, LINE_COMMENT_STATE},
@@ -289,6 +314,7 @@ Token Lexer::nextToken() {
 
     if (!tt.count({state, cclass})) {
       // no transition to make
+      input.putback(c);
       break;
     }
 
