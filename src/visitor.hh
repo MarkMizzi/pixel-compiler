@@ -31,6 +31,8 @@ class WhileStmt;
 class FuncDeclStmt;
 class BlockStmt;
 
+class TranslationUnit;
+
 class AbstractVisitor {
 public:
   virtual void visit(BinaryExprNode &node) = 0;
@@ -58,6 +60,8 @@ public:
   virtual void visit(WhileStmt &node) = 0;
   virtual void visit(FuncDeclStmt &node) = 0;
   virtual void visit(BlockStmt &node) = 0;
+
+  virtual void visit(TranslationUnit &node) = 0;
 
   void visitChildren(ASTNode *node);
 };

@@ -373,6 +373,22 @@ public:
   }
 };
 
+class TranslationUnit : public ASTNode {
+public:
+  std::vector<StmtNodePtr> stmts;
+
+  TranslationUnit(std::vector<StmtNodePtr> &&stmts, Location loc)
+      : ASTNode(loc), stmts(std::move(stmts)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override {
+    std::vector<ASTNode *> children(stmts.size());
+    std::transform(stmts.begin(), stmts.end(), children.begin(),
+                   [](StmtNodePtr &stmt) { return stmt.get(); });
+    return children;
+  }
+};
+
 } // namespace ast
 
 #endif // AST_H_

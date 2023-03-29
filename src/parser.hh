@@ -69,6 +69,8 @@ public:
   ast::StmtNodePtr parseFun();
   ast::StmtNodePtr parseBlock();
   ast::StmtNodePtr parseStatement();
+
+  std::unique_ptr<ast::TranslationUnit> parse();
 };
 } // namespace parser
 

@@ -491,4 +491,17 @@ ast::StmtNodePtr Parser::parseStatement() {
   }
 }
 
+std::unique_ptr<ast::TranslationUnit> Parser::parse() {
+  std::vector<ast::StmtNodePtr> stmts;
+
+  while (peek(0).type != lexer::END) {
+    stmts.push_back(std::move(parseStatement()));
+  }
+
+  consume(); // consume end token
+
+  Location loc = (*stmts.begin())->loc.merge((*--stmts.end())->loc);
+  return std::make_unique<ast::TranslationUnit>(std::move(stmts), loc);
+}
+
 } // namespace parser
