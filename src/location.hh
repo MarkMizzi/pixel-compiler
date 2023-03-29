@@ -14,8 +14,8 @@ struct Location {
   }
 
   std::string to_string() {
-    return std::to_string(sline) + ":" + std::to_string(scol) + ":" +
-           std::to_string(eline) + ":" + std::to_string(ecol);
+    return "[" + std::to_string(sline) + ":" + std::to_string(scol) + "]-[" +
+           std::to_string(eline) + ":" + std::to_string(ecol) + "]";
   }
 };
 
