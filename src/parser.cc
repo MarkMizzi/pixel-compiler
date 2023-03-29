@@ -465,7 +465,7 @@ ast::StmtNodePtr Parser::parseBlock() {
 
   std::vector<ast::StmtNodePtr> stmts;
 
-  while (peek(0).type != lexer::LBRACE_TOK) {
+  while (peek(0).type != lexer::RBRACE_TOK) {
     stmts.push_back(std::move(parseStatement()));
   }
 
