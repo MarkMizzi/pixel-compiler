@@ -4,19 +4,19 @@
 namespace ast {
 
 #define XML_ELEM_WITH_CHILDREN(NODE, TAGNAME, ATTRS)                           \
-  ss << std::string(' ', indent) << "<" << (TAGNAME) << " " << ATTRS           \
-     << " loc=\"" << (NODE).loc.to_string()                                    \
+  ss << std::string(indent, ' ') << "<" << (TAGNAME) << ATTRS << " loc=\""     \
+     << (NODE).loc.to_string()                                                 \
      << "\""                                                                   \
         ">"                                                                    \
      << std::endl;                                                             \
   indent++;                                                                    \
   visitChildren((ASTNode *)(&(NODE)));                                         \
   indent--;                                                                    \
-  ss << std::string(' ', indent) << "</" << (TAGNAME) << ">" << std::endl
+  ss << std::string(indent, ' ') << "</" << (TAGNAME) << ">" << std::endl
 
 #define XML_ELEM_WITH_CONTENT(NODE, TAGNAME, ATTRS, CONTENT)                   \
-  ss << std::string(' ', indent) << "<" << (TAGNAME) << " " << ATTRS           \
-     << " loc=\"" << (NODE).loc.to_string() << "\""                            \
+  ss << std::string(indent, ' ') << "<" << (TAGNAME) << ATTRS << " loc=\""     \
+     << (NODE).loc.to_string() << "\""                                         \
      << ">" << (CONTENT) << "</" << (TAGNAME) << ">" << std::endl
 
 void XMLVisitor::visit(BinaryExprNode &node) {
@@ -60,7 +60,7 @@ void XMLVisitor::visit(BinaryExprNode &node) {
     break;
   }
 
-  XML_ELEM_WITH_CHILDREN(node, "BinaryExprNode", "op = \"" << op << "\"");
+  XML_ELEM_WITH_CHILDREN(node, "BinaryExprNode", " op = \"" << op << "\"");
 }
 
 void XMLVisitor::visit(UnaryExprNode &node) {
@@ -74,12 +74,12 @@ void XMLVisitor::visit(UnaryExprNode &node) {
     break;
   }
 
-  XML_ELEM_WITH_CHILDREN(node, "UnaryExprNode", "op = \"" << op << "\"");
+  XML_ELEM_WITH_CHILDREN(node, "UnaryExprNode", " op = \"" << op << "\"");
 }
 
 void XMLVisitor::visit(FunctionCallNode &node) {
   XML_ELEM_WITH_CHILDREN(node, "FunctionCallNode",
-                         "funcName = \"" << node.funcName << "\"");
+                         " funcName = \"" << node.funcName << "\"");
 }
 
 void XMLVisitor::visit(IdExprNode &node) {
@@ -121,19 +121,72 @@ void XMLVisitor::visit(RandiExprNode &node) {
   XML_ELEM_WITH_CHILDREN(node, "RandiExprNode", "");
 }
 
-void XMLVisitor::visit(AssignmentStmt &node) {}
-void XMLVisitor::visit(VariableDeclStmt &node) {}
-void XMLVisitor::visit(PrintStmt &node) {}
-void XMLVisitor::visit(DelayStmt &node) {}
-void XMLVisitor::visit(PixelStmt &node) {}
-void XMLVisitor::visit(PixelRStmt &node) {}
-void XMLVisitor::visit(ReturnStmt &node) {}
-void XMLVisitor::visit(IfElseStmt &node) {}
-void XMLVisitor::visit(ForStmt &node) {}
-void XMLVisitor::visit(WhileStmt &node) {}
-void XMLVisitor::visit(FuncDeclStmt &node) {}
-void XMLVisitor::visit(BlockStmt &node) {}
+void XMLVisitor::visit(AssignmentStmt &node) {
+  XML_ELEM_WITH_CHILDREN(node, "AssignmentStmt", " id = \"" << node.id << "\"");
+}
 
-void XMLVisitor::visit(TranslationUnit &node) {}
+void XMLVisitor::visit(VariableDeclStmt &node) {
+  XML_ELEM_WITH_CHILDREN(node, "VariableDeclStmt",
+                         " id = \"" << node.id << "\" type=\"" << node.type
+                                    << "\"");
+}
+
+void XMLVisitor::visit(PrintStmt &node) {
+  XML_ELEM_WITH_CHILDREN(node, "PrintStmt", "");
+}
+
+void XMLVisitor::visit(DelayStmt &node) {
+  XML_ELEM_WITH_CHILDREN(node, "DelayStmt", "");
+}
+
+void XMLVisitor::visit(PixelStmt &node) {
+  XML_ELEM_WITH_CHILDREN(node, "PixelStmt", "");
+}
+
+void XMLVisitor::visit(PixelRStmt &node) {
+  XML_ELEM_WITH_CHILDREN(node, "PixelRStmt", "");
+}
+
+void XMLVisitor::visit(ReturnStmt &node) {
+  XML_ELEM_WITH_CHILDREN(node, "ReturnStmt", "");
+}
+
+void XMLVisitor::visit(IfElseStmt &node) {
+  XML_ELEM_WITH_CHILDREN(node, "IfElseStmt", "");
+}
+
+void XMLVisitor::visit(ForStmt &node) {
+  XML_ELEM_WITH_CHILDREN(node, "ForStmt", "");
+}
+
+void XMLVisitor::visit(WhileStmt &node) {
+  XML_ELEM_WITH_CHILDREN(node, "WhileStmt", "");
+}
+
+void XMLVisitor::visit(FuncDeclStmt &node) {
+  ss << std::string(indent, ' ') << "<FuncDeclStmt "
+     << "loc=\"" << node.loc.to_string() << "\">" << std::endl;
+
+  indent++;
+
+  for (FormalParam param : node.params) {
+    ss << std::string(indent, ' ') << "<FormalParam name=\"" << param.first
+       << "\" type=\"" << param.second << "\"></FormalParam>" << std::endl;
+  }
+
+  visitChildren(&node);
+
+  indent--;
+
+  ss << std::string(indent, ' ') << "</FuncDeclStmt>" << std::endl;
+}
+
+void XMLVisitor::visit(BlockStmt &node) {
+  XML_ELEM_WITH_CHILDREN(node, "BlockStmt", "");
+}
+
+void XMLVisitor::visit(TranslationUnit &node) {
+  XML_ELEM_WITH_CHILDREN(node, "TranslationUnit", "");
+}
 
 } // namespace ast
