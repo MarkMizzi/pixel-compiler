@@ -3,8 +3,8 @@
 
 #include "location.hh"
 
+#include <iostream>
 #include <stdexcept>
-#include <string>
 
 namespace lexer {
 
@@ -84,15 +84,14 @@ struct Token {
 
 class Lexer {
 private:
-  std::string input;
+  std::istream &input;
   size_t line = 0, col = 0;
 
   // internal, table-driven lexing function
   Token nextToken();
 
 public:
-  Lexer(std::string &input) : input(input){};
-  Lexer(std::string &&input) : input(std::move(input)){};
+  Lexer(std::istream &input) : input(input){};
   // calls nextToken(), but filters some of the output (whitespace tokens)
   Token getNextToken();
 };

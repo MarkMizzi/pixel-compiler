@@ -271,18 +271,20 @@ Token Lexer::nextToken() {
   token.loc.sline = line;
   token.loc.scol = col;
 
-  if (input.empty()) {
+  char c;
+  input.get(c);
+
+  if (input.eof()) {
     token.loc.eline = token.loc.sline;
     token.loc.ecol = token.loc.scol;
     return {TokenType::END, ""};
   }
 
-  while (!input.empty()) {
-    char c = input[0];
+  while (!input.eof()) {
     CharClass cclass = characterClass(c);
 
     if (cclass == UNRECOGNIZED) {
-      throw LexerError("Unrecognized character", line, col);
+      throw LexerError("Unrecognized character " + std::string{c}, line, col);
     }
 
     if (!tt.count({state, cclass})) {
@@ -292,13 +294,14 @@ Token Lexer::nextToken() {
 
     state = tt.at({state, cclass});
     token.value.push_back(c);
-    input.erase(0, 1);
     if (c == '\n') {
       line++;
       col = 0;
     } else {
       col++;
     }
+
+    input.get(c);
   }
 
   if (state == LexerState::ERROR_STATE) {
