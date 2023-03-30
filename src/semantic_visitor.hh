@@ -5,6 +5,7 @@
 #include "visitor.hh"
 
 #include <map>
+#include <memory>
 #include <optional>
 
 namespace ast {
@@ -32,19 +33,35 @@ struct Scope {
   SymbolTable symbols;
   Scope *parent = nullptr;
 
-  std::optional<SymbolTableEntry> inScope(std::string symbol) {
+  Scope(SymbolTable &&symbols, Scope *parent)
+      : symbols(std::move(symbols)), parent(parent) {}
+
+  std::optional<SymbolTableEntry> get(std::string symbol) {
     if (symbols.count(symbol)) {
       return symbols.at(symbol);
     }
     if (parent != nullptr) {
-      return parent->inScope(symbol);
+      return parent->get(symbol);
     }
     return std::nullopt;
+  }
+
+  void add(std::string symbol, SymbolTableEntry entry) {
+    symbols[symbol] = entry;
   }
 };
 
 class SemanticVisitor : public AbstractVisitor {
 private:
+  std::unique_ptr<Scope> currentScope = nullptr;
+
+  void enterScope() {
+    currentScope =
+        std::make_unique<Scope>(SymbolTable{}, currentScope.release());
+  }
+
+  void exitScope() { currentScope.reset(currentScope->parent); }
+
 public:
   void visit(BinaryExprNode &node) override;
   void visit(UnaryExprNode &node) override;
