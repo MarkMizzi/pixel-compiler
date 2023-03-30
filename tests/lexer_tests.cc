@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <sstream>
 #include <string>
+#include <utility>
 
 #define TEST_KEYWORD_MATCH(MATCH_STR, TOKEN_TYPE)                              \
   TEST_CASE(std::string("Keyword ") + MATCH_STR + " is matched correctly",     \
@@ -91,12 +92,9 @@ TEST_CASE("Multi-line comments are filtered out", "[lexer]") {
   REQUIRE(lexer.getNextToken().type == lexer::TokenType::END);
 }
 
-TEST_CASE("Ad-hoc lexer test 1", "[lexer]") {
-  std::stringstream ss{"fun AverageOfTwo(x: int, y : int) -> float {\n"
-                       "    let t0 : int = x + y;\n"
-                       "    let t1 : float = t0 / 2 ;\n"
-                       "    return t1 ;\n"
-                       "}"};
+std::pair<std::vector<lexer::TokenType>, std::vector<std::string>>
+lexInput(std::string input) {
+  std::stringstream ss{input};
   ss.seekp(0);
   lexer::Lexer lexer{ss};
 
@@ -113,6 +111,18 @@ TEST_CASE("Ad-hoc lexer test 1", "[lexer]") {
                  [](lexer::Token &tok) { return tok.type; });
   std::transform(toks.begin(), toks.end(), tokValues.begin(),
                  [](lexer::Token &tok) { return tok.value; });
+
+  return {tokTypes, tokValues};
+}
+
+TEST_CASE("Ad-hoc lexer test 1", "[lexer]") {
+  std::string input{"fun AverageOfTwo(x: int, y : int) -> float {\n"
+                    "    let t0 : int = x + y;\n"
+                    "    let t1 : float = t0 / 2 ;\n"
+                    "    return t1 ;\n"
+                    "}"};
+
+  auto [tokTypes, tokValues] = lexInput(input);
 
   REQUIRE(tokTypes == std::vector<lexer::TokenType>{lexer::FUN,
                                                     lexer::IDENTIFIER,
@@ -172,7 +182,7 @@ TEST_CASE("Ad-hoc lexer test 1", "[lexer]") {
 }
 
 TEST_CASE("Ad-hoc lexer test 2", "[lexer]") {
-  std::stringstream ss{
+  std::string input{
       "/* Same functionality as function above but using less code.\n"
       " * Note the use of brackets in the expression following the\n"
       " * return statement. Allocates space for 2 variables.\n"
@@ -180,22 +190,8 @@ TEST_CASE("Ad-hoc lexer test 2", "[lexer]") {
       "fun AverageOfTwo2( x : int, y : int ) -> float {"
       "return (x + y) / 2;"
       "}"};
-  ss.seekp(0);
-  lexer::Lexer lexer{ss};
 
-  std::vector<lexer::Token> toks;
-  lexer::Token tok;
-  while ((tok = lexer.getNextToken()).type != lexer::END) {
-    toks.push_back(tok);
-  }
-
-  std::vector<lexer::TokenType> tokTypes(toks.size());
-  std::vector<std::string> tokValues(toks.size());
-
-  std::transform(toks.begin(), toks.end(), tokTypes.begin(),
-                 [](lexer::Token &tok) { return tok.type; });
-  std::transform(toks.begin(), toks.end(), tokValues.begin(),
-                 [](lexer::Token &tok) { return tok.value; });
+  auto [tokTypes, tokValues] = lexInput(input);
 
   REQUIRE(tokTypes == std::vector<lexer::TokenType>{
                           lexer::FUN,           lexer::IDENTIFIER,
@@ -226,27 +222,13 @@ TEST_CASE("Ad-hoc lexer test 2", "[lexer]") {
 }
 
 TEST_CASE("Ad-hoc lexer test 3", "[lexer]") {
-  std::stringstream ss{
+  std::string input{
       "// Single line comment\n"
       "fun XGreaterY( x: int, y : int ) -> bool {\n"
       "    let ans: bool = true; if (y > x) { ans = false; } return ans;\n"
       "}"};
-  ss.seekp(0);
-  lexer::Lexer lexer{ss};
 
-  std::vector<lexer::Token> toks;
-  lexer::Token tok;
-  while ((tok = lexer.getNextToken()).type != lexer::END) {
-    toks.push_back(tok);
-  }
-
-  std::vector<lexer::TokenType> tokTypes(toks.size());
-  std::vector<std::string> tokValues(toks.size());
-
-  std::transform(toks.begin(), toks.end(), tokTypes.begin(),
-                 [](lexer::Token &tok) { return tok.type; });
-  std::transform(toks.begin(), toks.end(), tokValues.begin(),
-                 [](lexer::Token &tok) { return tok.value; });
+  auto [tokTypes, tokValues] = lexInput(input);
 
   REQUIRE(tokTypes == std::vector<lexer::TokenType>{
                           lexer::FUN,           lexer::IDENTIFIER,
