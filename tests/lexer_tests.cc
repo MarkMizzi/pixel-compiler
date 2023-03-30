@@ -176,7 +176,7 @@ TEST_CASE("Ad-hoc lexer test 2", "[lexer]") {
       "/* Same functionality as function above but using less code.\n"
       " * Note the use of brackets in the expression following the\n"
       " * return statement. Allocates space for 2 variables.\n"
-      " */\n"
+      " */"
       "fun AverageOfTwo2( x : int, y : int ) -> float {"
       "return (x + y) / 2;"
       "}"};
@@ -223,4 +223,57 @@ TEST_CASE("Ad-hoc lexer test 2", "[lexer]") {
                                                 "y",      ")",
                                                 "/",      "2",
                                                 ";",      "}"});
+}
+
+TEST_CASE("Ad-hoc lexer test 3", "[lexer]") {
+  std::stringstream ss{
+      "// Single line comment\n"
+      "fun XGreaterY( x: int, y : int ) -> bool {\n"
+      "    let ans: bool = true; if (y > x) { ans = false; } return ans;\n"
+      "}"};
+  ss.seekp(0);
+  lexer::Lexer lexer{ss};
+
+  std::vector<lexer::Token> toks;
+  lexer::Token tok;
+  while ((tok = lexer.getNextToken()).type != lexer::END) {
+    toks.push_back(tok);
+  }
+
+  std::vector<lexer::TokenType> tokTypes(toks.size());
+  std::vector<std::string> tokValues(toks.size());
+
+  std::transform(toks.begin(), toks.end(), tokTypes.begin(),
+                 [](lexer::Token &tok) { return tok.type; });
+  std::transform(toks.begin(), toks.end(), tokValues.begin(),
+                 [](lexer::Token &tok) { return tok.value; });
+
+  REQUIRE(tokTypes == std::vector<lexer::TokenType>{
+                          lexer::FUN,           lexer::IDENTIFIER,
+                          lexer::LBRACKET_TOK,  lexer::IDENTIFIER,
+                          lexer::COLON_TOK,     lexer::INT,
+                          lexer::COMMA_TOK,     lexer::IDENTIFIER,
+                          lexer::COLON_TOK,     lexer::INT,
+                          lexer::RBRACKET_TOK,  lexer::ARROW,
+                          lexer::BOOL,          lexer::LBRACE_TOK,
+                          lexer::LET,           lexer::IDENTIFIER,
+                          lexer::COLON_TOK,     lexer::BOOL,
+                          lexer::ASSIGN,        lexer::TRUE_LITERAL,
+                          lexer::SEMICOLON_TOK, lexer::IF,
+                          lexer::LBRACKET_TOK,  lexer::IDENTIFIER,
+                          lexer::GREATER_TOK,   lexer::IDENTIFIER,
+                          lexer::RBRACKET_TOK,  lexer::LBRACE_TOK,
+                          lexer::IDENTIFIER,    lexer::ASSIGN,
+                          lexer::FALSE_LITERAL, lexer::SEMICOLON_TOK,
+                          lexer::RBRACE_TOK,    lexer::RETURN,
+                          lexer::IDENTIFIER,    lexer::SEMICOLON_TOK,
+                          lexer::RBRACE_TOK});
+
+  REQUIRE(tokValues ==
+          std::vector<std::string>{
+              "fun", "XGreaterY", "(",   "x",    ":",    "int", ",",     "y",
+              ":",   "int",       ")",   "->",   "bool", "{",   "let",   "ans",
+              ":",   "bool",      "=",   "true", ";",    "if",  "(",     "y",
+              ">",   "x",         ")",   "{",    "ans",  "=",   "false", ";",
+              "}",   "return",    "ans", ";",    "}"});
 }
