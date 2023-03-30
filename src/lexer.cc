@@ -123,6 +123,12 @@ static const LexerTransitionTable tt{
     {{S5, HEX}, S6},
     {{S6, HEX}, S7},
     {{S7, HEX}, COLOUR_LITERAL_STATE},
+    {{S2, DIGIT}, S3},
+    {{S3, DIGIT}, S4},
+    {{S4, DIGIT}, S5},
+    {{S5, DIGIT}, S6},
+    {{S6, DIGIT}, S7},
+    {{S7, DIGIT}, COLOUR_LITERAL_STATE},
 
     // ,
     {{START, COMMA}, COMMA_STATE},
