@@ -1,5 +1,6 @@
 #include "xml_printer.hh"
 
+#include <exception>
 #include <iostream>
 
 int main(int argc, char *argv[]) {
@@ -9,6 +10,11 @@ int main(int argc, char *argv[]) {
     exit(-1);
   }
 
-  XMLPrinter xmlp{argv[1]};
-  std::cout << xmlp.xml() << std::endl;
+  try {
+    XMLPrinter xmlp{argv[1]};
+    std::cout << xmlp.xml() << std::endl;
+  } catch (std::exception &e) {
+    std::cerr << e.what() << std::endl;
+    exit(-1);
+  }
 }
