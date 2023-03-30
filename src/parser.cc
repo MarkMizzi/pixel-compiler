@@ -68,7 +68,7 @@ ast::ExprNodePtr Parser::parseFactor() {
   case lexer::COLOUR_LITERAL: {
     lexer::Token tok = consume();
     return std::make_unique<ast::ColourLiteralExprNode>(
-        std::stoi(tok.value.substr(0), nullptr, 16), tok.loc);
+        std::stoi("0x" + tok.value.substr(0), nullptr, 16), tok.loc);
   }
 
   case lexer::IDENTIFIER: {
