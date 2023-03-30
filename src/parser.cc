@@ -288,9 +288,6 @@ ast::StmtNodePtr Parser::parsePixel() {
 
   ast::ExprNodePtr expr = parseExpr();
 
-  comma = consume();
-  CHECK_TOKEN(comma, lexer::COMMA_TOK);
-
   lexer::Token semicolon = consume();
   CHECK_TOKEN(semicolon, lexer::SEMICOLON_TOK);
 
@@ -324,9 +321,6 @@ ast::StmtNodePtr Parser::parsePixelR() {
   CHECK_TOKEN(comma, lexer::COMMA_TOK);
 
   ast::ExprNodePtr expr = parseExpr();
-
-  comma = consume();
-  CHECK_TOKEN(comma, lexer::COMMA_TOK);
 
   lexer::Token semicolon = consume();
   CHECK_TOKEN(semicolon, lexer::SEMICOLON_TOK);
