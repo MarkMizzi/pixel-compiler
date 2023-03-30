@@ -4,21 +4,12 @@
 
 namespace ast {
 
-SemanticType typenameToSemanticType(Typename type) {
-  switch (type) {
-  case Typename::INT:
-    return SemanticType::INT_TYPE;
-  case Typename::BOOL:
-    return SemanticType::BOOL_TYPE;
-  case Typename::FLOAT:
-    return SemanticType::FLOAT_TYPE;
-  case Typename::COLOUR:
-    return SemanticType::COLOUR_TYPE;
+#define CHECK_TYPE(NODEPTR, TYPE)                                              \
+  if (typeCheckerTable[NODEPTR] != (TYPE)) {                                   \
+    throw SemanticError(std::string("Expected type ") + (TYPE).to_string() +   \
+                            ", found invalid type.",                           \
+                        (NODEPTR)->loc);                                       \
   }
-  throw std::logic_error(
-      "Impossible, everything was handled in the switch"); // please the
-                                                           // compiler
-}
 
 void SemanticVisitor::visit(BinaryExprNode &node) {
   visitChildren(&node);
@@ -48,36 +39,66 @@ void SemanticVisitor::visit(IdExprNode &node) {
   if (!entry.has_value()) {
     throw SemanticError("Symbol " + node.id + " is not in scope.", node.loc);
   }
+
   typeCheckerTable[&node] = entry.value().type;
 }
 
 void SemanticVisitor::visit(BoolLiteralExprNode &node) {
-  typeCheckerTable[&node] = SemanticType::BOOL_TYPE;
+  typeCheckerTable[&node] = SemanticType(Typename::BOOL);
 }
 
 void SemanticVisitor::visit(IntLiteralExprNode &node) {
-  typeCheckerTable[&node] = SemanticType::INT_TYPE;
+  typeCheckerTable[&node] = SemanticType(Typename::INT);
 }
 
 void SemanticVisitor::visit(FloatLiteralExprNode &node) {
-  typeCheckerTable[&node] = SemanticType::FLOAT_TYPE;
+  typeCheckerTable[&node] = SemanticType(Typename::FLOAT);
 }
 
 void SemanticVisitor::visit(ColourLiteralExprNode &node) {
-  typeCheckerTable[&node] = SemanticType::COLOUR_TYPE;
+  typeCheckerTable[&node] = SemanticType(Typename::COLOUR);
 }
 
-void SemanticVisitor::visit(PadWidthExprNode &node) {}
+void SemanticVisitor::visit(PadWidthExprNode &node) {
+  typeCheckerTable[&node] = SemanticType(Typename::INT);
+}
 
-void SemanticVisitor::visit(PadHeightExprNode &node) {}
+void SemanticVisitor::visit(PadHeightExprNode &node) {
+  typeCheckerTable[&node] = SemanticType(Typename::INT);
+}
 
-void SemanticVisitor::visit(ReadExprNode &node) {}
+void SemanticVisitor::visit(ReadExprNode &node) {
+  CHECK_TYPE(node.x.get(), SemanticType(Typename::INT));
+  CHECK_TYPE(node.y.get(), SemanticType(Typename::INT));
 
-void SemanticVisitor::visit(RandiExprNode &node) {}
+  typeCheckerTable[&node] = SemanticType(Typename::COLOUR);
+}
 
-void SemanticVisitor::visit(AssignmentStmt &node) {}
+void SemanticVisitor::visit(RandiExprNode &node) {
+  CHECK_TYPE(node.operand.get(), SemanticType(Typename::INT));
 
-void SemanticVisitor::visit(VariableDeclStmt &node) {}
+  typeCheckerTable[&node] = SemanticType(Typename::INT);
+}
+
+void SemanticVisitor::visit(AssignmentStmt &node) {
+  visitChildren(&node);
+
+  std::optional<SymbolTableEntry> entry = currentScope->get(node.id);
+  if (!entry.has_value()) {
+    throw SemanticError("Symbol " + node.id + " is not in scope.", node.loc);
+  }
+
+  CHECK_TYPE(node.expr.get(), entry.value().type);
+}
+
+void SemanticVisitor::visit(VariableDeclStmt &node) {
+  visitChildren(&node);
+
+  SemanticType type = SemanticType(node.type);
+  CHECK_TYPE(node.initExpr.get(), type);
+
+  currentScope->add(node.id, SymbolTableEntry{type});
+}
 
 void SemanticVisitor::visit(PrintStmt &node) {}
 
