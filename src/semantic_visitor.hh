@@ -7,8 +7,18 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <stdexcept>
 
 namespace ast {
+
+class SemanticError : public std::runtime_error {
+public:
+  SemanticError(std::string errmsg, Location loc)
+      : std::runtime_error("Semantic error at [" + std::to_string(loc.sline) +
+                           ":" + std::to_string(loc.scol) + "]-[" +
+                           std::to_string(loc.eline) + ":" +
+                           std::to_string(loc.ecol) + "]: " + errmsg) {}
+};
 
 enum SemanticType {
   INT_TYPE,
