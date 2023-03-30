@@ -1,0 +1,20 @@
+/* Multi-line comment
+ * This function takes two integers and return true if
+ * the first argument is greater than the second.
+ * Otherwise it returns false.
+ */
+fun XGreaterY( x: int, y : int ) -> bool {
+    let ans: bool = true; if (y > x) { ans = false; } return ans;
+}
+
+// Single line comment
+// Same functionality as function above but using less code
+fun XGreaterY_2(x : int,  y: int   )    -> bool     { return x > y; }
+
+// Takes two integers and returns the max of the two
+fun Max( x : int, y: int ) -> int {
+let m : int = x;
+if (y > m) { m = y; }
+
+   return m;
+}
