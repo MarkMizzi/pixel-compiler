@@ -6,18 +6,18 @@
 namespace ast {
 
 #define CHECK_TYPE(NODEPTR, TYPE)                                              \
-  if (typeCheckerTable.at(NODEPTR) != (TYPE)) {                                \
+  if (typeCheckerTable().at(NODEPTR) != (TYPE)) {                              \
     throw SemanticError(std::string("Expected type ") + (TYPE).to_string() +   \
                             ", found incompatible type " +                     \
-                            typeCheckerTable.at(NODEPTR).to_string() + ".",    \
+                            typeCheckerTable().at(NODEPTR).to_string() + ".",  \
                         (NODEPTR)->loc);                                       \
   }
 
 void SemanticVisitor::visit(BinaryExprNode &node) {
   visitChildren(&node);
 
-  const SemanticType &leftType = typeCheckerTable.at(node.left.get()),
-                     &rightType = typeCheckerTable.at(node.right.get());
+  const SemanticType &leftType = typeCheckerTable().at(node.left.get()),
+                     &rightType = typeCheckerTable().at(node.right.get());
 
   switch (node.op) {
   case BinaryExprNode::BinaryOp::ADD:
@@ -33,7 +33,7 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
           "Expected operands to binary operator to have a numeric type",
           node.loc);
     }
-    typeCheckerTable.insert({&node, SemanticType(leftType)});
+    typeCheckerTable().insert({&node, SemanticType(leftType)});
     break;
 
   case BinaryExprNode::BinaryOp::DIV:
@@ -47,7 +47,7 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
           "Expected operands to binary operator to have a numeric type",
           node.loc);
     }
-    typeCheckerTable.insert({&node, Typename::FLOAT});
+    typeCheckerTable().insert({&node, Typename::FLOAT});
     break;
 
   case BinaryExprNode::BinaryOp::AND:
@@ -62,7 +62,7 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
           "Expected operands to binary operator to have a boolean type",
           node.loc);
     }
-    typeCheckerTable.insert({&node, Typename::BOOL});
+    typeCheckerTable().insert({&node, Typename::BOOL});
     break;
 
   case BinaryExprNode::BinaryOp::GREATER:
@@ -79,7 +79,7 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
           "Expected operands to binary operator to have a numeric type",
           node.loc);
     }
-    typeCheckerTable.insert({&node, Typename::BOOL});
+    typeCheckerTable().insert({&node, Typename::BOOL});
     break;
 
   case BinaryExprNode::BinaryOp::EQ:
@@ -89,7 +89,7 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
           "Expected operands to binary operator to be of the same type",
           node.loc);
     }
-    typeCheckerTable.insert({&node, Typename::BOOL});
+    typeCheckerTable().insert({&node, Typename::BOOL});
     break;
   }
 }
@@ -97,7 +97,7 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
 void SemanticVisitor::visit(UnaryExprNode &node) {
   visitChildren(&node);
 
-  const SemanticType &operandType = typeCheckerTable.at(&node);
+  const SemanticType &operandType = typeCheckerTable().at(&node);
 
   switch (node.op) {
   case UnaryExprNode::UnaryOp::MINUS:
@@ -106,7 +106,7 @@ void SemanticVisitor::visit(UnaryExprNode &node) {
           "Expected operand to unary operator to have a numeric type",
           node.loc);
     }
-    typeCheckerTable.insert({&node, SemanticType(operandType)});
+    typeCheckerTable().insert({&node, SemanticType(operandType)});
     break;
 
   case UnaryExprNode::UnaryOp::NOT:
@@ -115,7 +115,7 @@ void SemanticVisitor::visit(UnaryExprNode &node) {
           "Expected operand to unary operator to have a boolean type",
           node.loc);
     }
-    typeCheckerTable.insert({&node, Typename::BOOL});
+    typeCheckerTable().insert({&node, Typename::BOOL});
     break;
   }
 }
@@ -145,7 +145,7 @@ void SemanticVisitor::visit(FunctionCallNode &node) {
   }
 
   for (int i = 0; i < argTypes.size(); i++) {
-    const SemanticType &type = typeCheckerTable.at(node.args[i].get());
+    const SemanticType &type = typeCheckerTable().at(node.args[i].get());
     if (SemanticType(argTypes[i]) != type) {
       throw SemanticError(
           std::to_string(i) + "th argument has wrong type, expected " +
@@ -154,7 +154,7 @@ void SemanticVisitor::visit(FunctionCallNode &node) {
     }
   }
 
-  typeCheckerTable.insert({&node, SemanticType(retType)});
+  typeCheckerTable().insert({&node, SemanticType(retType)});
 }
 
 void SemanticVisitor::visit(IdExprNode &node) {
@@ -163,31 +163,31 @@ void SemanticVisitor::visit(IdExprNode &node) {
     throw SemanticError("Symbol " + node.id + " is not in scope.", node.loc);
   }
 
-  typeCheckerTable.insert({&node, entry.value().type});
+  typeCheckerTable().insert({&node, entry.value().type});
 }
 
 void SemanticVisitor::visit(BoolLiteralExprNode &node) {
-  typeCheckerTable.insert({&node, SemanticType(Typename::BOOL)});
+  typeCheckerTable().insert({&node, SemanticType(Typename::BOOL)});
 }
 
 void SemanticVisitor::visit(IntLiteralExprNode &node) {
-  typeCheckerTable.insert({&node, SemanticType(Typename::INT)});
+  typeCheckerTable().insert({&node, SemanticType(Typename::INT)});
 }
 
 void SemanticVisitor::visit(FloatLiteralExprNode &node) {
-  typeCheckerTable.insert({&node, SemanticType(Typename::FLOAT)});
+  typeCheckerTable().insert({&node, SemanticType(Typename::FLOAT)});
 }
 
 void SemanticVisitor::visit(ColourLiteralExprNode &node) {
-  typeCheckerTable.insert({&node, SemanticType(Typename::COLOUR)});
+  typeCheckerTable().insert({&node, SemanticType(Typename::COLOUR)});
 }
 
 void SemanticVisitor::visit(PadWidthExprNode &node) {
-  typeCheckerTable.insert({&node, SemanticType(Typename::INT)});
+  typeCheckerTable().insert({&node, SemanticType(Typename::INT)});
 }
 
 void SemanticVisitor::visit(PadHeightExprNode &node) {
-  typeCheckerTable.insert({&node, SemanticType(Typename::INT)});
+  typeCheckerTable().insert({&node, SemanticType(Typename::INT)});
 }
 
 void SemanticVisitor::visit(ReadExprNode &node) {
@@ -196,7 +196,7 @@ void SemanticVisitor::visit(ReadExprNode &node) {
   CHECK_TYPE(node.x.get(), SemanticType(Typename::INT));
   CHECK_TYPE(node.y.get(), SemanticType(Typename::INT));
 
-  typeCheckerTable.insert({&node, SemanticType(Typename::COLOUR)});
+  typeCheckerTable().insert({&node, SemanticType(Typename::COLOUR)});
 }
 
 void SemanticVisitor::visit(RandiExprNode &node) {
@@ -204,7 +204,7 @@ void SemanticVisitor::visit(RandiExprNode &node) {
 
   CHECK_TYPE(node.operand.get(), SemanticType(Typename::INT));
 
-  typeCheckerTable.insert({&node, SemanticType(Typename::INT)});
+  typeCheckerTable().insert({&node, SemanticType(Typename::INT)});
 }
 
 void SemanticVisitor::visit(AssignmentStmt &node) {
@@ -263,7 +263,7 @@ void SemanticVisitor::visit(ReturnStmt &node) {
   }
 
   const SemanticType &retType = funcType.value().first;
-  const SemanticType &type = typeCheckerTable.at(node.expr.get());
+  const SemanticType &type = typeCheckerTable().at(node.expr.get());
 
   if (retType != type) {
     throw SemanticError("Return type does not match expected type, expected " +

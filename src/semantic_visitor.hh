@@ -9,6 +9,7 @@
 #include <memory>
 #include <numeric>
 #include <optional>
+#include <stack>
 #include <stdexcept>
 #include <utility>
 #include <variant>
@@ -115,19 +116,26 @@ class SemanticVisitor : public AbstractVisitor {
 private:
   std::unique_ptr<Scope> currentScope = nullptr;
 
-  // scratch table for the type checker. Used for keeping track of types of
+  using TypeCheckerTable = std::map<ExprNode *, SemanticType>;
+  // scratch tables for the type checker. Used for keeping track of types of
   // subexpressions while type-checking a compound expression.
   //
-  // TODO: Right now, this may waste a lot of memory, as it is not torn down
-  // until the visitor is destroyed.
-  std::map<ExprNode *, SemanticType> typeCheckerTable;
+  // We have a stack of them so we can tear down old tables when we exit a
+  // scope.
+  std::stack<TypeCheckerTable> typeCheckerTables;
+
+  TypeCheckerTable &typeCheckerTable() { return typeCheckerTables.top(); }
 
   void enterScope(std::optional<SemanticFunctionType> funcType = std::nullopt) {
     currentScope = std::make_unique<Scope>(SymbolTable{},
                                            currentScope.release(), funcType);
+    typeCheckerTables.push(TypeCheckerTable{});
   }
 
-  void exitScope() { currentScope.reset(currentScope->parent); }
+  void exitScope() {
+    currentScope.reset(currentScope->parent);
+    typeCheckerTables.pop();
+  }
 
 public:
   void visit(BinaryExprNode &node) override;
