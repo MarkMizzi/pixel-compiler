@@ -39,7 +39,8 @@ public:
     if (std::holds_alternative<Typename>(semanticType)) {
       return ast::to_string(std::get<Typename>(semanticType));
     } else {
-      auto &[retType, argTypes] = std::get<SemanticFunctionType>(semanticType);
+      auto const &[retType, argTypes] =
+          std::get<SemanticFunctionType>(semanticType);
       std::string result = ast::to_string(retType);
 
       std::vector<std::string> xs(argTypes.size());
@@ -61,6 +62,10 @@ public:
 
   bool operator!=(const SemanticType &other) const {
     return this->semanticType != other.semanticType;
+  }
+
+  const SemanticFunctionType *getFunctionType() const {
+    return std::get_if<SemanticFunctionType>(&semanticType);
   }
 };
 

@@ -1,4 +1,5 @@
 #include "semantic_visitor.hh"
+#include "ast.hh"
 
 #include <stdexcept>
 
@@ -31,9 +32,49 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
   }
 }
 
-void SemanticVisitor::visit(UnaryExprNode &node) {}
+void SemanticVisitor::visit(UnaryExprNode &node) {
+  visitChildren(&node);
+  switch (node.op) {
+  case UnaryExprNode::UnaryOp::MINUS:
+  case UnaryExprNode::UnaryOp::NOT:
+    break;
+  }
+}
 
-void SemanticVisitor::visit(FunctionCallNode &node) {}
+void SemanticVisitor::visit(FunctionCallNode &node) {
+  visitChildren(&node);
+
+  std::optional<SymbolTableEntry> entry = currentScope->get(node.funcName);
+  if (!entry.has_value()) {
+    throw SemanticError("Symbol " + node.funcName + " is not in scope.",
+                        node.loc);
+  }
+
+  const SemanticFunctionType *type = entry.value().type.getFunctionType();
+  if (type == nullptr) {
+    throw SemanticError("Symbol " + node.funcName + " is not a function.",
+                        node.loc);
+  }
+
+  auto const &[retType, argTypes] = *type;
+  if (argTypes.size() != node.args.size()) {
+    throw SemanticError(
+        "Wrong number of arguments passed to function, expected " +
+            std::to_string(argTypes.size()) + ", got " +
+            std::to_string(node.args.size()),
+        node.loc);
+  }
+
+  for (int i = 0; i < argTypes.size(); i++) {
+    const SemanticType &type = typeCheckerTable[node.args[i].get()];
+    if (SemanticType(argTypes[i]) != type) {
+      throw SemanticError(
+          std::to_string(i) + "th argument has wrong type, expected " +
+              ast::to_string(argTypes[i]) + ", got " + type.to_string(),
+          node.loc);
+    }
+  }
+}
 
 void SemanticVisitor::visit(IdExprNode &node) {
   std::optional<SymbolTableEntry> entry = currentScope->get(node.id);
@@ -69,6 +110,8 @@ void SemanticVisitor::visit(PadHeightExprNode &node) {
 }
 
 void SemanticVisitor::visit(ReadExprNode &node) {
+  visitChildren(&node);
+
   CHECK_TYPE(node.x.get(), SemanticType(Typename::INT));
   CHECK_TYPE(node.y.get(), SemanticType(Typename::INT));
 
@@ -76,6 +119,8 @@ void SemanticVisitor::visit(ReadExprNode &node) {
 }
 
 void SemanticVisitor::visit(RandiExprNode &node) {
+  visitChildren(&node);
+
   CHECK_TYPE(node.operand.get(), SemanticType(Typename::INT));
 
   typeCheckerTable[&node] = SemanticType(Typename::INT);
