@@ -60,7 +60,7 @@ void XMLVisitor::visit(BinaryExprNode &node) {
     break;
   }
 
-  XML_ELEM_WITH_CHILDREN(node, "BinaryExprNode", " op = \"" << op << "\"");
+  XML_ELEM_WITH_CHILDREN(node, "BinaryExprNode", " op=\"" << op << "\"");
 }
 
 void XMLVisitor::visit(UnaryExprNode &node) {
@@ -74,12 +74,12 @@ void XMLVisitor::visit(UnaryExprNode &node) {
     break;
   }
 
-  XML_ELEM_WITH_CHILDREN(node, "UnaryExprNode", " op = \"" << op << "\"");
+  XML_ELEM_WITH_CHILDREN(node, "UnaryExprNode", " op=\"" << op << "\"");
 }
 
 void XMLVisitor::visit(FunctionCallNode &node) {
   XML_ELEM_WITH_CHILDREN(node, "FunctionCallNode",
-                         " funcName = \"" << node.funcName << "\"");
+                         " funcName=\"" << node.funcName << "\"");
 }
 
 void XMLVisitor::visit(IdExprNode &node) {
@@ -122,13 +122,13 @@ void XMLVisitor::visit(RandiExprNode &node) {
 }
 
 void XMLVisitor::visit(AssignmentStmt &node) {
-  XML_ELEM_WITH_CHILDREN(node, "AssignmentStmt", " id = \"" << node.id << "\"");
+  XML_ELEM_WITH_CHILDREN(node, "AssignmentStmt", " id=\"" << node.id << "\"");
 }
 
 void XMLVisitor::visit(VariableDeclStmt &node) {
   XML_ELEM_WITH_CHILDREN(node, "VariableDeclStmt",
-                         " id = \"" << node.id << "\" type=\""
-                                    << to_string(node.type) << "\"");
+                         " id=\"" << node.id << "\" type=\""
+                                  << to_string(node.type) << "\"");
 }
 
 void XMLVisitor::visit(PrintStmt &node) {
