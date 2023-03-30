@@ -85,7 +85,7 @@ struct Token {
 class Lexer {
 private:
   std::istream &input;
-  size_t line = 0, col = 0;
+  size_t line = 1, col = 0;
 
   // internal, table-driven lexing function
   Token nextToken();
