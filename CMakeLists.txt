@@ -26,6 +26,7 @@ add_executable(pixarc
   src/parser.cc
   src/visitor.cc
   src/xml_visitor.cc
+  src/semantic_visitor.cc
   src/main.cc)
 
 add_executable(pixarc_tests
@@ -41,6 +42,7 @@ add_executable(pixarc_tests
   src/parser.cc
   src/visitor.cc
   src/xml_visitor.cc
+  src/semantic_visitor.cc
   tests/lexer_tests.cc)
 
 target_link_libraries(pixarc_tests PRIVATE Catch2::Catch2WithMain)
