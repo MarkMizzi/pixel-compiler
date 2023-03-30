@@ -345,7 +345,7 @@ ast::StmtNodePtr Parser::parseIfElse() {
   ast::ExprNodePtr cond = parseExpr();
 
   lexer::Token rbracket = consume();
-  CHECK_TOKEN(lbracket, lexer::RBRACKET_TOK);
+  CHECK_TOKEN(rbracket, lexer::RBRACKET_TOK);
 
   ast::StmtNodePtr ifBody = parseBlock();
 
