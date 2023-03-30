@@ -33,7 +33,7 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
           "Expected operands to binary operator to have a numeric type",
           node.loc);
     }
-    typeCheckerTable[&node] = SemanticType(leftType);
+    typeCheckerTable.insert({&node, SemanticType(leftType)});
     break;
 
   case BinaryExprNode::BinaryOp::DIV:
@@ -47,7 +47,7 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
           "Expected operands to binary operator to have a numeric type",
           node.loc);
     }
-    typeCheckerTable[&node] = Typename::FLOAT;
+    typeCheckerTable.insert({&node, Typename::FLOAT});
     break;
 
   case BinaryExprNode::BinaryOp::AND:
@@ -62,7 +62,7 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
           "Expected operands to binary operator to have a boolean type",
           node.loc);
     }
-    typeCheckerTable[&node] = Typename::BOOL;
+    typeCheckerTable.insert({&node, Typename::BOOL});
     break;
 
   case BinaryExprNode::BinaryOp::GREATER:
@@ -79,7 +79,7 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
           "Expected operands to binary operator to have a numeric type",
           node.loc);
     }
-    typeCheckerTable[&node] = Typename::BOOL;
+    typeCheckerTable.insert({&node, Typename::BOOL});
     break;
 
   case BinaryExprNode::BinaryOp::EQ:
@@ -89,7 +89,7 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
           "Expected operands to binary operator to be of the same type",
           node.loc);
     }
-    typeCheckerTable[&node] = Typename::BOOL;
+    typeCheckerTable.insert({&node, Typename::BOOL});
     break;
   }
 }
@@ -106,7 +106,7 @@ void SemanticVisitor::visit(UnaryExprNode &node) {
           "Expected operand to unary operator to have a numeric type",
           node.loc);
     }
-    typeCheckerTable[&node] = SemanticType(operandType);
+    typeCheckerTable.insert({&node, SemanticType(operandType)});
     break;
 
   case UnaryExprNode::UnaryOp::NOT:
@@ -115,7 +115,7 @@ void SemanticVisitor::visit(UnaryExprNode &node) {
           "Expected operand to unary operator to have a boolean type",
           node.loc);
     }
-    typeCheckerTable[&node] = Typename::BOOL;
+    typeCheckerTable.insert({&node, Typename::BOOL});
     break;
   }
 }
@@ -154,7 +154,7 @@ void SemanticVisitor::visit(FunctionCallNode &node) {
     }
   }
 
-  typeCheckerTable[&node] = SemanticType(retType);
+  typeCheckerTable.insert({&node, SemanticType(retType)});
 }
 
 void SemanticVisitor::visit(IdExprNode &node) {
@@ -163,31 +163,31 @@ void SemanticVisitor::visit(IdExprNode &node) {
     throw SemanticError("Symbol " + node.id + " is not in scope.", node.loc);
   }
 
-  typeCheckerTable[&node] = entry.value().type;
+  typeCheckerTable.insert({&node, entry.value().type});
 }
 
 void SemanticVisitor::visit(BoolLiteralExprNode &node) {
-  typeCheckerTable[&node] = SemanticType(Typename::BOOL);
+  typeCheckerTable.insert({&node, SemanticType(Typename::BOOL)});
 }
 
 void SemanticVisitor::visit(IntLiteralExprNode &node) {
-  typeCheckerTable[&node] = SemanticType(Typename::INT);
+  typeCheckerTable.insert({&node, SemanticType(Typename::INT)});
 }
 
 void SemanticVisitor::visit(FloatLiteralExprNode &node) {
-  typeCheckerTable[&node] = SemanticType(Typename::FLOAT);
+  typeCheckerTable.insert({&node, SemanticType(Typename::FLOAT)});
 }
 
 void SemanticVisitor::visit(ColourLiteralExprNode &node) {
-  typeCheckerTable[&node] = SemanticType(Typename::COLOUR);
+  typeCheckerTable.insert({&node, SemanticType(Typename::COLOUR)});
 }
 
 void SemanticVisitor::visit(PadWidthExprNode &node) {
-  typeCheckerTable[&node] = SemanticType(Typename::INT);
+  typeCheckerTable.insert({&node, SemanticType(Typename::INT)});
 }
 
 void SemanticVisitor::visit(PadHeightExprNode &node) {
-  typeCheckerTable[&node] = SemanticType(Typename::INT);
+  typeCheckerTable.insert({&node, SemanticType(Typename::INT)});
 }
 
 void SemanticVisitor::visit(ReadExprNode &node) {
@@ -196,7 +196,7 @@ void SemanticVisitor::visit(ReadExprNode &node) {
   CHECK_TYPE(node.x.get(), SemanticType(Typename::INT));
   CHECK_TYPE(node.y.get(), SemanticType(Typename::INT));
 
-  typeCheckerTable[&node] = SemanticType(Typename::COLOUR);
+  typeCheckerTable.insert({&node, SemanticType(Typename::COLOUR)});
 }
 
 void SemanticVisitor::visit(RandiExprNode &node) {
@@ -204,7 +204,7 @@ void SemanticVisitor::visit(RandiExprNode &node) {
 
   CHECK_TYPE(node.operand.get(), SemanticType(Typename::INT));
 
-  typeCheckerTable[&node] = SemanticType(Typename::INT);
+  typeCheckerTable.insert({&node, SemanticType(Typename::INT)});
 }
 
 void SemanticVisitor::visit(AssignmentStmt &node) {

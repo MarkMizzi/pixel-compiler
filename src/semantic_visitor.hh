@@ -48,7 +48,7 @@ public:
                      [](const Typename &type) { return ast::to_string(type); });
 
       return result + "(" +
-             std::accumulate(xs.begin(), xs.end(), "",
+             std::accumulate(xs.begin(), xs.end(), std::string(),
                              [](const std::string &x, const std::string &y) {
                                return x + ", " + y;
                              }) +
@@ -107,7 +107,7 @@ struct Scope {
   }
 
   void add(std::string symbol, SymbolTableEntry entry) {
-    symbols[symbol] = entry;
+    symbols.insert({symbol, entry});
   }
 };
 
