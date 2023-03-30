@@ -4,6 +4,9 @@ project(PixARLang)
 set(CMAKE_CXX_STANDARD 17)
 Include(FetchContent)
 
+# otherwise clangd complains
+set(CMAKE_CXX_FLAGS "-std=c++17")
+
 FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
