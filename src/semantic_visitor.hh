@@ -25,21 +25,21 @@ public:
                            std::to_string(loc.ecol) + "]: " + errmsg) {}
 };
 
-using FunctionSemanticType = std::pair<Typename, std::vector<Typename>>;
+using SemanticFunctionType = std::pair<Typename, std::vector<Typename>>;
 
 class SemanticType {
 private:
-  std::variant<Typename, FunctionSemanticType> semanticType;
+  std::variant<Typename, SemanticFunctionType> semanticType;
 
 public:
   SemanticType(Typename type) : semanticType(type) {}
-  SemanticType(FunctionSemanticType type) : semanticType(type) {}
+  SemanticType(SemanticFunctionType type) : semanticType(type) {}
 
   std::string to_string() const {
     if (std::holds_alternative<Typename>(semanticType)) {
       return ast::to_string(std::get<Typename>(semanticType));
     } else {
-      auto &[retType, argTypes] = std::get<FunctionSemanticType>(semanticType);
+      auto &[retType, argTypes] = std::get<SemanticFunctionType>(semanticType);
       std::string result = ast::to_string(retType);
 
       std::vector<std::string> xs(argTypes.size());
