@@ -227,26 +227,98 @@ void SemanticVisitor::visit(VariableDeclStmt &node) {
   currentScope->add(node.id, SymbolTableEntry{type});
 }
 
-void SemanticVisitor::visit(PrintStmt &node) {}
+void SemanticVisitor::visit(PrintStmt &node) { visitChildren(&node); }
 
-void SemanticVisitor::visit(DelayStmt &node) {}
+void SemanticVisitor::visit(DelayStmt &node) {
+  visitChildren(&node);
 
-void SemanticVisitor::visit(PixelStmt &node) {}
+  CHECK_TYPE(node.expr.get(), SemanticType(Typename::INT));
+}
 
-void SemanticVisitor::visit(PixelRStmt &node) {}
+void SemanticVisitor::visit(PixelStmt &node) {
+  visitChildren(&node);
 
-void SemanticVisitor::visit(ReturnStmt &node) {}
+  CHECK_TYPE(node.x.get(), SemanticType(Typename::INT));
+  CHECK_TYPE(node.y.get(), SemanticType(Typename::INT));
+  CHECK_TYPE(node.colour.get(), SemanticType(Typename::COLOUR));
+}
 
-void SemanticVisitor::visit(IfElseStmt &node) {}
+void SemanticVisitor::visit(PixelRStmt &node) {
+  visitChildren(&node);
 
-void SemanticVisitor::visit(ForStmt &node) {}
+  CHECK_TYPE(node.x.get(), SemanticType(Typename::INT));
+  CHECK_TYPE(node.y.get(), SemanticType(Typename::INT));
+  CHECK_TYPE(node.w.get(), SemanticType(Typename::INT));
+  CHECK_TYPE(node.h.get(), SemanticType(Typename::INT));
+  CHECK_TYPE(node.colour.get(), SemanticType(Typename::COLOUR));
+}
 
-void SemanticVisitor::visit(WhileStmt &node) {}
+void SemanticVisitor::visit(ReturnStmt &node) {
+  visitChildren(&node);
 
-void SemanticVisitor::visit(FuncDeclStmt &node) {}
+  std::optional<SemanticFunctionType> funcType = currentScope->getFuncType();
 
-void SemanticVisitor::visit(BlockStmt &node) {}
+  if (!funcType.has_value()) {
+    throw SemanticError("Return statement outside of function body.", node.loc);
+  }
 
-void SemanticVisitor::visit(TranslationUnit &node) {}
+  const SemanticType &retType = funcType.value().first;
+  const SemanticType &type = typeCheckerTable.at(node.expr.get());
+
+  if (retType != type) {
+    throw SemanticError("Return type does not match expected type, expected " +
+                            retType.to_string() + ", got " + type.to_string(),
+                        node.loc);
+  }
+}
+
+void SemanticVisitor::visit(IfElseStmt &node) {
+  visitChildren(&node);
+
+  CHECK_TYPE(node.cond.get(), SemanticType(Typename::BOOL));
+}
+
+void SemanticVisitor::visit(ForStmt &node) {
+  enterScope();
+  visitChildren(&node);
+  CHECK_TYPE(node.cond.get(), SemanticType(Typename::BOOL));
+  exitScope();
+}
+
+void SemanticVisitor::visit(WhileStmt &node) {
+  visitChildren(&node);
+
+  CHECK_TYPE(node.cond.get(), SemanticType(Typename::BOOL));
+}
+
+void SemanticVisitor::visit(FuncDeclStmt &node) {
+  SemanticFunctionType funcType{node.retType,
+                                std::vector<Typename>(node.params.size())};
+  std::transform(node.params.begin(), node.params.end(),
+                 funcType.second.begin(),
+                 [](const FormalParam &param) { return param.second; });
+  currentScope->add(node.funcName, SymbolTableEntry{SemanticType(funcType)});
+
+  enterScope(funcType);
+  for (auto const &[paramName, paramType] : node.params) {
+    currentScope->add(paramName, SymbolTableEntry{SemanticType(paramType)});
+  }
+  // this will create a new scope for the block, but that's ok. The formal
+  // params will be available in the new scope.
+  visitChildren(&node);
+  exitScope();
+}
+
+void SemanticVisitor::visit(BlockStmt &node) {
+  enterScope();
+  visitChildren(&node);
+  exitScope();
+}
+
+void SemanticVisitor::visit(TranslationUnit &node) {
+  enterScope();
+  visitChildren(&node);
+  exitScope();
+}
 
 } // end namespace ast

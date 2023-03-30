@@ -78,9 +78,23 @@ using SymbolTable = std::map<std::string, SymbolTableEntry>;
 struct Scope {
   SymbolTable symbols;
   Scope *parent = nullptr;
+  // stores the signature of a function whose scope we are entering.
+  std::optional<SemanticFunctionType> funcType;
 
-  Scope(SymbolTable &&symbols, Scope *parent)
-      : symbols(std::move(symbols)), parent(parent) {}
+  Scope(SymbolTable &&symbols, Scope *parent,
+        std::optional<SemanticFunctionType> funcType = std::nullopt)
+      : symbols(std::move(symbols)), parent(parent), funcType(funcType) {}
+
+  // fetches the signature of the current scope's function (if any)
+  std::optional<SemanticFunctionType> getFuncType() {
+    if (funcType.has_value()) {
+      return funcType;
+    }
+    if (parent != nullptr) {
+      return parent->getFuncType();
+    }
+    return std::nullopt;
+  }
 
   std::optional<SymbolTableEntry> get(std::string symbol) {
     if (symbols.count(symbol)) {
@@ -112,9 +126,9 @@ private:
   // but this makes the implementation more complex.
   std::map<ExprNode *, SemanticType> typeCheckerTable;
 
-  void enterScope() {
-    currentScope =
-        std::make_unique<Scope>(SymbolTable{}, currentScope.release());
+  void enterScope(std::optional<SemanticFunctionType> funcType = std::nullopt) {
+    currentScope = std::make_unique<Scope>(SymbolTable{},
+                                           currentScope.release(), funcType);
     typeCheckerTable.clear();
   }
 
