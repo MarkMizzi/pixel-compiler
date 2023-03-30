@@ -19,7 +19,7 @@ private:
 
 public:
   XMLPrinter(std::string fname)
-      : fs(fname, fs.in), lexer(lexer::Lexer(fs)), parser(&lexer) {}
+      : fs(fname, fs.in), lexer(lexer::Lexer(fs)), parser(lexer) {}
 
   std::string xml() {
     std::unique_ptr<ast::TranslationUnit> tu = parser.parse();

@@ -19,14 +19,14 @@ public:
 
 class Parser {
 private:
-  lexer::Lexer *lexer;
+  lexer::Lexer &lexer;
   std::deque<lexer::Token> lookahead;
 
   Location loc;
 
   lexer::Token peek(size_t i) {
     if (i + 1 > lookahead.size()) {
-      lexer::Token tok = lexer->getNextToken();
+      lexer::Token tok = lexer.getNextToken();
       lookahead.push_back(tok);
       return tok;
     }
@@ -39,14 +39,14 @@ private:
       tok = lookahead.front();
       lookahead.pop_front();
     } else {
-      tok = lexer->getNextToken();
+      tok = lexer.getNextToken();
     }
     loc = tok.loc;
     return tok;
   }
 
 public:
-  Parser(lexer::Lexer *lexer) : lexer(lexer) {}
+  Parser(lexer::Lexer &lexer) : lexer(lexer) {}
 
   ast::ExprNodePtr parseFactor();
   ast::ExprNodePtr parseTerm();
