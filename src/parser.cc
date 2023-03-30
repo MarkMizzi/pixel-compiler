@@ -378,7 +378,7 @@ ast::StmtNodePtr Parser::parseFor() {
   ast::StmtNodePtr assignment = parseAssignment();
 
   lexer::Token rbracket = consume();
-  CHECK_TOKEN(lbracket, lexer::RBRACKET_TOK);
+  CHECK_TOKEN(rbracket, lexer::RBRACKET_TOK);
 
   ast::StmtNodePtr body = parseBlock();
 
@@ -396,7 +396,7 @@ ast::StmtNodePtr Parser::parseWhile() {
   ast::ExprNodePtr cond = parseExpr();
 
   lexer::Token rbracket = consume();
-  CHECK_TOKEN(lbracket, lexer::RBRACKET_TOK);
+  CHECK_TOKEN(rbracket, lexer::RBRACKET_TOK);
 
   ast::StmtNodePtr body = parseBlock();
 
