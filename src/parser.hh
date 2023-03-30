@@ -48,6 +48,7 @@ private:
 public:
   Parser(lexer::Lexer &lexer) : lexer(lexer) {}
 
+  ast::ExprNodePtr parseFunctionCall();
   ast::ExprNodePtr parseFactor();
   ast::ExprNodePtr parseTerm();
   ast::ExprNodePtr parseSimpleExpr();

@@ -45,6 +45,26 @@ ast::BinaryExprNode::BinaryOp tokenTypeToBinaryOp(lexer::TokenType tokType) {
   }
 }
 
+ast::ExprNodePtr Parser::parseFunctionCall() {
+  lexer::Token funcName = consume();
+
+  lexer::Token lbracket = consume();
+  CHECK_TOKEN(lbracket, lexer::LBRACKET_TOK);
+
+  std::vector<ast::ExprNodePtr> args;
+  while (peek(0).type != lexer::RBRACKET_TOK) {
+    args.push_back(std::move(parseExpr()));
+    if (peek(0).type != lexer::RBRACKET_TOK) {
+      consume(); // consume , token
+    }
+  }
+
+  Location endloc = consume().loc; // consume ) token.
+
+  return std::make_unique<ast::FunctionCallNode>(
+      funcName.value, std::move(args), funcName.loc.merge(endloc));
+}
+
 ast::ExprNodePtr Parser::parseFactor() {
   switch (peek(0).type) {
   case lexer::INTEGER_LITERAL: {
@@ -72,6 +92,9 @@ ast::ExprNodePtr Parser::parseFactor() {
   }
 
   case lexer::IDENTIFIER: {
+    if (peek(1).type == lexer::LBRACKET_TOK) {
+      return parseFunctionCall();
+    }
     lexer::Token tok = consume();
     return std::make_unique<ast::IdExprNode>(tok.value, tok.loc);
   }
