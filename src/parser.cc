@@ -9,7 +9,7 @@ namespace parser {
 #define CHECK_TOKEN(TOK, TYPE)                                                 \
   if ((TOK).type != TYPE) {                                                    \
     throw ParserError(std::string("Expected ") + #TYPE +                       \
-                          ", found invalid token.",                            \
+                          ", found invalid token " + (TOK).value + ".",        \
                       (TOK).loc);                                              \
   }
 
