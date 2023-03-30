@@ -304,7 +304,11 @@ public:
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
   std::vector<ASTNode *> children() override {
-    return {cond.get(), ifBody.get(), elseBody.get()};
+    std::vector<ASTNode *> children{cond.get(), ifBody.get()};
+    if (elseBody != nullptr) {
+      children.push_back(elseBody.get());
+    }
+    return children;
   }
 };
 
