@@ -4,10 +4,15 @@
 #include "ast.hh"
 #include "visitor.hh"
 
+#include <algorithm>
 #include <map>
 #include <memory>
+#include <numeric>
 #include <optional>
 #include <stdexcept>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace ast {
 
@@ -20,18 +25,44 @@ public:
                            std::to_string(loc.ecol) + "]: " + errmsg) {}
 };
 
-enum SemanticType {
-  INT_TYPE,
-  COLOUR_TYPE,
-  FLOAT_TYPE,
-  BOOL_TYPE,
+using FunctionSemanticType = std::pair<Typename, std::vector<Typename>>;
 
-  // allows us to keep track of locally defined functions as symbols in the
-  // symbol table
-  FUNCTION_TYPE,
+class SemanticType {
+private:
+  std::variant<Typename, FunctionSemanticType> semanticType;
+
+public:
+  SemanticType(Typename type) : semanticType(type) {}
+  SemanticType(FunctionSemanticType type) : semanticType(type) {}
+
+  std::string to_string() const {
+    if (std::holds_alternative<Typename>(semanticType)) {
+      return ast::to_string(std::get<Typename>(semanticType));
+    } else {
+      auto &[retType, argTypes] = std::get<FunctionSemanticType>(semanticType);
+      std::string result = ast::to_string(retType);
+
+      std::vector<std::string> xs(argTypes.size());
+      std::transform(argTypes.begin(), argTypes.end(), xs.begin(),
+                     [](const Typename &type) { return ast::to_string(type); });
+
+      return result + "(" +
+             std::accumulate(xs.begin(), xs.end(), "",
+                             [](const std::string &x, const std::string &y) {
+                               return x + ", " + y;
+                             }) +
+             ")";
+    }
+  }
+
+  bool operator==(const SemanticType &other) const {
+    return this->semanticType == other.semanticType;
+  }
+
+  bool operator!=(const SemanticType &other) const {
+    return this->semanticType != other.semanticType;
+  }
 };
-
-SemanticType typenameToSemanticType(Typename type);
 
 struct SymbolTableEntry {
   SemanticType type;
