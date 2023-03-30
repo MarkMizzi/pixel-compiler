@@ -7,7 +7,8 @@ namespace ast {
 #define CHECK_TYPE(NODEPTR, TYPE)                                              \
   if (typeCheckerTable[NODEPTR] != (TYPE)) {                                   \
     throw SemanticError(std::string("Expected type ") + (TYPE).to_string() +   \
-                            ", found invalid type.",                           \
+                            ", found incompatible type " +                     \
+                            typeCheckerTable[NODEPTR].to_string() + ".",       \
                         (NODEPTR)->loc);                                       \
   }
 
