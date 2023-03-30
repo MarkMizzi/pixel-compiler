@@ -55,12 +55,27 @@ class SemanticVisitor : public AbstractVisitor {
 private:
   std::unique_ptr<Scope> currentScope = nullptr;
 
+  // scratch table for the type checker. Used for keeping track of types of
+  // subexpressions while type-checking a compound expression.
+  //
+  // Torn down every time a new scope is entered or exited to save on memory.
+  // That's fine even with nested scopes, since we don't have nested scopes
+  // *INSIDE* an expression.
+  //
+  // We could even be more fine-grained and tear down in the visit*() methods,
+  // but this makes the implementation more complex.
+  std::map<ExprNode *, SemanticType> typeCheckerTable;
+
   void enterScope() {
     currentScope =
         std::make_unique<Scope>(SymbolTable{}, currentScope.release());
+    typeCheckerTable.clear();
   }
 
-  void exitScope() { currentScope.reset(currentScope->parent); }
+  void exitScope() {
+    currentScope.reset(currentScope->parent);
+    typeCheckerTable.clear();
+  }
 
 public:
   void visit(BinaryExprNode &node) override;
