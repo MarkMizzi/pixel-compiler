@@ -86,7 +86,9 @@ struct BasicBlock {
 
 struct PixIRFunction {
   std::string funcName;
-  std::vector<BasicBlock> blocks;
+  // unique_ptr is used so we can reference blocks without worrying about the
+  // vector reallocating its memory.
+  std::vector<std::unique_ptr<BasicBlock>> blocks;
 };
 
 struct SymbolFrameIndexMap {
@@ -117,7 +119,9 @@ class CodeGenerator : public ast::AbstractVisitor {
 private:
   const ast::SymbolTable &symbolTable;
 
-  std::vector<PixIRFunction> pixIRCode;
+  // std::unique_ptr is used so we can reference functions without worrying
+  // about the address changing due to vector reallocation
+  std::vector<std::unique_ptr<PixIRFunction>> pixIRCode;
 
   // scratch space for the generator
   std::stack<BasicBlock *> blockStack;
@@ -239,20 +243,20 @@ private:
 
   void beginBlock() {
     PixIRFunction *currentFunc = blockStack.top()->parentFunc;
-    currentFunc->blocks.push_back(BasicBlock{currentFunc, {}});
-    blockStack.push(&*--(currentFunc->blocks.end()));
+    currentFunc->blocks.push_back(
+        std::make_unique<BasicBlock>(BasicBlock{currentFunc, {}}));
+    blockStack.push((--(currentFunc->blocks.end()))->get());
   }
 
   void endBlock() { blockStack.pop(); }
 
   void beginFunc(std::string funcName) {
-    pixIRCode.push_back(PixIRFunction{"." + funcName, {}});
-    PixIRFunction *func = &*--pixIRCode.end();
+    pixIRCode.push_back(
+        std::make_unique<PixIRFunction>(PixIRFunction{"." + funcName, {}}));
+    PixIRFunction *func = (--pixIRCode.end())->get();
 
-    BasicBlock entry{func, {}};
-
-    func->blocks.push_back(std::move(entry));
-    blockStack.push(&*(func->blocks.begin()));
+    func->blocks.push_back(std::make_unique<BasicBlock>(BasicBlock{func, {}}));
+    blockStack.push((func->blocks.begin())->get());
   }
 
   void endFunc() { blockStack.pop(); }
@@ -293,7 +297,9 @@ public:
   // 1. convert BasicBlock references in PUSH instructions to PC offsets
   // 2. remove empty blocks produced in code generation.
   void linearizeCode();
-  const std::vector<PixIRFunction> &code() { return pixIRCode; }
+  const std::vector<std::unique_ptr<PixIRFunction>> &code() {
+    return pixIRCode;
+  }
 };
 
 } // namespace codegen

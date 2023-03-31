@@ -25,7 +25,7 @@ public:
       : fs(fname, fs.in), lexer(lexer::Lexer(fs)), parser(lexer),
         semanticChecker(symbolTable), codeGenerator(symbolTable) {}
 
-  std::vector<codegen::PixIRFunction> compile() {
+  const std::vector<std::unique_ptr<codegen::PixIRFunction>> &compile() {
     std::unique_ptr<ast::TranslationUnit> tu{parser.parse()};
     semanticChecker.visit(*tu);
     codeGenerator.visit(*tu);

@@ -270,25 +270,25 @@ void CodeGenerator::visit(ast::TranslationUnit &node) {
 }
 
 void CodeGenerator::linearizeCode() {
-  for (PixIRFunction &func : pixIRCode) {
+  for (std::unique_ptr<PixIRFunction> &func : pixIRCode) {
     int offset = 0;
     std::map<BasicBlock *, int> offsets;
 
     // compute local offsets for each block
-    for (BasicBlock &block : func.blocks) {
-      offsets.insert({&block, offset});
-      offset += block.instrs.size();
+    for (std::unique_ptr<BasicBlock> &block : func->blocks) {
+      offsets.insert({block.get(), offset});
+      offset += block->instrs.size();
     }
 
     // use local offsets to convert BasicBlock * references in push instructions
     // to PC offsets.
-    for (BasicBlock &block : func.blocks) {
-      for (int i = 0; i < block.instrs.size(); i++) {
-        PixIRInstruction &instr = block.instrs[i];
+    for (std::unique_ptr<BasicBlock> &block : func->blocks) {
+      for (int i = 0; i < block->instrs.size(); i++) {
+        PixIRInstruction &instr = block->instrs[i];
         if (instr.opcode == PixIROpcode::PUSH &&
             std::holds_alternative<BasicBlock *>(instr.data)) {
-          int pc_offset =
-              offsets[&block] - offsets[std::get<BasicBlock *>(instr.data)];
+          int pc_offset = offsets[block.get()] -
+                          offsets[std::get<BasicBlock *>(instr.data)];
           instr.data = std::string("#PC") + (pc_offset >= 0 ? "+" : "") +
                        std::to_string(pc_offset);
         }
@@ -297,10 +297,10 @@ void CodeGenerator::linearizeCode() {
 
     // remove empty blocks in one pass. This works because an empty block has
     // the next offset as the next block.
-    for (auto it = func.blocks.begin(); it != func.blocks.end(); ++it) {
-      if (it->instrs.size() == 0) {
+    for (auto it = func->blocks.begin(); it != func->blocks.end(); ++it) {
+      if ((*it)->instrs.size() == 0) {
         --it;
-        func.blocks.erase(it + 1);
+        func->blocks.erase(it + 1);
       }
     }
   }
