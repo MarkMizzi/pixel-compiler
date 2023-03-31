@@ -221,6 +221,12 @@ void SemanticVisitor::visit(AssignmentStmt &node) {
 void SemanticVisitor::visit(VariableDeclStmt &node) {
   visitChildren(&node);
 
+  std::optional<SymbolTableEntry> entry = currentScope->get(node.id);
+  if (entry.has_value()) {
+    throw SemanticError("Symbol " + node.id + " defined twice in scope.",
+                        node.loc);
+  }
+
   SemanticType type = SemanticType(node.type);
   CHECK_TYPE(node.initExpr.get(), type);
 
