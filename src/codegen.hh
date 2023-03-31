@@ -17,7 +17,7 @@
 
 namespace codegen {
 
-#define MAIN_FUNC_NAME ".main"
+#define MAIN_FUNC_NAME "main"
 
 enum PixIRInstructionType {
   ADD,
@@ -61,14 +61,14 @@ std::string to_string(const PixIRInstructionType type);
 struct BasicBlock;
 
 struct PixIRInstruction {
-  PixIRInstructionType type;
+  PixIRInstructionType opcode;
   std::variant<std::monostate, BasicBlock *, std::string> data =
       std::monostate(); // only used for PUSH instruction
 
   std::string to_string() const {
-    std::string result = codegen::to_string(type);
+    std::string result = codegen::to_string(opcode);
     if (std::holds_alternative<std::string>(data)) {
-      result += std::get<std::string>(data);
+      result += " " + std::get<std::string>(data);
     } else if (std::holds_alternative<BasicBlock *>(data)) {
       throw std::logic_error(
           "Can't convert instruction with unresolved jump to string.");
@@ -246,7 +246,7 @@ private:
   void endBlock() { blockStack.pop(); }
 
   void beginFunc(std::string funcName) {
-    pixIRCode.push_back(PixIRFunction{funcName, {}});
+    pixIRCode.push_back(PixIRFunction{"." + funcName, {}});
     PixIRFunction *func = &*--pixIRCode.end();
 
     BasicBlock entry{func, {}};
