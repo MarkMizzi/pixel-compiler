@@ -14,7 +14,14 @@ int main(int argc, char *argv[]) {
 
   try {
     Compiler compiler{argv[1]};
-    compiler.compile();
+    for (const codegen::PixIRFunction &func : compiler.compile()) {
+      std::cout << func.funcName << std::endl;
+      for (const codegen::BasicBlock &block : func.blocks) {
+        for (const codegen::PixIRInstruction &instr : block.instrs) {
+          std::cout << instr.to_string() << std::endl;
+        }
+      }
+    }
   } catch (CompilationError &e) {
     std::cerr << e.what() << std::endl;
     exit(-1);

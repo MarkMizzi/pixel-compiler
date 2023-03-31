@@ -26,9 +26,10 @@ public:
         semanticChecker(symbolTable), codeGenerator(symbolTable) {}
 
   std::vector<codegen::PixIRFunction> compile() {
-    std::unique_ptr<ast::TranslationUnit> tu = parser.parse();
+    std::unique_ptr<ast::TranslationUnit> tu{parser.parse()};
     semanticChecker.visit(*tu);
     codeGenerator.visit(*tu);
+    codeGenerator.linearizeCode();
     return codeGenerator.code();
   }
 };
