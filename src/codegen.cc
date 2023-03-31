@@ -30,4 +30,74 @@ void CodeGenerator::visit(ast::BlockStmt &node) {}
 
 void CodeGenerator::visit(ast::TranslationUnit &node) {}
 
+std::string to_string(const PixIRInstructionType type) {
+  switch (type) {
+  case ADD:
+    return "ADD";
+  case SUB:
+    return "SUB";
+  case MUL:
+    return "MUL";
+  case INC:
+    return "INC";
+  case DEC:
+    return "DEC";
+  case MAX:
+    return "MAX";
+  case MIN:
+    return "MIN";
+  case IRND:
+    return "IRND";
+  case LT:
+    return "LT";
+  case LE:
+    return "LE";
+  case EQ:
+    return "EQ";
+  case GT:
+    return "GT";
+  case GE:
+    return "GE";
+  case PUSH:
+    return "PUSH";
+  case JMP:
+    return "JMP";
+  case CJMP:
+    return "CJMP";
+  case CJMP2:
+    return "CJMP2";
+  case CALL:
+    return "CALL";
+  case RET:
+    return "RET";
+  case ST:
+    return "ST";
+  case ALLOC:
+    return "ALLOC";
+  case OFRAME:
+    return "OFRAME";
+  case CFRAME:
+    return "CFRAME";
+  case DELAY:
+    return "DELAY";
+  case PIXEL:
+    return "PIXEL";
+  case PIXELR:
+    return "PIXELR";
+  case CLEAR:
+    return "CLEAR";
+  case READ:
+    return "READ";
+  case WIDTH:
+    return "WIDTH";
+  case HEIGHT:
+    return "HEIGHT";
+  case PRINT:
+    return "PRINT";
+  case DUP:
+    return "DUP";
+  }
+  return ""; // please compiler
+}
+
 } // end namespace codegen

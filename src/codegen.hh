@@ -45,9 +45,16 @@ enum PixIRInstructionType {
   DUP,
 };
 
+std::string to_string(const PixIRInstructionType type);
+
 struct PixIRInstruction {
   PixIRInstructionType type;
   std::optional<std::string> data; // only for PUSH instruction
+
+  std::string to_string() const {
+    return codegen::to_string(type) +
+           (data.has_value() ? " " + data.value() : "");
+  }
 };
 
 using BasicBlock = std::vector<PixIRInstruction>;
