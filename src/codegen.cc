@@ -7,70 +7,58 @@
 namespace codegen {
 
 void CodeGenerator::visit(ast::BinaryExprNode &node) {
+  rvisitChildren(&node);
   switch (node.op) {
   case ast::BinaryExprNode::BinaryOp::ADD:
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::ADD});
     break;
   case ast::BinaryExprNode::BinaryOp::SUB:
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::SUB});
     break;
   case ast::BinaryExprNode::BinaryOp::DIV:
-    rvisitChildren(&node);
-    throw std::logic_error("Not implemented yet.");
+    addInstr({PixIRInstructionType::DIV});
     break;
   case ast::BinaryExprNode::BinaryOp::MUL:
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::MUL});
     break;
   case ast::BinaryExprNode::BinaryOp::AND:
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::MIN});
     break;
   case ast::BinaryExprNode::BinaryOp::OR:
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::MAX});
     break;
   case ast::BinaryExprNode::BinaryOp::GREATER:
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::GT});
     break;
   case ast::BinaryExprNode::BinaryOp::LESS:
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::LT});
     break;
   case ast::BinaryExprNode::BinaryOp::EQ:
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::EQ});
     break;
   case ast::BinaryExprNode::BinaryOp::NEQ:
-    addInstr({PixIRInstructionType::PUSH, "1"});
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::EQ});
+    addInstr({PixIRInstructionType::PUSH, "1"});
     addInstr({PixIRInstructionType::SUB});
     break;
   case ast::BinaryExprNode::BinaryOp::GE:
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::GE});
     break;
   case ast::BinaryExprNode::BinaryOp::LE:
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::LE});
     break;
   }
 }
 
 void CodeGenerator::visit(ast::UnaryExprNode &node) {
+  rvisitChildren(&node);
   switch (node.op) {
   case ast::UnaryExprNode::UnaryOp::NOT:
     addInstr({PixIRInstructionType::PUSH, "1"});
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::SUB});
     break;
   case ast::UnaryExprNode::UnaryOp::MINUS:
     addInstr({PixIRInstructionType::PUSH, "0"});
-    rvisitChildren(&node);
     addInstr({PixIRInstructionType::SUB});
     break;
   }
@@ -173,11 +161,94 @@ void CodeGenerator::visit(ast::ReturnStmt &node) {
   addInstr({PixIRInstructionType::RET});
 }
 
-void CodeGenerator::visit(ast::IfElseStmt &node) {}
+void CodeGenerator::visit(ast::IfElseStmt &node) {
+  BasicBlock *head, *ifBlock, *elseBlock, *after;
 
-void CodeGenerator::visit(ast::ForStmt &node) {}
+  beginBlock();
+  node.cond->accept(this);
+  head = blockStack.top();
+  endBlock();
 
-void CodeGenerator::visit(ast::WhileStmt &node) {}
+  beginBlock();
+  if (node.elseBody) {
+    node.elseBody->accept(this);
+  }
+  elseBlock = blockStack.top();
+  endBlock();
+
+  beginBlock();
+  node.ifBody->accept(this);
+  ifBlock = blockStack.top();
+  endBlock();
+
+  beginBlock();
+  after = blockStack.top();
+  endBlock();
+
+  head->instrs.push_back({PixIRInstructionType::PUSH, ifBlock});
+  head->instrs.push_back({PixIRInstructionType::CJMP2});
+
+  elseBlock->instrs.push_back({PixIRInstructionType::PUSH, after});
+  elseBlock->instrs.push_back({PixIRInstructionType::JMP});
+
+  ifBlock->instrs.push_back({PixIRInstructionType::PUSH, after});
+  ifBlock->instrs.push_back({PixIRInstructionType::JMP});
+}
+
+void CodeGenerator::visit(ast::ForStmt &node) {
+  BasicBlock *head, *after;
+
+  beginBlock();
+  node.varDecl->accept(this);
+  endBlock();
+
+  beginBlock();
+  node.cond->accept(this);
+  // !node.cond.
+  addInstr({PixIRInstructionType::PUSH, "1"});
+  addInstr({PixIRInstructionType::SUB});
+  head = blockStack.top();
+  endBlock();
+
+  beginBlock();
+  node.body->accept(this);
+  node.assignment->accept(this);
+  addInstr({PixIRInstructionType::PUSH, head});
+  addInstr({PixIRInstructionType::JMP});
+  endBlock();
+
+  beginBlock();
+  after = blockStack.top();
+  endBlock();
+
+  head->instrs.push_back({PixIRInstructionType::PUSH, after});
+  head->instrs.push_back({PixIRInstructionType::CJMP2});
+}
+
+void CodeGenerator::visit(ast::WhileStmt &node) {
+  BasicBlock *head, *after;
+
+  beginBlock();
+  node.cond->accept(this);
+  // !node.cond.
+  addInstr({PixIRInstructionType::PUSH, "1"});
+  addInstr({PixIRInstructionType::SUB});
+  head = blockStack.top();
+  endBlock();
+
+  beginBlock();
+  node.body->accept(this);
+  addInstr({PixIRInstructionType::PUSH, head});
+  addInstr({PixIRInstructionType::JMP});
+  endBlock();
+
+  beginBlock();
+  after = blockStack.top();
+  endBlock();
+
+  head->instrs.push_back({PixIRInstructionType::PUSH, after});
+  head->instrs.push_back({PixIRInstructionType::CJMP2});
+}
 
 void CodeGenerator::visit(ast::FuncDeclStmt &node) {
   beginFunc(node.funcName);
@@ -201,6 +272,8 @@ void CodeGenerator::visit(ast::TranslationUnit &node) {
   endFunc();
 }
 
+void CodeGenerator::linearizeCode() {}
+
 std::string to_string(const PixIRInstructionType type) {
   switch (type) {
   case ADD:
@@ -209,6 +282,8 @@ std::string to_string(const PixIRInstructionType type) {
     return "SUB";
   case MUL:
     return "MUL";
+  case DIV:
+    return "DIV";
   case INC:
     return "INC";
   case DEC:
@@ -267,6 +342,8 @@ std::string to_string(const PixIRInstructionType type) {
     return "PRINT";
   case DUP:
     return "DUP";
+  case HALT:
+    return "HALT";
   }
   return ""; // please compiler
 }

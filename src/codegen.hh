@@ -23,6 +23,7 @@ enum PixIRInstructionType {
   ADD,
   SUB,
   MUL,
+  DIV,
   INC,
   DEC,
   MAX,
@@ -52,6 +53,7 @@ enum PixIRInstructionType {
   HEIGHT,
   PRINT,
   DUP,
+  HALT,
 };
 
 std::string to_string(const PixIRInstructionType type);
@@ -199,6 +201,8 @@ private:
     currentScope = currentScope->parent;
 
     frameIndexMap.reset(frameIndexMap->parent);
+
+    addInstr({PixIRInstructionType::HALT});
   }
 
   // what are called frames in the VM correspond to scopes in the
@@ -286,6 +290,10 @@ public:
 
   void visit(ast::TranslationUnit &node) override;
 
+  // Multiple responsibilities:
+  // 1. convert BasicBlock references in PUSH instructions to PC offsets
+  // 2. remove empty blocks produced in code generation.
+  void linearizeCode();
   const std::vector<PixIRFunction> &code() { return pixIRCode; }
 };
 
