@@ -2,17 +2,18 @@
 #define LEXER_H_
 
 #include "location.hh"
+#include "util.hh"
 
 #include <iostream>
 #include <stdexcept>
 
 namespace lexer {
 
-class LexerError : public std::runtime_error {
+class LexerError : public CompilationError {
 public:
   LexerError(std::string errmsg, size_t line, size_t col)
-      : std::runtime_error("Lexer error at [" + std::to_string(line) + ":" +
-                           std::to_string(col) + "]: " + errmsg) {}
+      : CompilationError("Lexer error at [" + std::to_string(line) + ":" +
+                         std::to_string(col) + "]: " + errmsg) {}
 };
 
 enum TokenType {

@@ -6,8 +6,9 @@
 #include "visitor.hh"
 
 #include <map>
-#include <optional>
 #include <stack>
+#include <stdexcept>
+#include <variant>
 #include <vector>
 
 namespace codegen {
@@ -51,13 +52,22 @@ enum PixIRInstructionType {
 
 std::string to_string(const PixIRInstructionType type);
 
+struct BasicBlock;
+
 struct PixIRInstruction {
   PixIRInstructionType type;
-  std::optional<std::string> data = std::nullopt; // only for PUSH instruction
+  std::variant<std::monostate, BasicBlock *, std::string> data =
+      std::monostate(); // only used for PUSH instruction
 
   std::string to_string() const {
-    return codegen::to_string(type) +
-           (data.has_value() ? " " + data.value() : "");
+    std::string result = codegen::to_string(type);
+    if (std::holds_alternative<std::string>(data)) {
+      result += std::get<std::string>(data);
+    } else if (std::holds_alternative<BasicBlock *>(data)) {
+      throw std::logic_error(
+          "Can't convert instruction with unresolved jump to string.");
+    }
+    return result;
   }
 };
 

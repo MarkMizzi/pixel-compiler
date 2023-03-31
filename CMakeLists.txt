@@ -18,6 +18,7 @@ include_directories(src)
 
 add_executable(pixarc
   src/location.hh
+  src/util.hh
   src/lexer.hh
   src/ast.hh
   src/parser.hh
@@ -38,6 +39,7 @@ add_executable(pixarc
 
 add_executable(pixarc_tests
   src/location.hh
+  src/util.hh
   src/lexer.hh
   src/ast.hh
   src/parser.hh

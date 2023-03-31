@@ -1,3 +1,5 @@
+#include "compiler.hh"
+#include "util.hh"
 #include "xml_printer.hh"
 
 #include <exception>
@@ -11,9 +13,9 @@ int main(int argc, char *argv[]) {
   }
 
   try {
-    XMLPrinter xmlp{argv[1]};
-    std::cout << xmlp.xml() << std::endl;
-  } catch (std::exception &e) {
+    Compiler compiler{argv[1]};
+    compiler.compile();
+  } catch (CompilationError &e) {
     std::cerr << e.what() << std::endl;
     exit(-1);
   }

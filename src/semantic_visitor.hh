@@ -2,6 +2,7 @@
 #define SEMANTIC_VISITOR_H_
 
 #include "ast.hh"
+#include "util.hh"
 #include "visitor.hh"
 
 #include <algorithm>
@@ -17,13 +18,13 @@
 
 namespace ast {
 
-class SemanticError : public std::runtime_error {
+class SemanticError : public CompilationError {
 public:
   SemanticError(std::string errmsg, Location loc)
-      : std::runtime_error("Semantic error at [" + std::to_string(loc.sline) +
-                           ":" + std::to_string(loc.scol) + "]-[" +
-                           std::to_string(loc.eline) + ":" +
-                           std::to_string(loc.ecol) + "]: " + errmsg) {}
+      : CompilationError("Semantic error at [" + std::to_string(loc.sline) +
+                         ":" + std::to_string(loc.scol) + "]-[" +
+                         std::to_string(loc.eline) + ":" +
+                         std::to_string(loc.ecol) + "]: " + errmsg) {}
 };
 
 using SemanticFunctionType = std::pair<Typename, std::vector<Typename>>;

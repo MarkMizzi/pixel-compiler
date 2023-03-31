@@ -3,18 +3,19 @@
 
 #include "ast.hh"
 #include "lexer.hh"
+#include "util.hh"
 
 #include <deque>
 
 namespace parser {
 
-class ParserError : public std::runtime_error {
+class ParserError : public CompilationError {
 public:
   ParserError(std::string errmsg, Location loc)
-      : std::runtime_error("Parser error at [" + std::to_string(loc.sline) +
-                           ":" + std::to_string(loc.scol) + "]-[" +
-                           std::to_string(loc.eline) + ":" +
-                           std::to_string(loc.ecol) + "]: " + errmsg) {}
+      : CompilationError("Parser error at [" + std::to_string(loc.sline) + ":" +
+                         std::to_string(loc.scol) + "]-[" +
+                         std::to_string(loc.eline) + ":" +
+                         std::to_string(loc.ecol) + "]: " + errmsg) {}
 };
 
 class Parser {
