@@ -144,7 +144,7 @@ void SemanticVisitor::visit(FunctionCallNode &node) {
         node.loc);
   }
 
-  for (int i = 0; i < argTypes.size(); i++) {
+  for (size_t i = 0; i < argTypes.size(); i++) {
     const SemanticType &type = typeCheckerTable().at(node.args[i].get());
     if (SemanticType(argTypes[i]) != type) {
       throw SemanticError(
