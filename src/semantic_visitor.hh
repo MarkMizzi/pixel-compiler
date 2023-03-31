@@ -74,15 +74,13 @@ struct SymbolTableEntry {
   SemanticType type;
 };
 
-using SymbolTable = std::map<std::string, SymbolTableEntry>;
-
 struct Scope {
-  SymbolTable symbols;
+  std::map<std::string, SymbolTableEntry> symbols;
   Scope *parent = nullptr;
   // stores the signature of a function whose scope we are entering.
   std::optional<SemanticFunctionType> funcType;
 
-  Scope(SymbolTable &&symbols, Scope *parent,
+  Scope(std::map<std::string, SymbolTableEntry> &&symbols, Scope *parent,
         std::optional<SemanticFunctionType> funcType = std::nullopt)
       : symbols(std::move(symbols)), parent(parent), funcType(funcType) {}
 
@@ -112,9 +110,12 @@ struct Scope {
   }
 };
 
+using SymbolTable = std::map<StmtNode *, Scope>;
+
 class SemanticVisitor : public AbstractVisitor {
 private:
-  std::unique_ptr<Scope> currentScope = nullptr;
+  SymbolTable &symbolTable;
+  Scope *currentScope = nullptr;
 
   using TypeCheckerTable = std::map<ExprNode *, SemanticType>;
   // scratch tables for the type checker. Used for keeping track of types of
@@ -126,18 +127,21 @@ private:
 
   TypeCheckerTable &typeCheckerTable() { return typeCheckerTables.top(); }
 
-  void enterScope(std::optional<SemanticFunctionType> funcType = std::nullopt) {
-    currentScope = std::make_unique<Scope>(SymbolTable{},
-                                           currentScope.release(), funcType);
+  void enterScope(StmtNode *stmt,
+                  std::optional<SemanticFunctionType> funcType = std::nullopt) {
+    symbolTable.insert({stmt, Scope({}, currentScope, funcType)});
+    currentScope = &symbolTable.at(stmt);
     typeCheckerTables.push(TypeCheckerTable{});
   }
 
   void exitScope() {
-    currentScope.reset(currentScope->parent);
+    currentScope = currentScope->parent;
     typeCheckerTables.pop();
   }
 
 public:
+  SemanticVisitor(SymbolTable &symbolTable) : symbolTable(symbolTable) {}
+
   void visit(BinaryExprNode &node) override;
   void visit(UnaryExprNode &node) override;
   void visit(FunctionCallNode &node) override;

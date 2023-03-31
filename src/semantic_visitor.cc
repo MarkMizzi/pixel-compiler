@@ -279,7 +279,7 @@ void SemanticVisitor::visit(IfElseStmt &node) {
 }
 
 void SemanticVisitor::visit(ForStmt &node) {
-  enterScope();
+  enterScope(&node);
   visitChildren(&node);
   CHECK_TYPE(node.cond.get(), SemanticType(Typename::BOOL));
   exitScope();
@@ -299,7 +299,7 @@ void SemanticVisitor::visit(FuncDeclStmt &node) {
                  [](const FormalParam &param) { return param.second; });
   currentScope->add(node.funcName, SymbolTableEntry{SemanticType(funcType)});
 
-  enterScope(funcType);
+  enterScope(&node, funcType);
   for (auto const &[paramName, paramType] : node.params) {
     currentScope->add(paramName, SymbolTableEntry{SemanticType(paramType)});
   }
@@ -310,13 +310,13 @@ void SemanticVisitor::visit(FuncDeclStmt &node) {
 }
 
 void SemanticVisitor::visit(BlockStmt &node) {
-  enterScope();
+  enterScope(&node);
   visitChildren(&node);
   exitScope();
 }
 
 void SemanticVisitor::visit(TranslationUnit &node) {
-  enterScope();
+  enterScope(&node);
   visitChildren(&node);
   exitScope();
 }

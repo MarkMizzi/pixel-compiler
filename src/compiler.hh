@@ -15,11 +15,13 @@ private:
   std::fstream fs;
   lexer::Lexer lexer;
   parser::Parser parser;
+  ast::SymbolTable symbolTable;
   ast::SemanticVisitor semanticChecker;
 
 public:
   Compiler(std::string fname)
-      : fs(fname, fs.in), lexer(lexer::Lexer(fs)), parser(lexer) {}
+      : fs(fname, fs.in), lexer(lexer::Lexer(fs)), parser(lexer),
+        semanticChecker(symbolTable) {}
 
   void compile() {
     std::unique_ptr<ast::TranslationUnit> tu = parser.parse();

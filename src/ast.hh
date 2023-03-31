@@ -378,12 +378,12 @@ public:
   }
 };
 
-class TranslationUnit : public ASTNode {
+class TranslationUnit : public StmtNode {
 public:
   std::vector<StmtNodePtr> stmts;
 
   TranslationUnit(std::vector<StmtNodePtr> &&stmts, Location loc)
-      : ASTNode(loc), stmts(std::move(stmts)) {}
+      : StmtNode(loc), stmts(std::move(stmts)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
   std::vector<ASTNode *> children() override {
