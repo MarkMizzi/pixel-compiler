@@ -64,6 +64,7 @@ public:
   virtual void visit(TranslationUnit &node) = 0;
 
   void visitChildren(ASTNode *node);
+  void rvisitChildren(ASTNode *node);
 };
 
 } // namespace ast

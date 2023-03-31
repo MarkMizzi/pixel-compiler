@@ -2,13 +2,17 @@
 #define CODEGEN_H_
 
 #include "ast.hh"
+#include "semantic_visitor.hh"
 #include "visitor.hh"
 
 #include <map>
 #include <optional>
+#include <stack>
 #include <vector>
 
 namespace codegen {
+
+#define MAIN_FUNC_NAME ".main"
 
 enum PixIRInstructionType {
   ADD,
@@ -49,7 +53,7 @@ std::string to_string(const PixIRInstructionType type);
 
 struct PixIRInstruction {
   PixIRInstructionType type;
-  std::optional<std::string> data; // only for PUSH instruction
+  std::optional<std::string> data = std::nullopt; // only for PUSH instruction
 
   std::string to_string() const {
     return codegen::to_string(type) +
@@ -57,16 +61,59 @@ struct PixIRInstruction {
   }
 };
 
-using BasicBlock = std::vector<PixIRInstruction>;
+struct PixIRFunction;
+
+struct BasicBlock {
+  PixIRFunction *parentFunc;
+  std::vector<PixIRInstruction> instrs;
+};
+
+struct PixIRFunction {
+  std::string funcName;
+  std::vector<BasicBlock> blocks;
+};
 
 class CodeGenerator : public ast::AbstractVisitor {
 private:
-  using ProgramCounter = int;
+  const ast::SymbolTable &symbolTable;
 
-  std::map<ast::StmtNode *, ProgramCounter> jumpTable;
-  std::vector<BasicBlock> pixIRCode;
+  std::vector<PixIRFunction> pixIRCode;
+
+  // scratch space for the generator
+  std::map<ast::StmtNode *, BasicBlock &> jumpTable;
+  std::stack<BasicBlock *> blockStack;
+
+  void enterBasicBlock() {
+    PixIRFunction *currentFunc = blockStack.top()->parentFunc;
+    currentFunc->blocks.push_back(BasicBlock{currentFunc, {}});
+    blockStack.push(&*--(currentFunc->blocks.end()));
+  }
+
+  void exitBasicBlock() { blockStack.pop(); }
+
+  void enterFunc(std::string funcName) {
+    pixIRCode.push_back(PixIRFunction{funcName, {}});
+    PixIRFunction *func = &*--pixIRCode.end();
+
+    BasicBlock entry{func, {}};
+
+    func->blocks.push_back(std::move(entry));
+    blockStack.push(&*(func->blocks.begin()));
+  }
+
+  void exitFunc() { blockStack.pop(); }
+
+  void addInstr(PixIRInstruction instr) {
+    blockStack.top()->instrs.push_back(instr);
+  }
 
 public:
+  CodeGenerator(const ast::SymbolTable &symbolTable)
+      : symbolTable(symbolTable) {
+
+    enterFunc(MAIN_FUNC_NAME);
+  }
+
   void visit(ast::BinaryExprNode &node) override;
   void visit(ast::UnaryExprNode &node) override;
   void visit(ast::FunctionCallNode &node) override;
@@ -95,7 +142,7 @@ public:
 
   void visit(ast::TranslationUnit &node) override;
 
-  const std::vector<BasicBlock> &code() { return pixIRCode; }
+  const std::vector<PixIRFunction> &code() { return pixIRCode; }
 };
 
 } // namespace codegen
