@@ -120,7 +120,6 @@ private:
   std::vector<PixIRFunction> pixIRCode;
 
   // scratch space for the generator
-  std::map<ast::StmtNode *, BasicBlock &> jumpTable;
   std::stack<BasicBlock *> blockStack;
   std::unique_ptr<SymbolFrameIndexMap> frameIndexMap;
 
