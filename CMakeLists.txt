@@ -24,13 +24,16 @@ add_executable(pixarc
   src/visitor.hh
   src/xml_visitor.hh
   src/xml_printer.hh
+  src/semantic_visitor.hh
   src/compiler.hh
+  src/codegen.hh
   src/lexer.cc
   src/ast.cc
   src/parser.cc
   src/visitor.cc
   src/xml_visitor.cc
   src/semantic_visitor.cc
+  src/codegen.cc
   src/main.cc)
 
 add_executable(pixarc_tests
@@ -41,13 +44,16 @@ add_executable(pixarc_tests
   src/visitor.hh
   src/xml_visitor.hh
   src/xml_printer.hh
+  src/semantic_visitor.hh
   src/compiler.hh
+  src/codegen.hh
   src/lexer.cc
   src/ast.cc
   src/parser.cc
   src/visitor.cc
   src/xml_visitor.cc
   src/semantic_visitor.cc
+  src/codegen.cc
   tests/lexer_tests.cc)
 
 target_link_libraries(pixarc_tests PRIVATE Catch2::Catch2WithMain)
