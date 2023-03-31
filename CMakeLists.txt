@@ -54,6 +54,7 @@ add_executable(pixarc_tests
   src/xml_visitor.cc
   src/semantic_visitor.cc
   src/codegen.cc
-  tests/lexer_tests.cc)
+  tests/lexer_tests.cc
+  tests/semantic_visitor_tests.cc)
 
 target_link_libraries(pixarc_tests PRIVATE Catch2::Catch2WithMain)
