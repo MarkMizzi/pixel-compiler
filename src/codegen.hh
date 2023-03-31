@@ -137,7 +137,7 @@ private:
 
   void enterFuncDefFrame(ast::FuncDeclStmt &node) {
     frameNumber++;
-    currentScope = &symbolTable.at(&node);
+    currentScope = symbolTable.at(&node).get();
 
     std::set<std::string> paramNames;
 
@@ -179,7 +179,7 @@ private:
 
   void enterMainFrame(ast::TranslationUnit &node) {
     frameNumber++;
-    currentScope = &symbolTable.at(&node);
+    currentScope = symbolTable.at(&node).get();
 
     std::map<std::string, SymbolFrameIndexMap::FrameIndex> frameIndices;
     int frameIndex = 0;
@@ -212,7 +212,7 @@ private:
   // SemanticVisitor.
   void enterFrame(ast::StmtNode *stmt) {
     frameNumber++;
-    currentScope = &symbolTable.at(stmt);
+    currentScope = symbolTable.at(stmt).get();
 
     std::map<std::string, SymbolFrameIndexMap::FrameIndex> frameIndices;
     int frameIndex = 0;

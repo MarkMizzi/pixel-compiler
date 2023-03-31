@@ -115,7 +115,7 @@ struct Scope {
   }
 };
 
-using SymbolTable = std::map<StmtNode *, Scope>;
+using SymbolTable = std::map<StmtNode *, std::unique_ptr<Scope>>;
 
 class SemanticVisitor : public AbstractVisitor {
 private:
@@ -134,8 +134,9 @@ private:
 
   void enterScope(StmtNode *stmt,
                   std::optional<SemanticFunctionType> funcType = std::nullopt) {
-    symbolTable.insert({stmt, Scope({}, currentScope, funcType)});
-    currentScope = &symbolTable.at(stmt);
+    symbolTable.insert(
+        {stmt, std::make_unique<Scope>(Scope{{}, currentScope, funcType})});
+    currentScope = symbolTable.at(stmt).get();
     typeCheckerTables.push(TypeCheckerTable{});
   }
 
