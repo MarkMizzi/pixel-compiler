@@ -125,13 +125,24 @@ void CodeGenerator::visit(ast::AssignmentStmt &node) {
 
   addInstr({PixIROpcode::PUSH, std::to_string(frameNumber - depth)});
   addInstr({PixIROpcode::PUSH, std::to_string(index)});
-  visitChildren(&node);
+  rvisitChildren(&node);
   addInstr({PixIROpcode::ST});
 }
 
 // nothing to generate here. Space for variables is allocated when entering a
 // BlockStmt.
-void CodeGenerator::visit(ast::VariableDeclStmt &) {}
+void CodeGenerator::visit(ast::VariableDeclStmt &node) {
+  rvisitChildren(&node);
+
+  // NOTE: unsafe unwrapping here because SemanticVisitor has already dealth
+  // with error case.
+  auto [depth, index] = frameIndexMap->getDepthAndIndex(node.id);
+
+  addInstr({PixIROpcode::PUSH, std::to_string(frameNumber - depth)});
+  addInstr({PixIROpcode::PUSH, std::to_string(index)});
+  rvisitChildren(&node);
+  addInstr({PixIROpcode::ST});
+}
 
 void CodeGenerator::visit(ast::PrintStmt &node) {
   rvisitChildren(&node);
