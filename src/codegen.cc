@@ -9,42 +9,42 @@ void CodeGenerator::visit(ast::BinaryExprNode &node) {
   rvisitChildren(&node);
   switch (node.op) {
   case ast::BinaryExprNode::BinaryOp::ADD:
-    addInstr({PixIRInstructionType::ADD});
+    addInstr({PixIROpcode::ADD});
     break;
   case ast::BinaryExprNode::BinaryOp::SUB:
-    addInstr({PixIRInstructionType::SUB});
+    addInstr({PixIROpcode::SUB});
     break;
   case ast::BinaryExprNode::BinaryOp::DIV:
-    addInstr({PixIRInstructionType::DIV});
+    addInstr({PixIROpcode::DIV});
     break;
   case ast::BinaryExprNode::BinaryOp::MUL:
-    addInstr({PixIRInstructionType::MUL});
+    addInstr({PixIROpcode::MUL});
     break;
   case ast::BinaryExprNode::BinaryOp::AND:
-    addInstr({PixIRInstructionType::MIN});
+    addInstr({PixIROpcode::MIN});
     break;
   case ast::BinaryExprNode::BinaryOp::OR:
-    addInstr({PixIRInstructionType::MAX});
+    addInstr({PixIROpcode::MAX});
     break;
   case ast::BinaryExprNode::BinaryOp::GREATER:
-    addInstr({PixIRInstructionType::GT});
+    addInstr({PixIROpcode::GT});
     break;
   case ast::BinaryExprNode::BinaryOp::LESS:
-    addInstr({PixIRInstructionType::LT});
+    addInstr({PixIROpcode::LT});
     break;
   case ast::BinaryExprNode::BinaryOp::EQ:
-    addInstr({PixIRInstructionType::EQ});
+    addInstr({PixIROpcode::EQ});
     break;
   case ast::BinaryExprNode::BinaryOp::NEQ:
-    addInstr({PixIRInstructionType::EQ});
-    addInstr({PixIRInstructionType::PUSH, "1"});
-    addInstr({PixIRInstructionType::SUB});
+    addInstr({PixIROpcode::EQ});
+    addInstr({PixIROpcode::PUSH, "1"});
+    addInstr({PixIROpcode::SUB});
     break;
   case ast::BinaryExprNode::BinaryOp::GE:
-    addInstr({PixIRInstructionType::GE});
+    addInstr({PixIROpcode::GE});
     break;
   case ast::BinaryExprNode::BinaryOp::LE:
-    addInstr({PixIRInstructionType::LE});
+    addInstr({PixIROpcode::LE});
     break;
   }
 }
@@ -53,21 +53,20 @@ void CodeGenerator::visit(ast::UnaryExprNode &node) {
   rvisitChildren(&node);
   switch (node.op) {
   case ast::UnaryExprNode::UnaryOp::NOT:
-    addInstr({PixIRInstructionType::PUSH, "1"});
-    addInstr({PixIRInstructionType::SUB});
+    addInstr({PixIROpcode::PUSH, "1"});
+    addInstr({PixIROpcode::SUB});
     break;
   case ast::UnaryExprNode::UnaryOp::MINUS:
-    addInstr({PixIRInstructionType::PUSH, "0"});
-    addInstr({PixIRInstructionType::SUB});
+    addInstr({PixIROpcode::PUSH, "0"});
+    addInstr({PixIROpcode::SUB});
     break;
   }
 }
 
 void CodeGenerator::visit(ast::FunctionCallNode &node) {
   rvisitChildren(&node);
-  addInstr(
-      {PixIRInstructionType::PUSH, std::to_string(node.children().size())});
-  addInstr({PixIRInstructionType::PUSH, "." + node.funcName});
+  addInstr({PixIROpcode::PUSH, std::to_string(node.children().size())});
+  addInstr({PixIROpcode::PUSH, "." + node.funcName});
 }
 
 void CodeGenerator::visit(ast::IdExprNode &node) {
@@ -75,49 +74,48 @@ void CodeGenerator::visit(ast::IdExprNode &node) {
   // with error case.
   auto [depth, index] = frameIndexMap->getDepthAndIndex(node.id);
 
-  addInstr(
-      {PixIRInstructionType::PUSH, "[" + std::to_string(frameNumber - depth) +
-                                       ":" + std::to_string(index) + "]"});
+  addInstr({PixIROpcode::PUSH, "[" + std::to_string(frameNumber - depth) + ":" +
+                                   std::to_string(index) + "]"});
 }
 
 void CodeGenerator::visit(ast::BoolLiteralExprNode &node) {
   if (node.x) {
-    addInstr({PixIRInstructionType::PUSH, "1"});
+    addInstr({PixIROpcode::PUSH, "1"});
   } else {
-    addInstr({PixIRInstructionType::PUSH, "0"});
+    addInstr({PixIROpcode::PUSH, "0"});
   }
 }
 
 void CodeGenerator::visit(ast::IntLiteralExprNode &node) {
-  addInstr({PixIRInstructionType::PUSH, std::to_string(node.x)});
+  addInstr({PixIROpcode::PUSH, std::to_string(node.x)});
 }
 
 void CodeGenerator::visit(ast::FloatLiteralExprNode &node) {
-  addInstr({PixIRInstructionType::PUSH, std::to_string(node.x)});
+  addInstr({PixIROpcode::PUSH, std::to_string(node.x)});
 }
 
 void CodeGenerator::visit(ast::ColourLiteralExprNode &node) {
   std::stringstream ss;
   ss << "#" << std::hex << node.colour;
-  addInstr({PixIRInstructionType::PUSH, ss.str()});
+  addInstr({PixIROpcode::PUSH, ss.str()});
 }
 
 void CodeGenerator::visit(ast::PadWidthExprNode &) {
-  addInstr({PixIRInstructionType::WIDTH});
+  addInstr({PixIROpcode::WIDTH});
 }
 
 void CodeGenerator::visit(ast::PadHeightExprNode &) {
-  addInstr({PixIRInstructionType::HEIGHT});
+  addInstr({PixIROpcode::HEIGHT});
 }
 
 void CodeGenerator::visit(ast::ReadExprNode &node) {
   rvisitChildren(&node);
-  addInstr({PixIRInstructionType::READ});
+  addInstr({PixIROpcode::READ});
 }
 
 void CodeGenerator::visit(ast::RandiExprNode &node) {
   rvisitChildren(&node);
-  addInstr({PixIRInstructionType::IRND});
+  addInstr({PixIROpcode::IRND});
 }
 
 void CodeGenerator::visit(ast::AssignmentStmt &node) {
@@ -125,10 +123,10 @@ void CodeGenerator::visit(ast::AssignmentStmt &node) {
   // with error case.
   auto [depth, index] = frameIndexMap->getDepthAndIndex(node.id);
 
-  addInstr({PixIRInstructionType::PUSH, std::to_string(frameNumber - depth)});
-  addInstr({PixIRInstructionType::PUSH, std::to_string(index)});
+  addInstr({PixIROpcode::PUSH, std::to_string(frameNumber - depth)});
+  addInstr({PixIROpcode::PUSH, std::to_string(index)});
   visitChildren(&node);
-  addInstr({PixIRInstructionType::ST});
+  addInstr({PixIROpcode::ST});
 }
 
 // nothing to generate here. Space for variables is allocated when entering a
@@ -137,27 +135,27 @@ void CodeGenerator::visit(ast::VariableDeclStmt &) {}
 
 void CodeGenerator::visit(ast::PrintStmt &node) {
   rvisitChildren(&node);
-  addInstr({PixIRInstructionType::PRINT});
+  addInstr({PixIROpcode::PRINT});
 }
 
 void CodeGenerator::visit(ast::DelayStmt &node) {
   rvisitChildren(&node);
-  addInstr({PixIRInstructionType::DELAY});
+  addInstr({PixIROpcode::DELAY});
 }
 
 void CodeGenerator::visit(ast::PixelStmt &node) {
   rvisitChildren(&node);
-  addInstr({PixIRInstructionType::PIXEL});
+  addInstr({PixIROpcode::PIXEL});
 }
 
 void CodeGenerator::visit(ast::PixelRStmt &node) {
   rvisitChildren(&node);
-  addInstr({PixIRInstructionType::PIXELR});
+  addInstr({PixIROpcode::PIXELR});
 }
 
 void CodeGenerator::visit(ast::ReturnStmt &node) {
   rvisitChildren(&node);
-  addInstr({PixIRInstructionType::RET});
+  addInstr({PixIROpcode::RET});
 }
 
 void CodeGenerator::visit(ast::IfElseStmt &node) {
@@ -184,14 +182,14 @@ void CodeGenerator::visit(ast::IfElseStmt &node) {
   after = blockStack.top();
   endBlock();
 
-  head->instrs.push_back({PixIRInstructionType::PUSH, ifBlock});
-  head->instrs.push_back({PixIRInstructionType::CJMP2});
+  head->instrs.push_back({PixIROpcode::PUSH, ifBlock});
+  head->instrs.push_back({PixIROpcode::CJMP2});
 
-  elseBlock->instrs.push_back({PixIRInstructionType::PUSH, after});
-  elseBlock->instrs.push_back({PixIRInstructionType::JMP});
+  elseBlock->instrs.push_back({PixIROpcode::PUSH, after});
+  elseBlock->instrs.push_back({PixIROpcode::JMP});
 
-  ifBlock->instrs.push_back({PixIRInstructionType::PUSH, after});
-  ifBlock->instrs.push_back({PixIRInstructionType::JMP});
+  ifBlock->instrs.push_back({PixIROpcode::PUSH, after});
+  ifBlock->instrs.push_back({PixIROpcode::JMP});
 }
 
 void CodeGenerator::visit(ast::ForStmt &node) {
@@ -204,24 +202,24 @@ void CodeGenerator::visit(ast::ForStmt &node) {
   beginBlock();
   node.cond->accept(this);
   // !node.cond.
-  addInstr({PixIRInstructionType::PUSH, "1"});
-  addInstr({PixIRInstructionType::SUB});
+  addInstr({PixIROpcode::PUSH, "1"});
+  addInstr({PixIROpcode::SUB});
   head = blockStack.top();
   endBlock();
 
   beginBlock();
   node.body->accept(this);
   node.assignment->accept(this);
-  addInstr({PixIRInstructionType::PUSH, head});
-  addInstr({PixIRInstructionType::JMP});
+  addInstr({PixIROpcode::PUSH, head});
+  addInstr({PixIROpcode::JMP});
   endBlock();
 
   beginBlock();
   after = blockStack.top();
   endBlock();
 
-  head->instrs.push_back({PixIRInstructionType::PUSH, after});
-  head->instrs.push_back({PixIRInstructionType::CJMP2});
+  head->instrs.push_back({PixIROpcode::PUSH, after});
+  head->instrs.push_back({PixIROpcode::CJMP2});
 }
 
 void CodeGenerator::visit(ast::WhileStmt &node) {
@@ -230,23 +228,23 @@ void CodeGenerator::visit(ast::WhileStmt &node) {
   beginBlock();
   node.cond->accept(this);
   // !node.cond.
-  addInstr({PixIRInstructionType::PUSH, "1"});
-  addInstr({PixIRInstructionType::SUB});
+  addInstr({PixIROpcode::PUSH, "1"});
+  addInstr({PixIROpcode::SUB});
   head = blockStack.top();
   endBlock();
 
   beginBlock();
   node.body->accept(this);
-  addInstr({PixIRInstructionType::PUSH, head});
-  addInstr({PixIRInstructionType::JMP});
+  addInstr({PixIROpcode::PUSH, head});
+  addInstr({PixIROpcode::JMP});
   endBlock();
 
   beginBlock();
   after = blockStack.top();
   endBlock();
 
-  head->instrs.push_back({PixIRInstructionType::PUSH, after});
-  head->instrs.push_back({PixIRInstructionType::CJMP2});
+  head->instrs.push_back({PixIROpcode::PUSH, after});
+  head->instrs.push_back({PixIROpcode::CJMP2});
 }
 
 void CodeGenerator::visit(ast::FuncDeclStmt &node) {
@@ -287,7 +285,7 @@ void CodeGenerator::linearizeCode() {
     for (BasicBlock &block : func.blocks) {
       for (int i = 0; i < block.instrs.size(); i++) {
         PixIRInstruction &instr = block.instrs[i];
-        if (instr.opcode == PixIRInstructionType::PUSH &&
+        if (instr.opcode == PixIROpcode::PUSH &&
             std::holds_alternative<BasicBlock *>(instr.data)) {
           int pc_offset =
               offsets[&block] - offsets[std::get<BasicBlock *>(instr.data)];
@@ -308,7 +306,7 @@ void CodeGenerator::linearizeCode() {
   }
 }
 
-std::string to_string(const PixIRInstructionType type) {
+std::string to_string(const PixIROpcode type) {
   switch (type) {
   case ADD:
     return "ADD";

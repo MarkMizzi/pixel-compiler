@@ -19,7 +19,7 @@ namespace codegen {
 
 #define MAIN_FUNC_NAME "main"
 
-enum PixIRInstructionType {
+enum PixIROpcode {
   ADD,
   SUB,
   MUL,
@@ -56,12 +56,12 @@ enum PixIRInstructionType {
   HALT,
 };
 
-std::string to_string(const PixIRInstructionType type);
+std::string to_string(const PixIROpcode type);
 
 struct BasicBlock;
 
 struct PixIRInstruction {
-  PixIRInstructionType opcode;
+  PixIROpcode opcode;
   std::variant<std::monostate, BasicBlock *, std::string> data =
       std::monostate(); // only used for PUSH instruction
 
@@ -162,8 +162,8 @@ private:
     frameIndexMap.reset(new SymbolFrameIndexMap(std::move(frameIndices),
                                                 frameIndexMap.release()));
 
-    addInstr({PixIRInstructionType::PUSH, std::to_string(frameIndex)});
-    addInstr({PixIRInstructionType::ALLOC});
+    addInstr({PixIROpcode::PUSH, std::to_string(frameIndex)});
+    addInstr({PixIROpcode::ALLOC});
   }
 
   void exitFuncDefFrame() {
@@ -191,8 +191,8 @@ private:
     frameIndexMap.reset(new SymbolFrameIndexMap(std::move(frameIndices),
                                                 frameIndexMap.release()));
 
-    addInstr({PixIRInstructionType::PUSH, std::to_string(frameIndex)});
-    addInstr({PixIRInstructionType::ALLOC});
+    addInstr({PixIROpcode::PUSH, std::to_string(frameIndex)});
+    addInstr({PixIROpcode::ALLOC});
   }
 
   void exitMainFrame() {
@@ -201,7 +201,7 @@ private:
 
     frameIndexMap.reset(frameIndexMap->parent);
 
-    addInstr({PixIRInstructionType::HALT});
+    addInstr({PixIROpcode::HALT});
   }
 
   // what are called frames in the VM correspond to scopes in the
@@ -224,15 +224,15 @@ private:
     frameIndexMap.reset(new SymbolFrameIndexMap(std::move(frameIndices),
                                                 frameIndexMap.release()));
 
-    addInstr({PixIRInstructionType::PUSH, std::to_string(frameIndex)});
-    addInstr({PixIRInstructionType::OFRAME});
+    addInstr({PixIROpcode::PUSH, std::to_string(frameIndex)});
+    addInstr({PixIROpcode::OFRAME});
   }
 
   void exitFrame() {
     frameNumber--;
     currentScope = currentScope->parent;
 
-    addInstr({PixIRInstructionType::CFRAME});
+    addInstr({PixIROpcode::CFRAME});
 
     frameIndexMap.reset(frameIndexMap->parent);
   }
