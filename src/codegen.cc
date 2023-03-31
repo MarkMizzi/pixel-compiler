@@ -83,7 +83,15 @@ void CodeGenerator::visit(ast::FunctionCallNode &node) {
   addInstr({PixIRInstructionType::PUSH, "." + node.funcName});
 }
 
-void CodeGenerator::visit(ast::IdExprNode &node) {}
+void CodeGenerator::visit(ast::IdExprNode &node) {
+  // NOTE: unsafe unwrapping here because SemanticVisitor has already dealth
+  // with error case.
+  auto [depth, index] = frameIndexMap->getDepthAndIndex(node.id);
+
+  addInstr(
+      {PixIRInstructionType::PUSH, "[" + std::to_string(frameNumber - depth) +
+                                       ":" + std::to_string(index) + "]"});
+}
 
 void CodeGenerator::visit(ast::BoolLiteralExprNode &node) {
   if (node.x) {
@@ -107,11 +115,11 @@ void CodeGenerator::visit(ast::ColourLiteralExprNode &node) {
   addInstr({PixIRInstructionType::PUSH, ss.str()});
 }
 
-void CodeGenerator::visit(ast::PadWidthExprNode &node) {
+void CodeGenerator::visit(ast::PadWidthExprNode &) {
   addInstr({PixIRInstructionType::WIDTH});
 }
 
-void CodeGenerator::visit(ast::PadHeightExprNode &node) {
+void CodeGenerator::visit(ast::PadHeightExprNode &) {
   addInstr({PixIRInstructionType::HEIGHT});
 }
 
@@ -125,19 +133,45 @@ void CodeGenerator::visit(ast::RandiExprNode &node) {
   addInstr({PixIRInstructionType::IRND});
 }
 
-void CodeGenerator::visit(ast::AssignmentStmt &node) {}
+void CodeGenerator::visit(ast::AssignmentStmt &node) {
+  // NOTE: unsafe unwrapping here because SemanticVisitor has already dealth
+  // with error case.
+  auto [depth, index] = frameIndexMap->getDepthAndIndex(node.id);
 
-void CodeGenerator::visit(ast::VariableDeclStmt &node) {}
+  addInstr({PixIRInstructionType::PUSH, std::to_string(frameNumber - depth)});
+  addInstr({PixIRInstructionType::PUSH, std::to_string(index)});
+  visitChildren(&node);
+  addInstr({PixIRInstructionType::ST});
+}
 
-void CodeGenerator::visit(ast::PrintStmt &node) {}
+// nothing to generate here. Space for variables is allocated when entering a
+// BlockStmt.
+void CodeGenerator::visit(ast::VariableDeclStmt &) {}
 
-void CodeGenerator::visit(ast::DelayStmt &node) {}
+void CodeGenerator::visit(ast::PrintStmt &node) {
+  rvisitChildren(&node);
+  addInstr({PixIRInstructionType::PRINT});
+}
 
-void CodeGenerator::visit(ast::PixelStmt &node) {}
+void CodeGenerator::visit(ast::DelayStmt &node) {
+  rvisitChildren(&node);
+  addInstr({PixIRInstructionType::DELAY});
+}
 
-void CodeGenerator::visit(ast::PixelRStmt &node) {}
+void CodeGenerator::visit(ast::PixelStmt &node) {
+  rvisitChildren(&node);
+  addInstr({PixIRInstructionType::PIXEL});
+}
 
-void CodeGenerator::visit(ast::ReturnStmt &node) {}
+void CodeGenerator::visit(ast::PixelRStmt &node) {
+  rvisitChildren(&node);
+  addInstr({PixIRInstructionType::PIXELR});
+}
+
+void CodeGenerator::visit(ast::ReturnStmt &node) {
+  rvisitChildren(&node);
+  addInstr({PixIRInstructionType::RET});
+}
 
 void CodeGenerator::visit(ast::IfElseStmt &node) {}
 
@@ -145,11 +179,27 @@ void CodeGenerator::visit(ast::ForStmt &node) {}
 
 void CodeGenerator::visit(ast::WhileStmt &node) {}
 
-void CodeGenerator::visit(ast::FuncDeclStmt &node) {}
+void CodeGenerator::visit(ast::FuncDeclStmt &node) {
+  beginFunc(node.funcName);
+  enterFuncDefFrame(node);
+  visitChildren(&node);
+  exitFuncDefFrame();
+  endFunc();
+}
 
-void CodeGenerator::visit(ast::BlockStmt &node) {}
+void CodeGenerator::visit(ast::BlockStmt &node) {
+  enterFrame(&node);
+  visitChildren(&node);
+  exitFrame();
+}
 
-void CodeGenerator::visit(ast::TranslationUnit &node) {}
+void CodeGenerator::visit(ast::TranslationUnit &node) {
+  beginFunc(MAIN_FUNC_NAME);
+  enterMainFrame(node);
+  visitChildren(&node);
+  exitMainFrame();
+  endFunc();
+}
 
 std::string to_string(const PixIRInstructionType type) {
   switch (type) {

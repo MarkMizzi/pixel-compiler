@@ -66,6 +66,10 @@ public:
     return this->semanticType != other.semanticType;
   }
 
+  bool isFunctionType() const {
+    return std::holds_alternative<SemanticFunctionType>(semanticType);
+  }
+
   const SemanticFunctionType *getFunctionType() const {
     return std::get_if<SemanticFunctionType>(&semanticType);
   }
@@ -86,7 +90,7 @@ struct Scope {
       : symbols(std::move(symbols)), parent(parent), funcType(funcType) {}
 
   // fetches the signature of the current scope's function (if any)
-  std::optional<SemanticFunctionType> getFuncType() {
+  std::optional<SemanticFunctionType> getFuncType() const {
     if (funcType.has_value()) {
       return funcType;
     }
@@ -96,7 +100,7 @@ struct Scope {
     return std::nullopt;
   }
 
-  std::optional<SymbolTableEntry> get(std::string symbol) {
+  std::optional<SymbolTableEntry> get(std::string symbol) const {
     if (symbols.count(symbol)) {
       return symbols.at(symbol);
     }
