@@ -166,7 +166,8 @@ private:
     frameIndexMap.reset(new SymbolFrameIndexMap(std::move(frameIndices),
                                                 frameIndexMap.release()));
 
-    addInstr({PixIROpcode::PUSH, std::to_string(frameIndex)});
+    addInstr(
+        {PixIROpcode::PUSH, std::to_string(frameIndex - node.params.size())});
     addInstr({PixIROpcode::ALLOC});
   }
 
