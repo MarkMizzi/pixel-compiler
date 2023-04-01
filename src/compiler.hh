@@ -30,7 +30,7 @@ public:
     semanticChecker.visit(*tu);
     codeGenerator.visit(*tu);
     codegen::PixIRCode &code(codeGenerator.code());
-    linearizeCode(code);
+    codegen::linearizeCode(code);
     return std::move(code);
   }
 };

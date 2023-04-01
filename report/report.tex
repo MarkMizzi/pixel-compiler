@@ -16,7 +16,11 @@
 %\usepackage{showframe} % show edges of text areas
 % Page layout
 \usepackage[left=20mm,right=20mm,top=20mm,bottom=20mm,
-   nohead,foot=10mm]{geometry}
+nohead,foot=10mm]{geometry}
+\usepackage{fancyvrb}
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning}
 
 \title{The PixARLang compiler}
 \subtitle{CPS2000 Compiler Theory and Practice}
@@ -33,7 +37,21 @@
 
 \section{Lexing}
 
-The compiler implemented uses a table-driven approach to lexing.
+\subsection{Code organization}
+
+The implementation of the lexer is contained in the two source files \verb!src/lexer.hh! and \verb!src/lexer.cc!. The code is contained in a \verb!lexer! namespace.
+
+Tokens are represented by an instance of \verb!struct Token!. Each token has a \verb!tag! field of type \verb!TokenType! which identifies the kind of token (identifier, integer literal, etc.), and a \verb!value! field which contains the substring of input which the lexer consumed to produce the token. In addition, each token carries location information in four fields, giving the line and column of the start and end of the token.
+
+The lexer implementation is encapsulated in a \verb!Lexer! class. Instances of this class are passed the program input as a \verb!std::string! on construction.
+
+The class provides \verb!GetNextToken()! as an interface method to produce the next token from the input.
+
+\subsection{Lexing approach}
+
+There are several approaches available to the compiler implementer when it comes to writing a hand-coded lexer.
+
+This implementation uses a table-driven approach to lexing. The core functionality of the lexer is implemented in the method \verb!Lexer::nextToken()!.
 
 \newpage
 
