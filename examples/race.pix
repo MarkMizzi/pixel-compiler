@@ -34,6 +34,8 @@ fun Race(p1_c: colour, p2_c : colour, score_max  : int) -> int {
 // that is not a function declaration. This should go in the .main
 // function of PixIR.
 
+__pixelr 0, 0, __width, __height, #ffffff;
+
 let c1 : colour = #00ff00; // green
 let c2: colour = #0000ff; // blue
 let m : int = __height;
