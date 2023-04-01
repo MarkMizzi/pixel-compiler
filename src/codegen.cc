@@ -320,73 +320,73 @@ void CodeGenerator::linearizeCode() {
 std::string to_string(const PixIROpcode type) {
   switch (type) {
   case ADD:
-    return "ADD";
+    return "add";
   case SUB:
-    return "SUB";
+    return "sub";
   case MUL:
-    return "MUL";
+    return "mul";
   case DIV:
-    return "DIV";
+    return "div";
   case INC:
-    return "INC";
+    return "inc";
   case DEC:
-    return "DEC";
+    return "dec";
   case MAX:
-    return "MAX";
+    return "max";
   case MIN:
-    return "MIN";
+    return "min";
   case IRND:
-    return "IRND";
+    return "irnd";
   case LT:
-    return "LT";
+    return "lt";
   case LE:
-    return "LE";
+    return "le";
   case EQ:
-    return "EQ";
+    return "eq";
   case GT:
-    return "GT";
+    return "gt";
   case GE:
-    return "GE";
+    return "ge";
   case PUSH:
-    return "PUSH";
+    return "push";
   case JMP:
-    return "JMP";
+    return "jmp";
   case CJMP:
-    return "CJMP";
+    return "cjmp";
   case CJMP2:
-    return "CJMP2";
+    return "cjmp2";
   case CALL:
-    return "CALL";
+    return "call";
   case RET:
-    return "RET";
+    return "ret";
   case ST:
-    return "ST";
+    return "st";
   case ALLOC:
-    return "ALLOC";
+    return "alloc";
   case OFRAME:
-    return "OFRAME";
+    return "oframe";
   case CFRAME:
-    return "CFRAME";
+    return "cframe";
   case DELAY:
-    return "DELAY";
+    return "delay";
   case PIXEL:
-    return "PIXEL";
+    return "pixel";
   case PIXELR:
-    return "PIXELR";
+    return "pixelr";
   case CLEAR:
-    return "CLEAR";
+    return "clear";
   case READ:
-    return "READ";
+    return "read";
   case WIDTH:
-    return "WIDTH";
+    return "width";
   case HEIGHT:
-    return "HEIGHT";
+    return "height";
   case PRINT:
-    return "PRINT";
+    return "print";
   case DUP:
-    return "DUP";
+    return "dup";
   case HALT:
-    return "HALT";
+    return "halt";
   }
   return ""; // please compiler
 }
