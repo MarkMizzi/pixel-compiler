@@ -46,7 +46,8 @@ private:
 
 public:
   Compiler(CompilerOptions &opts)
-      : infile(opts.infile ? std::fstream{opts.infile.value(), std::fstream::in}
+      : opts(opts),
+        infile(opts.infile ? std::fstream{opts.infile.value(), std::fstream::in}
                            : std::fstream()),
         in(opts.infile ? infile : std::cin),
         outfile(opts.outfile
