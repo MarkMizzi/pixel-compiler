@@ -76,8 +76,8 @@ void CodeGenerator::visit(ast::IdExprNode &node) {
   // with error case.
   auto [depth, index] = frameIndexMap->getDepthAndIndex(node.id);
 
-  addInstr({PixIROpcode::PUSH, "[" + std::to_string(frameNumber - depth) + ":" +
-                                   std::to_string(index) + "]"});
+  addInstr({PixIROpcode::PUSH,
+            "[" + std::to_string(index) + ":" + std::to_string(depth) + "]"});
 }
 
 void CodeGenerator::visit(ast::BoolLiteralExprNode &node) {
@@ -125,9 +125,9 @@ void CodeGenerator::visit(ast::AssignmentStmt &node) {
   // with error case.
   auto [depth, index] = frameIndexMap->getDepthAndIndex(node.id);
 
-  addInstr({PixIROpcode::PUSH, std::to_string(frameNumber - depth)});
-  addInstr({PixIROpcode::PUSH, std::to_string(index)});
   rvisitChildren(&node);
+  addInstr({PixIROpcode::PUSH, std::to_string(index)});
+  addInstr({PixIROpcode::PUSH, std::to_string(depth)});
   addInstr({PixIROpcode::ST});
 }
 
@@ -140,9 +140,9 @@ void CodeGenerator::visit(ast::VariableDeclStmt &node) {
   // with error case.
   auto [depth, index] = frameIndexMap->getDepthAndIndex(node.id);
 
-  addInstr({PixIROpcode::PUSH, std::to_string(frameNumber - depth)});
-  addInstr({PixIROpcode::PUSH, std::to_string(index)});
   rvisitChildren(&node);
+  addInstr({PixIROpcode::PUSH, std::to_string(index)});
+  addInstr({PixIROpcode::PUSH, std::to_string(depth)});
   addInstr({PixIROpcode::ST});
 }
 
