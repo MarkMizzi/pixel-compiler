@@ -5,13 +5,15 @@
 #include <iostream>
 
 void print_usage() {
-  std::cout << "./pixarc [-o <outfile>] [-xml <outfile>] [src]" << std::endl;
+  std::cout << "./pixarc [-o <outfile>] [-xml <outfile>] {<options>} [src]"
+            << std::endl;
   std::cout << "Options:" << std::endl;
   std::cout << "  -o    Specify output file. By default stdout is used."
             << std::endl;
   std::cout << "  -xml  Generate XML from the AST produced. An output file for "
                "the XML must also be specified."
             << std::endl;
+  std::cout << "  -felim-dead-code  Eliminate dead code." << std::endl;
   std::cout << "  -h    Print this help message and exit immediately."
             << std::endl;
   std::cout << "Args:" << std::endl;
@@ -44,6 +46,8 @@ int main(int argc, char *argv[]) {
         exit(-1);
       }
       options.xmlOutfile = std::string(std::move(argv[i]));
+    } else if (arg == "-felim-dead-code") {
+      options.eliminateDeadCode = true;
     } else if (gotSource) {
       std::cerr << "Cannot process more than one source file at a time."
                 << std::endl;

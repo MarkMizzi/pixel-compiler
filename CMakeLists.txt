@@ -27,6 +27,7 @@ add_executable(pixarc
   src/semantic_visitor.hh
   src/compiler.hh
   src/codegen.hh
+  src/deadcode.hh
   src/lexer.cc
   src/ast.cc
   src/parser.cc
@@ -47,6 +48,7 @@ add_executable(pixarc_tests
   src/semantic_visitor.hh
   src/compiler.hh
   src/codegen.hh
+  src/deadcode.hh
   src/lexer.cc
   src/ast.cc
   src/parser.cc

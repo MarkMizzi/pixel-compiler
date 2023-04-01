@@ -3,6 +3,7 @@
 
 #include "ast.hh"
 #include "codegen.hh"
+#include "deadcode.hh"
 #include "lexer.hh"
 #include "parser.hh"
 #include "semantic_visitor.hh"
@@ -17,8 +18,11 @@
 struct CompilerOptions {
   std::optional<std::string> outfile = std::nullopt;
   std::optional<std::string> infile = std::nullopt;
+
   bool generateXml = false;
   std::optional<std::string> xmlOutfile = std::nullopt;
+
+  bool eliminateDeadCode = false;
 };
 
 class Compiler {
@@ -74,6 +78,13 @@ public:
 
     codeGenerator.visit(*tu);
     codegen::PixIRCode &code(codeGenerator.code());
+
+    // optimizations
+    if (opts.eliminateDeadCode) {
+      codegen::DeadCodeEliminator eliminator(code);
+      eliminator.eliminate();
+    }
+
     codegen::linearizeCode(code);
     codegen::dumpCode(code, out);
   }
