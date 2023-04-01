@@ -134,8 +134,6 @@ void CodeGenerator::visit(ast::AssignmentStmt &node) {
 // nothing to generate here. Space for variables is allocated when entering a
 // BlockStmt.
 void CodeGenerator::visit(ast::VariableDeclStmt &node) {
-  rvisitChildren(&node);
-
   // NOTE: unsafe unwrapping here because SemanticVisitor has already dealth
   // with error case.
   auto [depth, index] = frameIndexMap->getDepthAndIndex(node.id);
@@ -300,8 +298,8 @@ void linearizeCode(PixIRCode &pixIRCode) {
         PixIRInstruction &instr = block->instrs[i];
         if (instr.opcode == PixIROpcode::PUSH &&
             std::holds_alternative<BasicBlock *>(instr.data)) {
-          int pc_offset = offsets[block.get()] -
-                          offsets[std::get<BasicBlock *>(instr.data)];
+          int pc_offset = offsets[std::get<BasicBlock *>(instr.data)] -
+                          offsets[block.get()];
           instr.data = std::string("#PC") + (pc_offset >= 0 ? "+" : "") +
                        std::to_string(pc_offset);
         }
