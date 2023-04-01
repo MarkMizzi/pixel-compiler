@@ -67,6 +67,7 @@ void CodeGenerator::visit(ast::FunctionCallNode &node) {
   rvisitChildren(&node);
   addInstr({PixIROpcode::PUSH, std::to_string(node.children().size())});
   addInstr({PixIROpcode::PUSH, "." + node.funcName});
+  addInstr({PixIROpcode::CALL});
 }
 
 void CodeGenerator::visit(ast::IdExprNode &node) {
