@@ -280,7 +280,7 @@ void CodeGenerator::visit(ast::TranslationUnit &node) {
   endFunc();
 }
 
-void CodeGenerator::linearizeCode() {
+void linearizeCode(PixIRCode &pixIRCode) {
   for (std::unique_ptr<PixIRFunction> &func : pixIRCode) {
     int offset = 0;
     std::map<BasicBlock *, int> offsets;
@@ -312,6 +312,17 @@ void CodeGenerator::linearizeCode() {
       if ((*it)->instrs.size() == 0) {
         --it;
         func->blocks.erase(it + 1);
+      }
+    }
+  }
+}
+
+void dumpCode(PixIRCode &pixIRCode, std::ostream &s) {
+  for (const std::unique_ptr<codegen::PixIRFunction> &func : pixIRCode) {
+    s << func->funcName << std::endl;
+    for (const std::unique_ptr<codegen::BasicBlock> &block : func->blocks) {
+      for (const codegen::PixIRInstruction &instr : block->instrs) {
+        s << "\t" << instr.to_string() << std::endl;
       }
     }
   }

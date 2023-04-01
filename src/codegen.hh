@@ -6,6 +6,7 @@
 #include "visitor.hh"
 
 #include <algorithm>
+#include <iostream>
 #include <iterator>
 #include <map>
 #include <memory>
@@ -91,6 +92,8 @@ struct PixIRFunction {
   std::vector<std::unique_ptr<BasicBlock>> blocks;
 };
 
+using PixIRCode = std::vector<std::unique_ptr<PixIRFunction>>;
+
 struct SymbolFrameIndexMap {
   using FrameIndex = int;
 
@@ -121,7 +124,7 @@ private:
 
   // std::unique_ptr is used so we can reference functions without worrying
   // about the address changing due to vector reallocation
-  std::vector<std::unique_ptr<PixIRFunction>> pixIRCode;
+  PixIRCode pixIRCode;
 
   // scratch space for the generator
   std::stack<BasicBlock *> blockStack;
@@ -294,14 +297,14 @@ public:
 
   void visit(ast::TranslationUnit &node) override;
 
-  // Multiple responsibilities:
-  // 1. convert BasicBlock references in PUSH instructions to PC offsets
-  // 2. remove empty blocks produced in code generation.
-  void linearizeCode();
-  const std::vector<std::unique_ptr<PixIRFunction>> &code() {
-    return pixIRCode;
-  }
+  PixIRCode &code() { return pixIRCode; }
 };
+
+// Multiple responsibilities:
+// 1. convert BasicBlock references in PUSH instructions to PC offsets
+// 2. remove empty blocks produced in code generation.
+void linearizeCode(PixIRCode &pixIRCode);
+void dumpCode(PixIRCode &pixIRCode, std::ostream &s);
 
 } // namespace codegen
 

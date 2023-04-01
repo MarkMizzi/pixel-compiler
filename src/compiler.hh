@@ -25,12 +25,13 @@ public:
       : fs(fname, fs.in), lexer(lexer::Lexer(fs)), parser(lexer),
         semanticChecker(symbolTable), codeGenerator(symbolTable) {}
 
-  const std::vector<std::unique_ptr<codegen::PixIRFunction>> &compile() {
+  const codegen::PixIRCode compile() {
     std::unique_ptr<ast::TranslationUnit> tu{parser.parse()};
     semanticChecker.visit(*tu);
     codeGenerator.visit(*tu);
-    codeGenerator.linearizeCode();
-    return codeGenerator.code();
+    codegen::PixIRCode &code(codeGenerator.code());
+    linearizeCode(code);
+    return std::move(code);
   }
 };
 
