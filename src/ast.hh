@@ -145,9 +145,9 @@ public:
 
 class ColourLiteralExprNode : public ExprNode {
 public:
-  unsigned char colour;
+  unsigned colour;
 
-  ColourLiteralExprNode(unsigned char colour, Location loc)
+  ColourLiteralExprNode(unsigned colour, Location loc)
       : ExprNode(loc), colour(colour) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }

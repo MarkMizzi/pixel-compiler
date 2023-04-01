@@ -1,6 +1,7 @@
 #include "codegen.hh"
 #include "ast.hh"
 
+#include <iomanip>
 #include <sstream>
 
 namespace codegen {
@@ -97,7 +98,7 @@ void CodeGenerator::visit(ast::FloatLiteralExprNode &node) {
 
 void CodeGenerator::visit(ast::ColourLiteralExprNode &node) {
   std::stringstream ss;
-  ss << "#" << std::hex << node.colour;
+  ss << "#" << std::hex << std::setw(6) << std::setfill('0') << node.colour;
   addInstr({PixIROpcode::PUSH, ss.str()});
 }
 
