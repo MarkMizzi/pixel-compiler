@@ -172,26 +172,19 @@ void CodeGenerator::visit(ast::ReturnStmt &node) {
 void CodeGenerator::visit(ast::IfElseStmt &node) {
   BasicBlock *head, *ifBlock, *elseBlock, *after;
 
-  beginBlock();
+  terminateBlock();
   node.cond->accept(this);
-  head = blockStack.top();
-  endBlock();
 
-  beginBlock();
+  head = terminateBlock();
   if (node.elseBody) {
     node.elseBody->accept(this);
   }
-  elseBlock = blockStack.top();
-  endBlock();
 
-  beginBlock();
+  elseBlock = terminateBlock();
   node.ifBody->accept(this);
-  ifBlock = blockStack.top();
-  endBlock();
 
-  beginBlock();
+  ifBlock = terminateBlock();
   after = blockStack.top();
-  endBlock();
 
   head->instrs.push_back({PixIROpcode::PUSH, ifBlock});
   head->instrs.push_back({PixIROpcode::CJMP2});
@@ -206,28 +199,23 @@ void CodeGenerator::visit(ast::IfElseStmt &node) {
 void CodeGenerator::visit(ast::ForStmt &node) {
   BasicBlock *head, *after;
 
-  beginBlock();
+  terminateBlock();
   node.varDecl->accept(this);
-  endBlock();
 
-  beginBlock();
+  terminateBlock();
   node.cond->accept(this);
   // !node.cond.
   addInstr({PixIROpcode::PUSH, "1"});
   addInstr({PixIROpcode::SUB});
-  head = blockStack.top();
-  endBlock();
 
-  beginBlock();
+  head = terminateBlock();
   node.body->accept(this);
   node.assignment->accept(this);
   addInstr({PixIROpcode::PUSH, head});
   addInstr({PixIROpcode::JMP});
-  endBlock();
 
-  beginBlock();
+  terminateBlock();
   after = blockStack.top();
-  endBlock();
 
   head->instrs.push_back({PixIROpcode::PUSH, after});
   head->instrs.push_back({PixIROpcode::CJMP2});
@@ -236,23 +224,19 @@ void CodeGenerator::visit(ast::ForStmt &node) {
 void CodeGenerator::visit(ast::WhileStmt &node) {
   BasicBlock *head, *after;
 
-  beginBlock();
+  terminateBlock();
   node.cond->accept(this);
   // !node.cond.
   addInstr({PixIROpcode::PUSH, "1"});
   addInstr({PixIROpcode::SUB});
-  head = blockStack.top();
-  endBlock();
 
-  beginBlock();
+  head = terminateBlock();
   node.body->accept(this);
   addInstr({PixIROpcode::PUSH, head});
   addInstr({PixIROpcode::JMP});
-  endBlock();
 
-  beginBlock();
+  terminateBlock();
   after = blockStack.top();
-  endBlock();
 
   head->instrs.push_back({PixIROpcode::PUSH, after});
   head->instrs.push_back({PixIROpcode::CJMP2});
@@ -307,7 +291,7 @@ void linearizeCode(PixIRCode &pixIRCode) {
     }
 
     // remove empty blocks in one pass. This works because an empty block has
-    // the next offset as the next block.
+    // the same offset as the next block.
     for (auto it = func->blocks.begin(); it != func->blocks.end(); ++it) {
       if ((*it)->instrs.size() == 0) {
         --it;

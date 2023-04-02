@@ -248,14 +248,18 @@ private:
     frameIndexMap.reset(frameIndexMap->parent);
   }
 
-  void beginBlock() {
-    PixIRFunction *currentFunc = blockStack.top()->parentFunc;
+  BasicBlock *terminateBlock() {
+    BasicBlock *old = blockStack.top();
+    blockStack.pop();
+
+    PixIRFunction *currentFunc = old->parentFunc;
     currentFunc->blocks.push_back(
         std::make_unique<BasicBlock>(BasicBlock{currentFunc, {}}));
-    blockStack.push((--(currentFunc->blocks.end()))->get());
-  }
 
-  void endBlock() { blockStack.pop(); }
+    blockStack.push((--(currentFunc->blocks.end()))->get());
+
+    return old;
+  }
 
   void beginFunc(std::string funcName) {
     pixIRCode.push_back(
