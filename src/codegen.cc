@@ -194,6 +194,8 @@ void CodeGenerator::visit(ast::IfElseStmt &node) {
 }
 
 void CodeGenerator::visit(ast::ForStmt &node) {
+  enterFrame(&node);
+
   BasicBlock *head, *after;
 
   terminateBlock();
@@ -216,6 +218,8 @@ void CodeGenerator::visit(ast::ForStmt &node) {
 
   head->instrs.push_back({PixIROpcode::PUSH, after});
   head->instrs.push_back({PixIROpcode::CJMP2});
+
+  exitFrame();
 }
 
 void CodeGenerator::visit(ast::WhileStmt &node) {
