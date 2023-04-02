@@ -154,6 +154,11 @@ private:
       frameIndex++;
     }
 
+    // NOTE: Because of how the AST/semantic checking works rn, all symbols in
+    // the currentScope will be parameters. However, accounting for the
+    // possibility of extra variables in the scope makes the code less fragile
+    // and susceptible to breaking if details of the AST/semantic checker are
+    // changed.
     for (auto &[symbol, entry] : currentScope->symbols) {
       // filter out function-type symbols and function params
       if (!entry.type.isFunctionType() && !paramNames.count(symbol)) {
