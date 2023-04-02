@@ -6,6 +6,7 @@
 #include "deadcode.hh"
 #include "lexer.hh"
 #include "parser.hh"
+#include "peephole.hh"
 #include "semantic_visitor.hh"
 #include "xml_visitor.hh"
 
@@ -23,6 +24,7 @@ struct CompilerOptions {
   std::optional<std::string> xmlOutfile = std::nullopt;
 
   bool eliminateDeadCode = false;
+  bool peepholeOptimize = false;
 };
 
 class Compiler {
@@ -83,6 +85,10 @@ public:
     if (opts.eliminateDeadCode) {
       codegen::DeadCodeEliminator eliminator(code);
       eliminator.eliminate();
+    }
+
+    if (opts.peepholeOptimize) {
+      peepholeOptimize(code);
     }
 
     codegen::linearizeCode(code);

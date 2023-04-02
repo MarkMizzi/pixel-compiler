@@ -14,6 +14,8 @@ void print_usage() {
                "the XML must also be specified."
             << std::endl;
   std::cout << "  -felim-dead-code  Eliminate dead code." << std::endl;
+  std::cout << "  -fpeephole-optimize  Enable the peephole optimizer."
+            << std::endl;
   std::cout << "  -h    Print this help message and exit immediately."
             << std::endl;
   std::cout << "Args:" << std::endl;
@@ -48,6 +50,8 @@ int main(int argc, char *argv[]) {
       options.xmlOutfile = std::string(std::move(argv[i]));
     } else if (arg == "-felim-dead-code") {
       options.eliminateDeadCode = true;
+    } else if (arg == "-fpeephole-optimize") {
+      options.peepholeOptimize = true;
     } else if (gotSource) {
       std::cerr << "Cannot process more than one source file at a time."
                 << std::endl;

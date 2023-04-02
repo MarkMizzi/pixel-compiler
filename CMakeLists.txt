@@ -28,6 +28,7 @@ add_executable(pixarc
   src/compiler.hh
   src/codegen.hh
   src/deadcode.hh
+  src/peephole.hh
   src/lexer.cc
   src/ast.cc
   src/parser.cc
@@ -35,6 +36,7 @@ add_executable(pixarc
   src/xml_visitor.cc
   src/semantic_visitor.cc
   src/codegen.cc
+  src/peephole.cc
   src/main.cc)
 
 add_executable(pixarc_tests
@@ -49,6 +51,7 @@ add_executable(pixarc_tests
   src/compiler.hh
   src/codegen.hh
   src/deadcode.hh
+  src/peephole.hh
   src/lexer.cc
   src/ast.cc
   src/parser.cc
@@ -56,6 +59,7 @@ add_executable(pixarc_tests
   src/xml_visitor.cc
   src/semantic_visitor.cc
   src/codegen.cc
+  src/peephole.cc
   tests/lexer_tests.cc
   tests/semantic_visitor_tests.cc)
 
