@@ -275,8 +275,9 @@ void linearizeCode(PixIRCode &pixIRCode) {
     // use local offsets to convert BasicBlock * references in push instructions
     // to PC offsets.
     for (std::unique_ptr<BasicBlock> &block : func->blocks) {
-      for (size_t i = 0; i < block->instrs.size(); i++) {
-        PixIRInstruction &instr = block->instrs[i];
+      auto instrs_it = block->instrs.begin();
+      for (size_t i = 0; instrs_it != block->instrs.end(); i++, ++instrs_it) {
+        PixIRInstruction &instr = *instrs_it;
         if (instr.opcode == PixIROpcode::PUSH &&
             std::holds_alternative<BasicBlock *>(instr.data)) {
           int pc_offset = offsets.at(std::get<BasicBlock *>(instr.data)) -

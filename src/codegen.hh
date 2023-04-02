@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iterator>
+#include <list>
 #include <map>
 #include <memory>
 #include <set>
@@ -82,7 +83,7 @@ struct PixIRFunction;
 
 struct BasicBlock {
   PixIRFunction *parentFunc;
-  std::vector<PixIRInstruction> instrs;
+  std::list<PixIRInstruction> instrs;
 };
 
 struct PixIRFunction {
