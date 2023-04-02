@@ -41,10 +41,10 @@ void XMLVisitor::visit(BinaryExprNode &node) {
     op = "or";
     break;
   case BinaryExprNode::BinaryOp::GREATER:
-    op = ">";
+    op = "&gt;";
     break;
   case BinaryExprNode::BinaryOp::LESS:
-    op = "<";
+    op = "&lt;";
     break;
   case BinaryExprNode::BinaryOp::EQ:
     op = "==";
@@ -53,10 +53,10 @@ void XMLVisitor::visit(BinaryExprNode &node) {
     op = "!=";
     break;
   case BinaryExprNode::BinaryOp::GE:
-    op = ">=";
+    op = "&gt;=";
     break;
   case BinaryExprNode::BinaryOp::LE:
-    op = "<=";
+    op = "&lt;=";
     break;
   }
 
