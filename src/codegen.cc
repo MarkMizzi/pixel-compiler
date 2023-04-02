@@ -176,7 +176,7 @@ void CodeGenerator::visit(ast::IfElseStmt &node) {
   node.cond->accept(this);
 
   head = terminateBlock();
-  if (node.elseBody) {
+  if (node.elseBody != nullptr) {
     node.elseBody->accept(this);
   }
 
@@ -191,9 +191,6 @@ void CodeGenerator::visit(ast::IfElseStmt &node) {
 
   elseBlock->instrs.push_back({PixIROpcode::PUSH, after});
   elseBlock->instrs.push_back({PixIROpcode::JMP});
-
-  ifBlock->instrs.push_back({PixIROpcode::PUSH, after});
-  ifBlock->instrs.push_back({PixIROpcode::JMP});
 }
 
 void CodeGenerator::visit(ast::ForStmt &node) {
@@ -278,12 +275,12 @@ void linearizeCode(PixIRCode &pixIRCode) {
     // use local offsets to convert BasicBlock * references in push instructions
     // to PC offsets.
     for (std::unique_ptr<BasicBlock> &block : func->blocks) {
-      for (int i = 0; i < block->instrs.size(); i++) {
+      for (size_t i = 0; i < block->instrs.size(); i++) {
         PixIRInstruction &instr = block->instrs[i];
         if (instr.opcode == PixIROpcode::PUSH &&
             std::holds_alternative<BasicBlock *>(instr.data)) {
-          int pc_offset = offsets[std::get<BasicBlock *>(instr.data)] -
-                          offsets[block.get()];
+          int pc_offset = offsets.at(std::get<BasicBlock *>(instr.data)) -
+                          offsets.at(block.get()) - i;
           instr.data = std::string("#PC") + (pc_offset >= 0 ? "+" : "") +
                        std::to_string(pc_offset);
         }
@@ -308,6 +305,7 @@ void dumpCode(PixIRCode &pixIRCode, std::ostream &s) {
       for (const codegen::PixIRInstruction &instr : block->instrs) {
         s << "\t" << instr.to_string() << std::endl;
       }
+      s << std::endl;
     }
   }
 }
