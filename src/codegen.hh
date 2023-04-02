@@ -167,9 +167,12 @@ private:
     frameIndexMap.reset(new SymbolFrameIndexMap(std::move(frameIndices),
                                                 frameIndexMap.release()));
 
-    addInstr(
-        {PixIROpcode::PUSH, std::to_string(frameIndex - node.params.size())});
-    addInstr({PixIROpcode::ALLOC});
+    int allocSize = frameIndex - node.params.size();
+    if (allocSize > 0) {
+      addInstr(
+          {PixIROpcode::PUSH, std::to_string(frameIndex - node.params.size())});
+      addInstr({PixIROpcode::ALLOC});
+    }
   }
 
   void exitFuncDefFrame() {
@@ -195,8 +198,10 @@ private:
     frameIndexMap.reset(new SymbolFrameIndexMap(std::move(frameIndices),
                                                 frameIndexMap.release()));
 
-    addInstr({PixIROpcode::PUSH, std::to_string(frameIndex)});
-    addInstr({PixIROpcode::ALLOC});
+    if (frameIndex > 0) {
+      addInstr({PixIROpcode::PUSH, std::to_string(frameIndex)});
+      addInstr({PixIROpcode::ALLOC});
+    }
   }
 
   void exitMainFrame() {
