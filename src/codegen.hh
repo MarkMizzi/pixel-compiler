@@ -92,6 +92,8 @@ struct PixIRFunction {
   std::vector<std::unique_ptr<BasicBlock>> blocks;
 };
 
+// std::unique_ptr is used so we can reference functions without worrying
+// about the address changing due to vector reallocation
 using PixIRCode = std::vector<std::unique_ptr<PixIRFunction>>;
 
 struct SymbolFrameIndexMap {
@@ -122,8 +124,6 @@ class CodeGenerator : public ast::AbstractVisitor {
 private:
   const ast::SymbolTable &symbolTable;
 
-  // std::unique_ptr is used so we can reference functions without worrying
-  // about the address changing due to vector reallocation
   PixIRCode pixIRCode;
 
   // scratch space for the generator
