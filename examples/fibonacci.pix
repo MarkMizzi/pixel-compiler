@@ -1,0 +1,27 @@
+
+fun fibr(x: int) -> int {
+    if (x <= 1) {
+        return x;
+    }
+    return fibr(x-1) + fibr(x-2);
+}
+
+fun fib(x: int) -> int {
+    let a: int = 0;
+    let b: int = 1;
+    for (let i: int = 0; i < x; i = i + 1) {
+        let tmp: int = b;
+        b = a + b;
+        a = b;
+    }
+    return a;
+}
+
+__pixelr 0, 0, __width, __height, #000000;
+
+__pixelr 0, 0, 1, fibr(1), #00ff00;
+__pixelr 1, 0, 1, fibr(2), #00ff00;
+__pixelr 2, 0, 1, fibr(3), #00ff00;
+__pixelr 3, 0, 1, fibr(4), #00ff00;
+__pixelr 4, 0, 1, fibr(5), #00ff00;
+__pixelr 5, 0, 1, fibr(6), #00ff00;

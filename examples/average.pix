@@ -11,3 +11,5 @@ fun AverageOfTwo(x: int, y : int) -> float {
 fun AverageOfTwo2( x : int, y : int ) -> float {
 return (x + y) / 2;
 }
+
+__print AverageOfTwo(2, 3);
