@@ -5,24 +5,21 @@
 #include <iostream>
 
 void print_usage() {
-  std::cout << "./pixarc [-o <outfile>] [-xml <outfile>] {<options>} [src]"
-            << std::endl;
-  std::cout << "Options:" << std::endl;
-  std::cout << "  -o    Specify output file. By default stdout is used."
-            << std::endl;
-  std::cout << "  -xml  Generate XML from the AST produced. An output file for "
-               "the XML must also be specified."
-            << std::endl;
-  std::cout
-      << "  -frotate-loops    Rotates while/for loops when generating code."
-      << std::endl;
-  std::cout << "  -felim-dead-code  Eliminate dead code." << std::endl;
-  std::cout << "  -fpeephole-optimize  Enable the peephole optimizer."
-            << std::endl;
-  std::cout << "  -h    Print this help message and exit immediately."
-            << std::endl;
-  std::cout << "Args:" << std::endl;
-  std::cout << "  src   Specifies source file to compile." << std::endl;
+
+  const std::string helpMessage =
+      "./pixarc [-o <outfile>] [-xml <outfile>] {<options>} [src]\n"
+      "Options:\n"
+      "  -o                  Specify output file. By default stdout is used.\n"
+      "  -xml                Generate XML from the AST produced. An output "
+      "file for the XML must also be specified.\n"
+      "  -frotate-loops      Rotates while/for loops when generating code.\n"
+      "  -felim-dead-code    Eliminate dead code.\n"
+      "  -fpeephole-optimize Enable the peephole optimizer.\n"
+      "  -h                  Print this help message and exit immediately.\n"
+      "Args:\n"
+      "  src                 Specifies source file to compile.\n";
+
+  std::cout << helpMessage;
   exit(0);
 }
 
