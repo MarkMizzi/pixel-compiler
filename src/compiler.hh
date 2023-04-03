@@ -8,8 +8,10 @@
 #include "parser.hh"
 #include "peephole.hh"
 #include "semantic_visitor.hh"
+#include "util.hh"
 #include "xml_visitor.hh"
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -67,7 +69,12 @@ public:
                        : std::fstream()),
         xmlOut(opts.xmlOutfile ? xmlOutfile : std::cout), lexer(in),
         parser(lexer), semanticChecker(symbolTable),
-        codeGenerator(symbolTable) {}
+        codeGenerator(symbolTable) {
+    if (opts.infile && !std::filesystem::exists(opts.infile.value())) {
+      throw CompilationError("Input file " + opts.infile.value() +
+                             " does not exist.");
+    }
+  }
 
   void compile() {
     std::unique_ptr<ast::TranslationUnit> tu{parser.parse()};
