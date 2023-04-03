@@ -6,6 +6,147 @@
 
 namespace codegen {
 
+void CodeGenerator::enterFuncDefFrame(ast::FuncDeclStmt &node) {
+  frameLevels.push(0);
+  currentScope = symbolTable.at(&node).get();
+
+  std::set<std::string> paramNames;
+
+  std::transform(node.params.cbegin(), node.params.cend(),
+                 std::inserter(paramNames, paramNames.begin()),
+                 [](const ast::FormalParam &param) { return param.first; });
+
+  std::map<std::string, FrameIndexMap::FrameIndex> frameIndices;
+  int frameIndex = 0;
+
+  for (auto const &[symbol, _] : node.params) {
+    frameIndices.insert({symbol, frameIndex});
+    frameIndex++;
+  }
+
+  // NOTE: Because of how the AST/semantic checking works rn, all symbols in
+  // the currentScope will be parameters. However, accounting for the
+  // possibility of extra variables in the scope makes the code less fragile
+  // and susceptible to breaking if details of the AST/semantic checker are
+  // changed.
+  for (auto &[symbol, entry] : currentScope->symbols) {
+    // filter out function-type symbols and function params
+    if (!entry.type.isFunctionType() && !paramNames.count(symbol)) {
+      frameIndices.insert({symbol, frameIndex});
+      frameIndex++;
+    }
+  }
+
+  // NOTE: Fragile release/reset ordering that relies on applicative-order
+  // evaluation.
+  frameIndexMap.reset(
+      new FrameIndexMap(std::move(frameIndices), frameIndexMap.release()));
+
+  int allocSize = frameIndex - node.params.size();
+  if (allocSize > 0) {
+    addInstr(
+        {PixIROpcode::PUSH, std::to_string(frameIndex - node.params.size())});
+    addInstr({PixIROpcode::ALLOC});
+  }
+}
+
+void CodeGenerator::exitFuncDefFrame() {
+  frameLevels.pop();
+  currentScope = currentScope->parent;
+
+  frameIndexMap.reset(frameIndexMap->parent);
+}
+
+void CodeGenerator::enterMainFrame(ast::TranslationUnit &node) {
+  frameLevels.push(0);
+  currentScope = symbolTable.at(&node).get();
+
+  std::map<std::string, FrameIndexMap::FrameIndex> frameIndices;
+  int frameIndex = 0;
+
+  for (auto &[symbol, entry] : currentScope->symbols) {
+    // filter out function-type symbols
+    if (!entry.type.isFunctionType()) {
+      frameIndices.insert({symbol, frameIndex});
+      frameIndex++;
+    }
+  }
+
+  frameIndexMap.reset(
+      new FrameIndexMap(std::move(frameIndices), frameIndexMap.release()));
+
+  if (frameIndex > 0) {
+    addInstr({PixIROpcode::PUSH, std::to_string(frameIndex)});
+    addInstr({PixIROpcode::ALLOC});
+  }
+}
+
+void CodeGenerator::exitMainFrame() {
+  frameLevels.pop();
+  currentScope = currentScope->parent;
+
+  frameIndexMap.reset(frameIndexMap->parent);
+
+  addInstr({PixIROpcode::HALT});
+}
+
+// what are called frames in the VM correspond to scopes in the
+// SemanticVisitor.
+void CodeGenerator::enterFrame(ast::StmtNode *stmt) {
+  ++frameLevels.top();
+  currentScope = symbolTable.at(stmt).get();
+
+  std::map<std::string, FrameIndexMap::FrameIndex> frameIndices;
+  int frameIndex = 0;
+
+  for (auto &[symbol, entry] : currentScope->symbols) {
+    // filter out function-type symbols
+    if (!entry.type.isFunctionType()) {
+      frameIndices.insert({symbol, frameIndex});
+      frameIndex++;
+    }
+  }
+
+  frameIndexMap.reset(
+      new FrameIndexMap(std::move(frameIndices), frameIndexMap.release()));
+
+  addInstr({PixIROpcode::PUSH, std::to_string(frameIndex)});
+  addInstr({PixIROpcode::OFRAME});
+}
+
+void CodeGenerator::exitFrame() {
+  --frameLevels.top();
+  currentScope = currentScope->parent;
+
+  addInstr({PixIROpcode::CFRAME});
+
+  frameIndexMap.reset(frameIndexMap->parent);
+}
+
+BasicBlock *CodeGenerator::terminateBlock() {
+  BasicBlock *old = blockStack.top();
+  blockStack.pop();
+
+  PixIRFunction *currentFunc = old->parentFunc;
+  currentFunc->blocks.push_back(
+      std::make_unique<BasicBlock>(BasicBlock{currentFunc, {}}));
+
+  blockStack.push((--(currentFunc->blocks.end()))->get());
+
+  return old;
+}
+
+void CodeGenerator::beginFunc(std::string funcName) {
+  pixIRCode.push_back(
+      std::make_unique<PixIRFunction>(PixIRFunction{"." + funcName, {}}));
+  PixIRFunction *func = (--pixIRCode.end())->get();
+
+  func->blocks.push_back(std::make_unique<BasicBlock>(BasicBlock{func, {}}));
+  blockStack.push((func->blocks.begin())->get());
+}
+
+void CodeGenerator::endFunc() { blockStack.pop(); }
+
 void CodeGenerator::visit(ast::BinaryExprNode &node) {
   rvisitChildren(&node);
   switch (node.op) {

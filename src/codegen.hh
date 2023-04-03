@@ -97,14 +97,14 @@ struct PixIRFunction {
 // about the address changing due to vector reallocation
 using PixIRCode = std::vector<std::unique_ptr<PixIRFunction>>;
 
-struct SymbolFrameIndexMap {
+struct FrameIndexMap {
   using FrameIndex = int;
 
   std::map<std::string, FrameIndex> frameIndices;
-  SymbolFrameIndexMap *parent;
+  FrameIndexMap *parent;
 
-  SymbolFrameIndexMap(std::map<std::string, FrameIndex> &&frameIndices,
-                      SymbolFrameIndexMap *parent = nullptr)
+  FrameIndexMap(std::map<std::string, FrameIndex> &&frameIndices,
+                FrameIndexMap *parent = nullptr)
       : frameIndices(std::move(frameIndices)), parent(parent) {}
 
   // gets the depth (number of scopes traversed to obtain the symbol) and
@@ -129,7 +129,7 @@ private:
 
   // scratch space for the generator
   std::stack<BasicBlock *> blockStack;
-  std::unique_ptr<SymbolFrameIndexMap> frameIndexMap;
+  std::unique_ptr<FrameIndexMap> frameIndexMap;
 
   std::stack<int> frameLevels;
 
@@ -140,146 +140,21 @@ private:
     blockStack.top()->instrs.push_back(instr);
   }
 
-  void enterFuncDefFrame(ast::FuncDeclStmt &node) {
-    frameLevels.push(0);
-    currentScope = symbolTable.at(&node).get();
+  void enterFuncDefFrame(ast::FuncDeclStmt &node);
+  void exitFuncDefFrame();
 
-    std::set<std::string> paramNames;
-
-    std::transform(node.params.cbegin(), node.params.cend(),
-                   std::inserter(paramNames, paramNames.begin()),
-                   [](const ast::FormalParam &param) { return param.first; });
-
-    std::map<std::string, SymbolFrameIndexMap::FrameIndex> frameIndices;
-    int frameIndex = 0;
-
-    for (auto const &[symbol, _] : node.params) {
-      frameIndices.insert({symbol, frameIndex});
-      frameIndex++;
-    }
-
-    // NOTE: Because of how the AST/semantic checking works rn, all symbols in
-    // the currentScope will be parameters. However, accounting for the
-    // possibility of extra variables in the scope makes the code less fragile
-    // and susceptible to breaking if details of the AST/semantic checker are
-    // changed.
-    for (auto &[symbol, entry] : currentScope->symbols) {
-      // filter out function-type symbols and function params
-      if (!entry.type.isFunctionType() && !paramNames.count(symbol)) {
-        frameIndices.insert({symbol, frameIndex});
-        frameIndex++;
-      }
-    }
-
-    // NOTE: Fragile release/reset ordering that relies on applicative-order
-    // evaluation.
-    frameIndexMap.reset(new SymbolFrameIndexMap(std::move(frameIndices),
-                                                frameIndexMap.release()));
-
-    int allocSize = frameIndex - node.params.size();
-    if (allocSize > 0) {
-      addInstr(
-          {PixIROpcode::PUSH, std::to_string(frameIndex - node.params.size())});
-      addInstr({PixIROpcode::ALLOC});
-    }
-  }
-
-  void exitFuncDefFrame() {
-    frameLevels.pop();
-    currentScope = currentScope->parent;
-
-    frameIndexMap.reset(frameIndexMap->parent);
-  }
-
-  void enterMainFrame(ast::TranslationUnit &node) {
-    frameLevels.push(0);
-    currentScope = symbolTable.at(&node).get();
-
-    std::map<std::string, SymbolFrameIndexMap::FrameIndex> frameIndices;
-    int frameIndex = 0;
-
-    for (auto &[symbol, entry] : currentScope->symbols) {
-      // filter out function-type symbols
-      if (!entry.type.isFunctionType()) {
-        frameIndices.insert({symbol, frameIndex});
-        frameIndex++;
-      }
-    }
-
-    frameIndexMap.reset(new SymbolFrameIndexMap(std::move(frameIndices),
-                                                frameIndexMap.release()));
-
-    if (frameIndex > 0) {
-      addInstr({PixIROpcode::PUSH, std::to_string(frameIndex)});
-      addInstr({PixIROpcode::ALLOC});
-    }
-  }
-
-  void exitMainFrame() {
-    frameLevels.pop();
-    currentScope = currentScope->parent;
-
-    frameIndexMap.reset(frameIndexMap->parent);
-
-    addInstr({PixIROpcode::HALT});
-  }
+  void enterMainFrame(ast::TranslationUnit &node);
+  void exitMainFrame();
 
   // what are called frames in the VM correspond to scopes in the
   // SemanticVisitor.
-  void enterFrame(ast::StmtNode *stmt) {
-    ++frameLevels.top();
-    currentScope = symbolTable.at(stmt).get();
+  void enterFrame(ast::StmtNode *stmt);
+  void exitFrame();
 
-    std::map<std::string, SymbolFrameIndexMap::FrameIndex> frameIndices;
-    int frameIndex = 0;
+  BasicBlock *terminateBlock();
 
-    for (auto &[symbol, entry] : currentScope->symbols) {
-      // filter out function-type symbols
-      if (!entry.type.isFunctionType()) {
-        frameIndices.insert({symbol, frameIndex});
-        frameIndex++;
-      }
-    }
-
-    frameIndexMap.reset(new SymbolFrameIndexMap(std::move(frameIndices),
-                                                frameIndexMap.release()));
-
-    addInstr({PixIROpcode::PUSH, std::to_string(frameIndex)});
-    addInstr({PixIROpcode::OFRAME});
-  }
-
-  void exitFrame() {
-    --frameLevels.top();
-    currentScope = currentScope->parent;
-
-    addInstr({PixIROpcode::CFRAME});
-
-    frameIndexMap.reset(frameIndexMap->parent);
-  }
-
-  BasicBlock *terminateBlock() {
-    BasicBlock *old = blockStack.top();
-    blockStack.pop();
-
-    PixIRFunction *currentFunc = old->parentFunc;
-    currentFunc->blocks.push_back(
-        std::make_unique<BasicBlock>(BasicBlock{currentFunc, {}}));
-
-    blockStack.push((--(currentFunc->blocks.end()))->get());
-
-    return old;
-  }
-
-  void beginFunc(std::string funcName) {
-    pixIRCode.push_back(
-        std::make_unique<PixIRFunction>(PixIRFunction{"." + funcName, {}}));
-    PixIRFunction *func = (--pixIRCode.end())->get();
-
-    func->blocks.push_back(std::make_unique<BasicBlock>(BasicBlock{func, {}}));
-    blockStack.push((func->blocks.begin())->get());
-  }
-
-  void endFunc() { blockStack.pop(); }
+  void beginFunc(std::string funcName);
+  void endFunc();
 
 public:
   CodeGenerator(const ast::SymbolTable &symbolTable)
