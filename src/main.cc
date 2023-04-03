@@ -23,8 +23,7 @@ void print_usage() {
   exit(0);
 }
 
-int main(int argc, char *argv[]) {
-
+CompilerOptions parseArgs(int argc, char *argv[]) {
   CompilerOptions options;
 
   // arg processing
@@ -62,11 +61,18 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  try {
-    Compiler compiler{options};
-    compiler.compile();
-  } catch (CompilationError &e) {
+  return options;
+}
+
+int main(int argc, char *argv[]) {
+
+  CompilerOptions options = parseArgs(argc, argv);
+
+  //  try {
+  Compiler compiler{options};
+  compiler.compile();
+  /*} catch (CompilationError &e) {
     std::cerr << e.what() << std::endl;
     exit(-1);
-  }
+  }*/
 }
