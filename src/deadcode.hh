@@ -5,7 +5,7 @@
 
 #include <set>
 #include <string>
-#include <unordered_map>
+#include <unordered_map> // use unordered_* versions of sets/maps for hot vars.
 #include <unordered_set>
 #include <variant>
 
@@ -13,8 +13,8 @@ namespace codegen {
 
 class DeadFunctionEliminator {
 private:
-  std::unordered_set<std::string> reachable;
   std::vector<PixIRFunction *> workList;
+  // mostly for speeding things up.
   std::unordered_map<std::string, PixIRFunction *> funcs;
   PixIRCode &code;
 
@@ -41,8 +41,9 @@ public:
     }
   }
 
-  void findReachable() {
-    reachable = {std::string(".") + MAIN_FUNC_NAME};
+  std::unordered_set<std::string> findReachable() {
+    std::unordered_set<std::string> reachable{std::string(".") +
+                                              MAIN_FUNC_NAME};
     workList = {funcs.at(std::string(".") + MAIN_FUNC_NAME)};
 
     while (workList.size() > 0) {
@@ -56,10 +57,12 @@ public:
         }
       }
     }
+
+    return reachable;
   }
 
   void eliminate() {
-    findReachable();
+    std::unordered_set<std::string> reachable{findReachable()};
     for (auto it = code.begin(); it != code.end(); ++it) {
       if (!reachable.count((*it)->funcName)) {
         --it;
