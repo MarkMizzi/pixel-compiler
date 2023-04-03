@@ -131,6 +131,8 @@ private:
   std::stack<BasicBlock *> blockStack;
   std::unique_ptr<SymbolFrameIndexMap> frameIndexMap;
 
+  std::stack<int> frameLevels;
+
   // current Scope and frame number.
   const ast::Scope *currentScope;
 
@@ -139,6 +141,7 @@ private:
   }
 
   void enterFuncDefFrame(ast::FuncDeclStmt &node) {
+    frameLevels.push(0);
     currentScope = symbolTable.at(&node).get();
 
     std::set<std::string> paramNames;
@@ -182,12 +185,14 @@ private:
   }
 
   void exitFuncDefFrame() {
+    frameLevels.pop();
     currentScope = currentScope->parent;
 
     frameIndexMap.reset(frameIndexMap->parent);
   }
 
   void enterMainFrame(ast::TranslationUnit &node) {
+    frameLevels.push(0);
     currentScope = symbolTable.at(&node).get();
 
     std::map<std::string, SymbolFrameIndexMap::FrameIndex> frameIndices;
@@ -211,6 +216,7 @@ private:
   }
 
   void exitMainFrame() {
+    frameLevels.pop();
     currentScope = currentScope->parent;
 
     frameIndexMap.reset(frameIndexMap->parent);
@@ -221,6 +227,7 @@ private:
   // what are called frames in the VM correspond to scopes in the
   // SemanticVisitor.
   void enterFrame(ast::StmtNode *stmt) {
+    ++frameLevels.top();
     currentScope = symbolTable.at(stmt).get();
 
     std::map<std::string, SymbolFrameIndexMap::FrameIndex> frameIndices;
@@ -242,6 +249,7 @@ private:
   }
 
   void exitFrame() {
+    --frameLevels.top();
     currentScope = currentScope->parent;
 
     addInstr({PixIROpcode::CFRAME});

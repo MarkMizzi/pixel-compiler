@@ -166,6 +166,9 @@ void CodeGenerator::visit(ast::PixelRStmt &node) {
 
 void CodeGenerator::visit(ast::ReturnStmt &node) {
   rvisitChildren(&node);
+  for (int i = frameLevels.top(); i > 0; i--) {
+    addInstr({PixIROpcode::CFRAME});
+  }
   addInstr({PixIROpcode::RET});
 }
 
