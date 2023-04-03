@@ -16,7 +16,7 @@ private:
   CodePeephole pattern;
 
 public:
-  PixIRPattern(CodePeephole &&pattern) : pattern(pattern) {}
+  PixIRPattern(CodePeephole &&pattern) : pattern(std::move(pattern)) {}
 
   bool match(CodePeephole::iterator codeIt,
              const CodePeephole::iterator code_end) const {
@@ -28,14 +28,17 @@ public:
         return false;
       }
       if (codeIt->opcode == PixIROpcode::PUSH &&
+          // std::monostate acts as a wildcard that matches any PUSH operand.
           !std::holds_alternative<std::monostate>(patternIt->data) &&
           codeIt->data != patternIt->data) {
         return false;
       }
     }
+
     if (patternIt != pattern.cend()) {
       return false;
     }
+
     return true;
   }
 
@@ -44,11 +47,11 @@ public:
                     const CodePeephole::iterator codeEnd,
                     const CodePeephole &substitute) const {
 
-    CodePeephole substituteCopy = substitute;
     if (match(codeIt, codeEnd)) {
       codeIt = codeRun.erase(codeIt, std::next(codeIt, pattern.size()));
       return codeRun.insert(codeIt, substitute.begin(), substitute.end());
     }
+
     return codeIt;
   }
 };

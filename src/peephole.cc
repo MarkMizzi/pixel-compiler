@@ -41,6 +41,8 @@ static const std::vector<std::pair<PixIRPattern, CodePeephole>> patterns{
     {PixIRPattern({{PixIROpcode::PUSH, "1"}, {PixIROpcode::ADD}}),
      {{PixIROpcode::INC}}},
 
+    {PixIRPattern({{PixIROpcode::PUSH, "1"}, {PixIROpcode::MUL}}), {}},
+
     {PixIRPattern({{PixIROpcode::PUSH, "0"}, {PixIROpcode::ADD}}), {}},
 
     {PixIRPattern({{PixIROpcode::PUSH, "0"}, {PixIROpcode::IRND}}),
