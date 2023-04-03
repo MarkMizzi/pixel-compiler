@@ -97,6 +97,119 @@ TokenType tokenType(LexerState finalState);
 // return the character class of c.
 CharClass characterClass(char c);
 
+std::string to_string(TokenType tokType) {
+  switch (tokType) {
+    // literals
+  case TRUE_LITERAL:
+    return "true";
+  case FALSE_LITERAL:
+    return "false";
+  case INTEGER_LITERAL:
+    return "[0-9]+";
+  case FLOAT_LITERAL:
+    return "[0-9]+\\.[0-9]+";
+  case COLOUR_LITERAL:
+    return "#[a-fA-F0-9]{6}";
+  case IDENTIFIER:
+    return "[a-zA-Z][a-zA-Z_0-9]*";
+
+    // typenames
+  case FLOAT:
+    return "float";
+  case INT:
+    return "int";
+  case BOOL:
+    return "bool";
+  case COLOUR:
+    return "colour";
+
+    // keywords
+  case PAD_WIDTH:
+    return "__width";
+  case PAD_HEIGHT:
+    return "__height";
+  case READ:
+    return "__read";
+  case RANDI:
+    return "__randi";
+  case LET:
+    return "let";
+  case PRINT:
+    return "__print";
+  case DELAY:
+    return "__delay";
+  case PIXELR:
+    return "__pixelr";
+  case PIXEL:
+    return "__pixel";
+  case RETURN:
+    return "return";
+  case IF:
+    return "if";
+  case ELSE:
+    return "else";
+  case FOR:
+    return "for";
+  case WHILE:
+    return "while";
+  case FUN:
+    return "fun";
+
+    // operators, special characters
+  case COMMA_TOK:
+    return ",";
+  case GREATER_TOK:
+    return ">";
+  case LESS_TOK:
+    return "<";
+  case EQ_TOK:
+    return "==";
+  case NEQ_TOK:
+    return "!=";
+  case GE:
+    return ">=";
+  case LE:
+    return "<=";
+  case PLUS_TOK:
+    return "+";
+  case MINUS_TOK:
+    return "-";
+  case STAR_TOK:
+    return "*";
+  case DIV_TOK:
+    return "/";
+  case ASSIGN:
+    return "=";
+  case AND:
+    return "and";
+  case OR:
+    return "or";
+  case NOT:
+    return "not";
+  case LBRACKET_TOK:
+    return "(";
+  case RBRACKET_TOK:
+    return ")";
+  case LBRACE_TOK:
+    return "{";
+  case RBRACE_TOK:
+    return "}";
+  case ARROW:
+    return "->";
+  case COLON_TOK:
+    return ":";
+  case SEMICOLON_TOK:
+    return ";";
+
+  case WHITESPACE_TOK:
+    return "comments/whitespace";
+
+  case END:
+    return "EOF";
+  }
+  return ""; // please compiler
+}
+
 // the lexer's transition table
 static const LexerTransitionTable tt{
     // identifiers

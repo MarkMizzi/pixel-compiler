@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 namespace lexer {
 
@@ -76,6 +77,8 @@ enum TokenType {
   WHITESPACE_TOK, // comments, and whitespace.
   END,            // EOF
 };
+
+std::string to_string(TokenType tokType);
 
 struct Token {
   TokenType type;

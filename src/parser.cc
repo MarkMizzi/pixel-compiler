@@ -8,8 +8,8 @@ namespace parser {
 
 #define CHECK_TOKEN(TOK, TYPE)                                                 \
   if ((TOK).type != TYPE) {                                                    \
-    throw ParserError(std::string("Expected ") + #TYPE +                       \
-                          ", found invalid token " + (TOK).value + ".",        \
+    throw ParserError(std::string("Expected \"") + lexer::to_string(TYPE) +    \
+                          "\", found invalid token \"" + (TOK).value + "\".",  \
                       (TOK).loc);                                              \
   }
 
