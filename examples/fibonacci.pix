@@ -25,3 +25,5 @@ __pixelr 2, 0, 1, fibr(3), #00ff00;
 __pixelr 3, 0, 1, fibr(4), #00ff00;
 __pixelr 4, 0, 1, fibr(5), #00ff00;
 __pixelr 5, 0, 1, fibr(6), #00ff00;
+__pixelr 6, 0, 1, fibr(7), #00ff00;
+__pixelr 7, 0, 1, fibr(8), #00ff00;
