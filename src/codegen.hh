@@ -121,8 +121,14 @@ struct FrameIndexMap {
   }
 };
 
+struct CodeGeneratorOptions {
+  bool rotateLoops = false;
+};
+
 class CodeGenerator : public ast::AbstractVisitor {
 private:
+  CodeGeneratorOptions opts;
+
   const ast::SymbolTable &symbolTable;
 
   PixIRCode pixIRCode;
@@ -157,8 +163,9 @@ private:
   void endFunc();
 
 public:
-  CodeGenerator(const ast::SymbolTable &symbolTable)
-      : symbolTable(symbolTable) {}
+  CodeGenerator(const ast::SymbolTable &symbolTable,
+                CodeGeneratorOptions &&opts)
+      : opts(std::move(opts)), symbolTable(symbolTable) {}
 
   void visit(ast::BinaryExprNode &node) override;
   void visit(ast::UnaryExprNode &node) override;

@@ -13,6 +13,9 @@ void print_usage() {
   std::cout << "  -xml  Generate XML from the AST produced. An output file for "
                "the XML must also be specified."
             << std::endl;
+  std::cout
+      << "  -frotate-loops    Rotates while/for loops when generating code."
+      << std::endl;
   std::cout << "  -felim-dead-code  Eliminate dead code." << std::endl;
   std::cout << "  -fpeephole-optimize  Enable the peephole optimizer."
             << std::endl;
@@ -47,6 +50,8 @@ CompilerOptions parseArgs(int argc, char *argv[]) {
         exit(-1);
       }
       options.xmlOutfile = std::string(std::move(argv[i]));
+    } else if (arg == "-frotate-loops") {
+      options.rotateLoops = true;
     } else if (arg == "-felim-dead-code") {
       options.eliminateDeadCode = true;
     } else if (arg == "-fpeephole-optimize") {

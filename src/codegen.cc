@@ -340,8 +340,9 @@ void CodeGenerator::visit(ast::IfElseStmt &node) {
 void CodeGenerator::visit(ast::ForStmt &node) {
   enterFrame(&node);
 
-  BasicBlock *head, *after;
+  BasicBlock *head, *body, *after;
 
+  // loop entry
   terminateBlock();
   node.varDecl->accept(this);
 
@@ -351,12 +352,27 @@ void CodeGenerator::visit(ast::ForStmt &node) {
   addInstr({PixIROpcode::PUSH, "1"});
   addInstr({PixIROpcode::SUB});
 
-  head = terminateBlock();
-  node.body->accept(this);
-  node.assignment->accept(this);
-  addInstr({PixIROpcode::PUSH, head});
-  addInstr({PixIROpcode::JMP});
+  if (opts.rotateLoops) {
+    // rotated loop body
+    head = terminateBlock();
+    body = blockStack.top();
+    node.body->accept(this);
+    node.assignment->accept(this);
 
+    node.cond->accept(this);
+    addInstr({PixIROpcode::PUSH, body});
+    addInstr({PixIROpcode::CJMP2});
+
+  } else {
+    // regular loop body
+    head = terminateBlock();
+    node.body->accept(this);
+    node.assignment->accept(this);
+    addInstr({PixIROpcode::PUSH, head});
+    addInstr({PixIROpcode::JMP});
+  }
+
+  // after block
   terminateBlock();
   after = blockStack.top();
 
@@ -367,7 +383,7 @@ void CodeGenerator::visit(ast::ForStmt &node) {
 }
 
 void CodeGenerator::visit(ast::WhileStmt &node) {
-  BasicBlock *head, *after;
+  BasicBlock *head, *body, *after;
 
   terminateBlock();
   node.cond->accept(this);
@@ -375,11 +391,24 @@ void CodeGenerator::visit(ast::WhileStmt &node) {
   addInstr({PixIROpcode::PUSH, "1"});
   addInstr({PixIROpcode::SUB});
 
-  head = terminateBlock();
-  node.body->accept(this);
-  addInstr({PixIROpcode::PUSH, head});
-  addInstr({PixIROpcode::JMP});
+  if (opts.rotateLoops) {
+    // rotated loop body
+    head = terminateBlock();
+    body = blockStack.top();
+    node.body->accept(this);
 
+    node.cond->accept(this);
+    addInstr({PixIROpcode::PUSH, body});
+    addInstr({PixIROpcode::CJMP2});
+  } else {
+    // regular loop body
+    head = terminateBlock();
+    node.body->accept(this);
+    addInstr({PixIROpcode::PUSH, head});
+    addInstr({PixIROpcode::JMP});
+  }
+
+  // after block
   terminateBlock();
   after = blockStack.top();
 

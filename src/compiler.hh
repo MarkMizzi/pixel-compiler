@@ -25,6 +25,8 @@ struct CompilerOptions {
   bool generateXml = false;
   std::optional<std::string> xmlOutfile = std::nullopt;
 
+  bool rotateLoops = false;
+
   bool eliminateDeadCode = false;
   bool peepholeOptimize = false;
 };
@@ -69,7 +71,7 @@ public:
                        : std::fstream()),
         xmlOut(opts.xmlOutfile ? xmlOutfile : std::cout), lexer(in),
         parser(lexer), semanticChecker(symbolTable),
-        codeGenerator(symbolTable) {
+        codeGenerator(symbolTable, {.rotateLoops = opts.rotateLoops}) {
     if (opts.infile && !std::filesystem::exists(opts.infile.value())) {
       throw CompilationError("Input file " + opts.infile.value() +
                              " does not exist.");
