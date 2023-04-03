@@ -11,7 +11,7 @@
 
 namespace codegen {
 
-class DeadCodeEliminator {
+class DeadFunctionEliminator {
 private:
   std::unordered_set<std::string> reachable;
   std::vector<PixIRFunction *> workList;
@@ -35,7 +35,7 @@ private:
   }
 
 public:
-  DeadCodeEliminator(PixIRCode &code) : code(code), funcs(code.size()) {
+  DeadFunctionEliminator(PixIRCode &code) : code(code), funcs(code.size()) {
     for (const std::unique_ptr<PixIRFunction> &func : code) {
       funcs.insert({func->funcName, func.get()});
     }
@@ -68,6 +68,11 @@ public:
     }
   }
 };
+
+// another type of dead code elimination
+// Basically if we generate code after a return in a basic block, this is
+// dead code.
+void eliminateDeadCodeAfterReturn(PixIRCode &code);
 
 } // end namespace codegen
 

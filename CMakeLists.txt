@@ -36,6 +36,7 @@ add_executable(pixarc
   src/xml_visitor.cc
   src/semantic_visitor.cc
   src/codegen.cc
+  src/deadcode.cc
   src/peephole.cc
   src/main.cc)
 
@@ -60,6 +61,7 @@ add_executable(pixarc_tests
   src/semantic_visitor.cc
   src/codegen.cc
   src/peephole.cc
+  src/deadcode.cc
   tests/lexer_tests.cc
   tests/semantic_visitor_tests.cc)
 

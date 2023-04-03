@@ -90,8 +90,9 @@ public:
 
     // optimizations
     if (opts.eliminateDeadCode) {
-      codegen::DeadCodeEliminator eliminator(code);
+      codegen::DeadFunctionEliminator eliminator(code);
       eliminator.eliminate();
+      codegen::eliminateDeadCodeAfterReturn(code);
     }
 
     if (opts.peepholeOptimize) {
