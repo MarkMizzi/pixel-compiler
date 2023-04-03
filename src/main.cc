@@ -68,11 +68,11 @@ int main(int argc, char *argv[]) {
 
   CompilerOptions options = parseArgs(argc, argv);
 
-  //  try {
-  Compiler compiler{options};
-  compiler.compile();
-  /*} catch (CompilationError &e) {
+  try {
+    Compiler compiler{options};
+    compiler.compile();
+  } catch (CompilationError &e) {
     std::cerr << e.what() << std::endl;
     exit(-1);
-  }*/
+  }
 }
