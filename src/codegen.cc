@@ -218,7 +218,6 @@ void CodeGenerator::visit(ast::IdExprNode &node) {
   if (node.isLValue) {
     addInstr({PixIROpcode::PUSH, std::to_string(index)});
     addInstr({PixIROpcode::PUSH, std::to_string(depth)});
-    addInstr({PixIROpcode::ST});
   } else {
     addInstr({PixIROpcode::PUSH,
               "[" + std::to_string(index) + ":" + std::to_string(depth) + "]"});
@@ -285,6 +284,8 @@ void CodeGenerator::visit(ast::AssignmentStmt &node) {
   if (dynamic_cast<ast::ArrayAccessNode *>(node.lvalue.get()) != nullptr) {
     popInstr();
     addInstr({PixIROpcode::STA});
+  } else if (dynamic_cast<ast::IdExprNode *>(node.lvalue.get()) != nullptr) {
+    addInstr({PixIROpcode::ST});
   }
 }
 

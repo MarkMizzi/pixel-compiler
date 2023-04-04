@@ -48,27 +48,31 @@ ast::BinaryExprNode::BinaryOp tokenTypeToBinaryOp(lexer::TokenType tokType) {
 ast::ExprNodePtr Parser::parseArrayAccess(bool isLValue) {
   lexer::Token iden = consume();
 
-  lexer::Token rsqbrace = consume();
-  CHECK_TOKEN(rsqbrace, lexer::RSQBRACE_TOK);
-
-  ast::ExprNodePtr idxExpr = parseExpr();
-
   lexer::Token lsqbrace = consume();
   CHECK_TOKEN(lsqbrace, lexer::LSQBRACE_TOK);
 
+  ast::ExprNodePtr idxExpr = parseExpr();
+
+  lexer::Token rsqbrace = consume();
+  CHECK_TOKEN(rsqbrace, lexer::RSQBRACE_TOK);
+
+  // NOTE: Even though we may be using the identifier inside an lvalue, what we
+  // really want is the plain value, not the address (index and level) of the
+  // identifier, as we are interested in the (constant) address of the head
+  // pointer (the value of the identifier).
   ast::ExprNodePtr arrAccess = std::make_unique<ast::ArrayAccessNode>(
-      std::make_unique<ast::IdExprNode>(iden.value, isLValue, iden.loc),
+      std::make_unique<ast::IdExprNode>(iden.value, false, iden.loc),
       std::move(idxExpr), isLValue, iden.loc.merge(rsqbrace.loc));
   Location loc = arrAccess->loc;
 
   while (peek(0).type == lexer::LSQBRACE_TOK) {
-    rsqbrace = consume();
+    lsqbrace = consume();
     ast::ExprNodePtr idxExpr = parseExpr();
 
-    lsqbrace = consume();
-    CHECK_TOKEN(lsqbrace, lexer::LSQBRACE_TOK);
+    rsqbrace = consume();
+    CHECK_TOKEN(rsqbrace, lexer::RSQBRACE_TOK);
 
-    loc = loc.merge(lsqbrace.loc);
+    loc = loc.merge(rsqbrace.loc);
     arrAccess = std::make_unique<ast::ArrayAccessNode>(
         std::move(arrAccess), std::move(idxExpr), isLValue, loc);
   }
@@ -348,6 +352,7 @@ ast::StmtNodePtr Parser::parseAssignment() {
   switch (peek(1).type) {
   case lexer::LSQBRACE_TOK:
     lvalue = parseLValueArrayAccess();
+    break;
   default: {
     lexer::Token tok = consume();
     lvalue = std::make_unique<ast::IdExprNode>(tok.value, true, tok.loc);
