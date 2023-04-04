@@ -118,7 +118,6 @@ public:
   void visit(ReadExprNode &node) override;
   void visit(RandiExprNode &node) override;
   void visit(NewArrExprNode &node) override;
-  void visit(NullArrExprNode &node) override;
   void visit(ArrayAccessNode &node) override;
 
   void visit(AssignmentStmt &node) override;

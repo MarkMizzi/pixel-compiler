@@ -413,17 +413,6 @@ public:
   std::vector<ASTNode *> children() override { return {operand.get()}; };
 };
 
-class NullArrExprNode : public ExprNode {
-public:
-  TypeNodePtr ofType;
-
-  NullArrExprNode(TypeNodePtr &&ofType, Location loc)
-      : ExprNode(loc), ofType(std::move(ofType)) {}
-
-  void accept(AbstractVisitor *v) override { v->visit(*this); }
-  std::vector<ASTNode *> children() override { return {ofType.get()}; };
-};
-
 class StmtNode : public ASTNode {
 public:
   using ASTNode::ASTNode;

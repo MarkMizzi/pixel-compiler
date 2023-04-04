@@ -134,23 +134,6 @@ ast::ExprNodePtr Parser::parseFactor() {
         std::stoi("0x" + tok.value.substr(1, 6), nullptr, 16), tok.loc);
   }
 
-  case lexer::LSQBRACE_TOK: {
-    lexer::Token lsqbrace = consume();
-    lexer::Token rsqbrace = consume();
-    CHECK_TOKEN(rsqbrace, lexer::RSQBRACE_TOK);
-
-    ast::TypeNodePtr ofType = parseType();
-
-    lexer::Token lbrace = consume();
-    CHECK_TOKEN(lbrace, lexer::LBRACE_TOK);
-
-    lexer::Token rbrace = consume();
-    CHECK_TOKEN(rbrace, lexer::RBRACE_TOK);
-
-    return std::make_unique<ast::NullArrExprNode>(
-        std::move(ofType), lsqbrace.loc.merge(rbrace.loc));
-  }
-
   case lexer::IDENTIFIER: {
     switch (peek(1).type) {
     case lexer::LBRACKET_TOK:

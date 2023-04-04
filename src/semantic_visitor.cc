@@ -216,13 +216,6 @@ void SemanticVisitor::visit(NewArrExprNode &node) {
                                         node.ofType->copy(), Location{})});
 }
 
-void SemanticVisitor::visit(NullArrExprNode &node) {
-  visitChildren(&node);
-
-  typeCheckerTable().insert({&node, std::make_unique<ArrayTypeNode>(
-                                        node.ofType->copy(), Location{})});
-}
-
 void SemanticVisitor::visit(ArrayAccessNode &node) {
   visitChildren(&node);
 

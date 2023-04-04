@@ -145,10 +145,6 @@ void XMLVisitor::visit(NewArrExprNode &node) {
   XML_ELEM_WITH_CHILDREN(node, "NewArrExprNode", "");
 }
 
-void XMLVisitor::visit(NullArrExprNode &node) {
-  XML_ELEM_WITH_CHILDREN(node, "NullArrExprNode", "");
-}
-
 void XMLVisitor::visit(ArrayAccessNode &node) {
   XML_ELEM_WITH_CHILDREN(node, "ArrayAccessNode",
                          " isLValue=\"" << node.isLValue << "\"");

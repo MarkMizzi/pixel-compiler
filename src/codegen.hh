@@ -193,7 +193,6 @@ public:
   void visit(ast::ReadExprNode &node) override;
   void visit(ast::RandiExprNode &node) override;
   void visit(ast::NewArrExprNode &node) override;
-  void visit(ast::NullArrExprNode &node) override;
   void visit(ast::ArrayAccessNode &node) override;
 
   void visit(ast::AssignmentStmt &node) override;

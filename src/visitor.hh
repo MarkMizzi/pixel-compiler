@@ -25,7 +25,6 @@ class PadHeightExprNode;
 class ReadExprNode;
 class RandiExprNode;
 class NewArrExprNode;
-class NullArrExprNode;
 class ArrayAccessNode;
 
 class AssignmentStmt;
@@ -67,7 +66,6 @@ public:
   virtual void visit(ReadExprNode &node) = 0;
   virtual void visit(RandiExprNode &node) = 0;
   virtual void visit(NewArrExprNode &node) = 0;
-  virtual void visit(NullArrExprNode &node) = 0;
   virtual void visit(ArrayAccessNode &node) = 0;
 
   virtual void visit(AssignmentStmt &node) = 0;

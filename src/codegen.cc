@@ -269,11 +269,6 @@ void CodeGenerator::visit(ast::NewArrExprNode &node) {
   addInstr({PixIROpcode::ALLOCA});
 }
 
-void CodeGenerator::visit(ast::NullArrExprNode &node) {
-  rvisitChildren(&node);
-  addInstr({PixIROpcode::PUSH, "nil"});
-}
-
 void CodeGenerator::visit(ast::ArrayAccessNode &node) {
   rvisitChildren(&node);
   addInstr({PixIROpcode::LDA});
