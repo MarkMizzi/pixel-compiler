@@ -440,7 +440,9 @@ public:
       : StmtNode(loc), lvalue(std::move(lvalue)), expr(std::move(expr)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
-  std::vector<ASTNode *> children() override { return {expr.get()}; };
+  std::vector<ASTNode *> children() override {
+    return {lvalue.get(), expr.get()};
+  };
 };
 
 class VariableDeclStmt : public StmtNode {
