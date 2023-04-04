@@ -14,6 +14,12 @@ private:
   int indent = 0;
 
 public:
+  void visit(IntTypeNode &node) override;
+  void visit(FloatTypeNode &node) override;
+  void visit(ColourTypeNode &node) override;
+  void visit(BoolTypeNode &node) override;
+  void visit(ArrayTypeNode &node) override;
+
   void visit(BinaryExprNode &node) override;
   void visit(UnaryExprNode &node) override;
   void visit(FunctionCallNode &node) override;
@@ -26,6 +32,9 @@ public:
   void visit(PadHeightExprNode &node) override;
   void visit(ReadExprNode &node) override;
   void visit(RandiExprNode &node) override;
+  void visit(NewArrExprNode &node) override;
+  void visit(NullArrExprNode &node) override;
+  void visit(ArrayAccessNode &node) override;
 
   void visit(AssignmentStmt &node) override;
   void visit(VariableDeclStmt &node) override;

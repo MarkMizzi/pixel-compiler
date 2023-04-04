@@ -19,6 +19,26 @@ namespace ast {
      << (NODE).loc.to_string() << "\""                                         \
      << ">" << (CONTENT) << "</" << (TAGNAME) << ">" << std::endl
 
+void XMLVisitor::visit(IntTypeNode &node) {
+  XML_ELEM_WITH_CONTENT(node, "IntTypeNode", "", "");
+}
+
+void XMLVisitor::visit(FloatTypeNode &node) {
+  XML_ELEM_WITH_CONTENT(node, "FloatTypeNode", "", "");
+}
+
+void XMLVisitor::visit(ColourTypeNode &node) {
+  XML_ELEM_WITH_CONTENT(node, "ColourTypeNode", "", "");
+}
+
+void XMLVisitor::visit(BoolTypeNode &node) {
+  XML_ELEM_WITH_CONTENT(node, "BoolTypeNode", "", "");
+}
+
+void XMLVisitor::visit(ArrayTypeNode &node) {
+  XML_ELEM_WITH_CHILDREN(node, "ArrayTypeNode", "");
+}
+
 void XMLVisitor::visit(BinaryExprNode &node) {
   std::string op;
   switch (node.op) {
@@ -121,14 +141,25 @@ void XMLVisitor::visit(RandiExprNode &node) {
   XML_ELEM_WITH_CHILDREN(node, "RandiExprNode", "");
 }
 
+void XMLVisitor::visit(NewArrExprNode &node) {
+  XML_ELEM_WITH_CHILDREN(node, "NewArrExprNode", "");
+}
+
+void XMLVisitor::visit(NullArrExprNode &node) {
+  XML_ELEM_WITH_CHILDREN(node, "NullArrExprNode", "");
+}
+
+void XMLVisitor::visit(ArrayAccessNode &node) {
+  XML_ELEM_WITH_CHILDREN(node, "ArrayAccessNode",
+                         " isLValue=\"" << node.isLValue << "\"");
+}
+
 void XMLVisitor::visit(AssignmentStmt &node) {
-  XML_ELEM_WITH_CHILDREN(node, "AssignmentStmt", " id=\"" << node.id << "\"");
+  XML_ELEM_WITH_CHILDREN(node, "AssignmentStmt", "");
 }
 
 void XMLVisitor::visit(VariableDeclStmt &node) {
-  XML_ELEM_WITH_CHILDREN(node, "VariableDeclStmt",
-                         " id=\"" << node.id << "\" type=\""
-                                  << to_string(node.type) << "\"");
+  XML_ELEM_WITH_CHILDREN(node, "VariableDeclStmt", " id=\"" << node.id << "\"");
 }
 
 void XMLVisitor::visit(PrintStmt &node) {
@@ -169,17 +200,26 @@ void XMLVisitor::visit(FuncDeclStmt &node) {
 
   indent++;
 
-  for (FormalParam param : node.params) {
+  for (const FormalParam &param : node.params) {
     ss << std::string(indent, ' ') << "<FormalParam name=\"" << param.first
-       << "\" type=\"" << to_string(param.second) << "\"></FormalParam>"
-       << std::endl;
+       << ">" << std::endl;
+
+    indent++;
+    param.second->accept(this);
+    indent--;
+
+    ss << "</FormalParam>" << std::endl;
   }
 
-  ss << std::string(indent, ' ') << "<Returns type=\""
-     << to_string(node.retType) << "\"></Returns>" << std::endl;
+  ss << std::string(indent, ' ') << "<Returns>" << std::endl;
+
+  indent++;
+  node.retType->accept(this);
+  indent--;
+
+  ss << "</Returns>" << std::endl;
 
   visitChildren(&node);
-
   indent--;
 
   ss << std::string(indent, ' ') << "</FuncDeclStmt>" << std::endl;

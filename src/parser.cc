@@ -45,6 +45,45 @@ ast::BinaryExprNode::BinaryOp tokenTypeToBinaryOp(lexer::TokenType tokType) {
   }
 }
 
+ast::ExprNodePtr Parser::parseArrayAccess(bool isLValue) {
+  lexer::Token iden = consume();
+
+  lexer::Token rsqbrace = consume();
+  CHECK_TOKEN(rsqbrace, lexer::RSQBRACE_TOK);
+
+  ast::ExprNodePtr idxExpr = parseExpr();
+
+  lexer::Token lsqbrace = consume();
+  CHECK_TOKEN(lsqbrace, lexer::LSQBRACE_TOK);
+
+  ast::ExprNodePtr arrAccess = std::make_unique<ast::ArrayAccessNode>(
+      std::make_unique<ast::IdExprNode>(iden.value, isLValue, iden.loc),
+      std::move(idxExpr), isLValue, iden.loc.merge(rsqbrace.loc));
+  Location loc = arrAccess->loc;
+
+  while (peek(0).type == lexer::LSQBRACE_TOK) {
+    rsqbrace = consume();
+    ast::ExprNodePtr idxExpr = parseExpr();
+
+    lsqbrace = consume();
+    CHECK_TOKEN(lsqbrace, lexer::LSQBRACE_TOK);
+
+    loc = loc.merge(lsqbrace.loc);
+    arrAccess = std::make_unique<ast::ArrayAccessNode>(
+        std::move(arrAccess), std::move(idxExpr), isLValue, loc);
+  }
+
+  return arrAccess;
+}
+
+ast::ExprNodePtr Parser::parseLValueArrayAccess() {
+  return parseArrayAccess(true);
+}
+
+ast::ExprNodePtr Parser::parseRValueArrayAccess() {
+  return parseArrayAccess(false);
+}
+
 ast::ExprNodePtr Parser::parseFunctionCall() {
   lexer::Token funcName = consume();
 
@@ -91,12 +130,34 @@ ast::ExprNodePtr Parser::parseFactor() {
         std::stoi("0x" + tok.value.substr(1, 6), nullptr, 16), tok.loc);
   }
 
+  case lexer::LSQBRACE_TOK: {
+    lexer::Token lsqbrace = consume();
+    lexer::Token rsqbrace = consume();
+    CHECK_TOKEN(rsqbrace, lexer::RSQBRACE_TOK);
+
+    ast::TypeNodePtr ofType = parseType();
+
+    lexer::Token lbrace = consume();
+    CHECK_TOKEN(lbrace, lexer::LBRACE_TOK);
+
+    lexer::Token rbrace = consume();
+    CHECK_TOKEN(rbrace, lexer::RBRACE_TOK);
+
+    return std::make_unique<ast::NullArrExprNode>(
+        std::move(ofType), lsqbrace.loc.merge(rbrace.loc));
+  }
+
   case lexer::IDENTIFIER: {
-    if (peek(1).type == lexer::LBRACKET_TOK) {
+    switch (peek(1).type) {
+    case lexer::LBRACKET_TOK:
       return parseFunctionCall();
+    case lexer::LSQBRACE_TOK:
+      return parseRValueArrayAccess();
+    default: {
+      lexer::Token tok = consume();
+      return std::make_unique<ast::IdExprNode>(tok.value, false, tok.loc);
     }
-    lexer::Token tok = consume();
-    return std::make_unique<ast::IdExprNode>(tok.value, tok.loc);
+    }
   }
 
   case lexer::LBRACKET_TOK: {
@@ -134,8 +195,14 @@ ast::ExprNodePtr Parser::parseFactor() {
 
   case lexer::READ: {
     lexer::Token tok = consume();
+
     ast::ExprNodePtr xExpr = parseExpr();
+
+    lexer::Token comma = consume();
+    CHECK_TOKEN(comma, lexer::COMMA_TOK);
+
     ast::ExprNodePtr yExpr = parseExpr();
+
     return std::make_unique<ast::ReadExprNode>(
         std::move(xExpr), std::move(yExpr), tok.loc.merge(yExpr->loc));
   }
@@ -145,6 +212,21 @@ ast::ExprNodePtr Parser::parseFactor() {
 
   case lexer::PAD_WIDTH:
     return std::make_unique<ast::PadWidthExprNode>(consume().loc);
+
+  case lexer::NEWARR: {
+    lexer::Token tok = consume();
+
+    ast::TypeNodePtr ofType = parseType();
+
+    lexer::Token comma = consume();
+    CHECK_TOKEN(comma, lexer::COMMA_TOK);
+
+    ast::ExprNodePtr arrSizeExpr = parseExpr();
+    Location loc = tok.loc.merge(arrSizeExpr->loc);
+
+    return std::make_unique<ast::NewArrExprNode>(std::move(ofType),
+                                                 std::move(arrSizeExpr), loc);
+  }
 
   default:
     throw ParserError("Failed in parseFactor", consume().loc);
@@ -208,18 +290,27 @@ ast::ExprNodePtr Parser::parseExpr() {
   }
 }
 
-ast::Typename Parser::parseTypename() {
+ast::TypeNodePtr Parser::parseType() {
   lexer::Token tok = consume();
 
   switch (tok.type) {
   case lexer::INT:
-    return ast::Typename::INT;
+    return std::make_unique<ast::IntTypeNode>(tok.loc);
   case lexer::FLOAT:
-    return ast::Typename::FLOAT;
+    return std::make_unique<ast::FloatTypeNode>(tok.loc);
   case lexer::COLOUR:
-    return ast::Typename::COLOUR;
+    return std::make_unique<ast::ColourTypeNode>(tok.loc);
   case lexer::BOOL:
-    return ast::Typename::BOOL;
+    return std::make_unique<ast::BoolTypeNode>(tok.loc);
+  case lexer::LSQBRACE_TOK: {
+    lexer::Token rsqbrace = consume();
+    CHECK_TOKEN(rsqbrace, lexer::RSQBRACE_TOK);
+
+    ast::TypeNodePtr contained{parseType()};
+
+    Location loc = tok.loc.merge(contained->loc);
+    return std::make_unique<ast::ArrayTypeNode>(std::move(contained), loc);
+  }
   default:
     throw ParserError("Expected typename, found invalid token", tok.loc);
   }
@@ -234,7 +325,7 @@ ast::StmtNodePtr Parser::parseVariableDecl() {
   lexer::Token colon = consume();
   CHECK_TOKEN(colon, lexer::COLON_TOK);
 
-  ast::Typename type = parseTypename();
+  ast::TypeNodePtr type = parseType();
 
   lexer::Token eqToken = consume();
   CHECK_TOKEN(eqToken, lexer::ASSIGN);
@@ -246,19 +337,29 @@ ast::StmtNodePtr Parser::parseVariableDecl() {
 
   loc = loc.merge(semicolon.loc);
 
-  return std::make_unique<ast::VariableDeclStmt>(iden.value, type,
+  return std::make_unique<ast::VariableDeclStmt>(iden.value, std::move(type),
                                                  std::move(expr), loc);
 }
 
 ast::StmtNodePtr Parser::parseAssignment() {
-  lexer::Token iden = consume();
+
+  ast::ExprNodePtr lvalue;
+
+  switch (peek(1).type) {
+  case lexer::LSQBRACE_TOK:
+    lvalue = parseLValueArrayAccess();
+  default: {
+    lexer::Token tok = consume();
+    lvalue = std::make_unique<ast::IdExprNode>(tok.value, true, tok.loc);
+  }
+  }
 
   lexer::Token eqToken = consume();
   CHECK_TOKEN(eqToken, lexer::ASSIGN);
 
   ast::ExprNodePtr expr = parseExpr();
 
-  Location loc = iden.loc.merge(expr->loc);
+  Location loc = lvalue->loc.merge(expr->loc);
 
   if (peek(0).type != lexer::RBRACKET_TOK) {
     // caters for the case when an assignment is used in a for loop.
@@ -267,8 +368,8 @@ ast::StmtNodePtr Parser::parseAssignment() {
     loc.merge(semicolon.loc);
   }
 
-  return std::make_unique<ast::AssignmentStmt>(iden.value, std::move(expr),
-                                               loc);
+  return std::make_unique<ast::AssignmentStmt>(std::move(lvalue),
+                                               std::move(expr), loc);
 }
 
 ast::StmtNodePtr Parser::parsePrint() {
@@ -440,9 +541,9 @@ ast::FormalParam Parser::parseFormalParam() {
   lexer::Token semicolon = consume();
   CHECK_TOKEN(semicolon, lexer::COLON_TOK);
 
-  ast::Typename type = parseTypename();
+  ast::TypeNodePtr type = parseType();
 
-  return {iden.value, type};
+  return {iden.value, std::move(type)};
 }
 
 ast::StmtNodePtr Parser::parseFun() {
@@ -468,12 +569,12 @@ ast::StmtNodePtr Parser::parseFun() {
   lexer::Token arrow = consume();
   CHECK_TOKEN(arrow, lexer::ARROW);
 
-  ast::Typename type = parseTypename();
+  ast::TypeNodePtr type = parseType();
 
   ast::StmtNodePtr body = parseBlock();
 
   return std::make_unique<ast::FuncDeclStmt>(
-      iden.value, std::move(formalParams), type, std::move(body),
+      iden.value, std::move(formalParams), std::move(type), std::move(body),
       loc.merge(body->loc));
 }
 

@@ -46,16 +46,20 @@ private:
     return tok;
   }
 
+  ast::ExprNodePtr parseArrayAccess(bool isLValue);
+
 public:
   Parser(lexer::Lexer &lexer) : lexer(lexer) {}
 
+  ast::ExprNodePtr parseLValueArrayAccess();
+  ast::ExprNodePtr parseRValueArrayAccess();
   ast::ExprNodePtr parseFunctionCall();
   ast::ExprNodePtr parseFactor();
   ast::ExprNodePtr parseTerm();
   ast::ExprNodePtr parseSimpleExpr();
   ast::ExprNodePtr parseExpr();
 
-  ast::Typename parseTypename();
+  ast::TypeNodePtr parseType();
 
   ast::FormalParam parseFormalParam();
 

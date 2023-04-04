@@ -29,9 +29,9 @@ void CodeGenerator::enterFuncDefFrame(ast::FuncDeclStmt &node) {
   // possibility of extra variables in the scope makes the code less fragile
   // and susceptible to breaking if details of the AST/semantic checker are
   // changed.
-  for (auto &[symbol, entry] : currentScope->symbols) {
+  for (auto const &[symbol, entry] : currentScope->symbols) {
     // filter out function-type symbols and function params
-    if (!entry.type.isFunctionType() && !paramNames.count(symbol)) {
+    if (!entry->type->isFuncType() && !paramNames.count(symbol)) {
       frameIndices.insert({symbol, frameIndex});
       frameIndex++;
     }
@@ -66,7 +66,7 @@ void CodeGenerator::enterMainFrame(ast::TranslationUnit &node) {
 
   for (auto &[symbol, entry] : currentScope->symbols) {
     // filter out function-type symbols
-    if (!entry.type.isFunctionType()) {
+    if (!entry->type->isFuncType()) {
       frameIndices.insert({symbol, frameIndex});
       frameIndex++;
     }
@@ -101,7 +101,7 @@ void CodeGenerator::enterFrame(ast::StmtNode *stmt) {
 
   for (auto &[symbol, entry] : currentScope->symbols) {
     // filter out function-type symbols
-    if (!entry.type.isFunctionType()) {
+    if (!entry->type->isFuncType()) {
       frameIndices.insert({symbol, frameIndex});
       frameIndex++;
     }
@@ -213,12 +213,16 @@ void CodeGenerator::visit(ast::FunctionCallNode &node) {
 }
 
 void CodeGenerator::visit(ast::IdExprNode &node) {
-  // NOTE: unsafe unwrapping here because SemanticVisitor has already dealth
-  // with error case.
   auto [depth, index] = frameIndexMap->getDepthAndIndex(node.id);
 
-  addInstr({PixIROpcode::PUSH,
-            "[" + std::to_string(index) + ":" + std::to_string(depth) + "]"});
+  if (node.isLValue) {
+    addInstr({PixIROpcode::PUSH, std::to_string(index)});
+    addInstr({PixIROpcode::PUSH, std::to_string(depth)});
+    addInstr({PixIROpcode::ST});
+  } else {
+    addInstr({PixIROpcode::PUSH,
+              "[" + std::to_string(index) + ":" + std::to_string(depth) + "]"});
+  }
 }
 
 void CodeGenerator::visit(ast::BoolLiteralExprNode &node) {
@@ -261,15 +265,27 @@ void CodeGenerator::visit(ast::RandiExprNode &node) {
   addInstr({PixIROpcode::IRND});
 }
 
-void CodeGenerator::visit(ast::AssignmentStmt &node) {
-  // NOTE: unsafe unwrapping here because SemanticVisitor has already dealth
-  // with error case.
-  auto [depth, index] = frameIndexMap->getDepthAndIndex(node.id);
-
+void CodeGenerator::visit(ast::NewArrExprNode &node) {
   rvisitChildren(&node);
-  addInstr({PixIROpcode::PUSH, std::to_string(index)});
-  addInstr({PixIROpcode::PUSH, std::to_string(depth)});
-  addInstr({PixIROpcode::ST});
+  addInstr({PixIROpcode::ALLOCA});
+}
+
+void CodeGenerator::visit(ast::NullArrExprNode &node) {
+  rvisitChildren(&node);
+  addInstr({PixIROpcode::PUSH, "nil"});
+}
+
+void CodeGenerator::visit(ast::ArrayAccessNode &node) {
+  rvisitChildren(&node);
+  addInstr({PixIROpcode::LDA});
+}
+
+void CodeGenerator::visit(ast::AssignmentStmt &node) {
+  rvisitChildren(&node);
+  if (dynamic_cast<ast::ArrayAccessNode *>(node.lvalue.get()) != nullptr) {
+    popInstr();
+    addInstr({PixIROpcode::STA});
+  }
 }
 
 // nothing to generate here. Space for variables is allocated when entering a
@@ -558,6 +574,12 @@ std::string to_string(const PixIROpcode type) {
     return "dup";
   case HALT:
     return "halt";
+  case ALLOCA:
+    return "alloca";
+  case STA:
+    return "sta";
+  case LDA:
+    return "lda";
   }
   return ""; // please compiler
 }

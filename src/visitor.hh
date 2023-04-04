@@ -5,6 +5,13 @@ namespace ast {
 
 class ASTNode;
 
+class IntTypeNode;
+class FloatTypeNode;
+class ColourTypeNode;
+class BoolTypeNode;
+class ArrayTypeNode;
+class FunctionTypeNode;
+
 class BinaryExprNode;
 class UnaryExprNode;
 class FunctionCallNode;
@@ -17,6 +24,9 @@ class PadWidthExprNode;
 class PadHeightExprNode;
 class ReadExprNode;
 class RandiExprNode;
+class NewArrExprNode;
+class NullArrExprNode;
+class ArrayAccessNode;
 
 class AssignmentStmt;
 class VariableDeclStmt;
@@ -35,6 +45,15 @@ class TranslationUnit;
 
 class AbstractVisitor {
 public:
+  virtual void visit(IntTypeNode &node) = 0;
+  virtual void visit(FloatTypeNode &node) = 0;
+  virtual void visit(ColourTypeNode &node) = 0;
+  virtual void visit(BoolTypeNode &node) = 0;
+  virtual void visit(ArrayTypeNode &node) = 0;
+  // optional implementation, as FunctionTypeNode is only involved in semantic
+  // checking.
+  virtual void visit(FunctionTypeNode &node){};
+
   virtual void visit(BinaryExprNode &node) = 0;
   virtual void visit(UnaryExprNode &node) = 0;
   virtual void visit(FunctionCallNode &node) = 0;
@@ -47,6 +66,9 @@ public:
   virtual void visit(PadHeightExprNode &node) = 0;
   virtual void visit(ReadExprNode &node) = 0;
   virtual void visit(RandiExprNode &node) = 0;
+  virtual void visit(NewArrExprNode &node) = 0;
+  virtual void visit(NullArrExprNode &node) = 0;
+  virtual void visit(ArrayAccessNode &node) = 0;
 
   virtual void visit(AssignmentStmt &node) = 0;
   virtual void visit(VariableDeclStmt &node) = 0;

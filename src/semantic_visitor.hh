@@ -5,16 +5,10 @@
 #include "util.hh"
 #include "visitor.hh"
 
-#include <algorithm>
 #include <map>
 #include <memory>
-#include <numeric>
 #include <optional>
 #include <stack>
-#include <stdexcept>
-#include <utility>
-#include <variant>
-#include <vector>
 
 namespace ast {
 
@@ -27,91 +21,47 @@ public:
                          std::to_string(loc.ecol) + "]: " + errmsg) {}
 };
 
-using SemanticFunctionType = std::pair<Typename, std::vector<Typename>>;
-
-class SemanticType {
-private:
-  std::variant<Typename, SemanticFunctionType> semanticType;
-
-public:
-  SemanticType(Typename type) : semanticType(type) {}
-  SemanticType(SemanticFunctionType type) : semanticType(type) {}
-
-  std::string to_string() const {
-    if (std::holds_alternative<Typename>(semanticType)) {
-      return ast::to_string(std::get<Typename>(semanticType));
-    } else {
-      auto const &[retType, argTypes] =
-          std::get<SemanticFunctionType>(semanticType);
-      std::string result = ast::to_string(retType);
-
-      std::vector<std::string> xs(argTypes.size());
-      std::transform(argTypes.begin(), argTypes.end(), xs.begin(),
-                     [](const Typename &type) { return ast::to_string(type); });
-
-      return result + "(" +
-             std::accumulate(xs.begin(), xs.end(), std::string(),
-                             [](const std::string &x, const std::string &y) {
-                               return x + ", " + y;
-                             }) +
-             ")";
-    }
-  }
-
-  bool operator==(const SemanticType &other) const {
-    return this->semanticType == other.semanticType;
-  }
-
-  bool operator!=(const SemanticType &other) const {
-    return this->semanticType != other.semanticType;
-  }
-
-  bool isFunctionType() const {
-    return std::holds_alternative<SemanticFunctionType>(semanticType);
-  }
-
-  const SemanticFunctionType *getFunctionType() const {
-    return std::get_if<SemanticFunctionType>(&semanticType);
-  }
-};
-
 struct SymbolTableEntry {
-  SemanticType type;
+  TypeNodePtr type;
+
+  SymbolTableEntry(TypeNodePtr &&type) : type(std::move(type)) {}
 };
 
 struct Scope {
-  std::map<std::string, SymbolTableEntry> symbols;
+  std::map<std::string, std::unique_ptr<SymbolTableEntry>> symbols;
   Scope *parent = nullptr;
   // stores the signature of a function whose scope we are entering.
-  std::optional<SemanticFunctionType> funcType;
+  std::optional<FunctionTypeNode> funcType;
 
-  Scope(std::map<std::string, SymbolTableEntry> &&symbols, Scope *parent,
-        std::optional<SemanticFunctionType> funcType = std::nullopt)
-      : symbols(std::move(symbols)), parent(parent), funcType(funcType) {}
+  Scope(std::map<std::string, std::unique_ptr<SymbolTableEntry>> &&symbols,
+        Scope *parent,
+        std::optional<FunctionTypeNode> &&funcType = std::nullopt)
+      : symbols(std::move(symbols)), parent(parent),
+        funcType(std::move(funcType)) {}
 
   // fetches the signature of the current scope's function (if any)
-  std::optional<SemanticFunctionType> getFuncType() const {
+  const std::optional<FunctionTypeNode> &getFuncType() const {
     if (funcType.has_value()) {
       return funcType;
     }
     if (parent != nullptr) {
       return parent->getFuncType();
     }
-    return std::nullopt;
+    return funcType; // funcType == std::nullopt if we reached this point.
   }
 
-  std::optional<SymbolTableEntry> get(std::string symbol) const {
+  const SymbolTableEntry *get(std::string symbol) const {
     if (symbols.count(symbol)) {
-      return symbols.at(symbol);
+      return symbols.at(symbol).get();
     }
     if (parent != nullptr) {
       return parent->get(symbol);
     }
-    return std::nullopt;
+    return nullptr;
   }
 
-  void add(std::string symbol, SymbolTableEntry entry) {
-    symbols.insert({symbol, entry});
+  void add(std::string symbol, std::unique_ptr<SymbolTableEntry> &&entry) {
+    symbols.insert({symbol, std::move(entry)});
   }
 };
 
@@ -122,7 +72,7 @@ private:
   SymbolTable &symbolTable;
   Scope *currentScope = nullptr;
 
-  using TypeCheckerTable = std::map<ExprNode *, SemanticType>;
+  using TypeCheckerTable = std::map<const ExprNode *, TypeNodePtr>;
   // scratch tables for the type checker. Used for keeping track of types of
   // subexpressions while type-checking a compound expression.
   //
@@ -133,9 +83,9 @@ private:
   TypeCheckerTable &typeCheckerTable() { return typeCheckerTables.top(); }
 
   void enterScope(StmtNode *stmt,
-                  std::optional<SemanticFunctionType> funcType = std::nullopt) {
-    symbolTable.insert(
-        {stmt, std::make_unique<Scope>(Scope{{}, currentScope, funcType})});
+                  std::optional<FunctionTypeNode> &&funcType = std::nullopt) {
+    symbolTable.insert({stmt, std::make_unique<Scope>(Scope{
+                                  {}, currentScope, std::move(funcType)})});
     currentScope = symbolTable.at(stmt).get();
     typeCheckerTables.push(TypeCheckerTable{});
   }
@@ -147,6 +97,13 @@ private:
 
 public:
   SemanticVisitor(SymbolTable &symbolTable) : symbolTable(symbolTable) {}
+
+  // nothing to check for types.
+  void visit(IntTypeNode &node) override {}
+  void visit(FloatTypeNode &node) override {}
+  void visit(ColourTypeNode &node) override {}
+  void visit(BoolTypeNode &node) override {}
+  void visit(ArrayTypeNode &node) override {}
 
   void visit(BinaryExprNode &node) override;
   void visit(UnaryExprNode &node) override;
@@ -160,6 +117,9 @@ public:
   void visit(PadHeightExprNode &node) override;
   void visit(ReadExprNode &node) override;
   void visit(RandiExprNode &node) override;
+  void visit(NewArrExprNode &node) override;
+  void visit(NullArrExprNode &node) override;
+  void visit(ArrayAccessNode &node) override;
 
   void visit(AssignmentStmt &node) override;
   void visit(VariableDeclStmt &node) override;

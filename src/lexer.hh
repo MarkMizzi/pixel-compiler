@@ -38,6 +38,7 @@ enum TokenType {
   PAD_HEIGHT, // __height
   READ,       // __read
   RANDI,      // __randi
+  NEWARR,     // __newarr
   LET,        // let
   PRINT,      // __print
   DELAY,      // __delay
@@ -70,6 +71,8 @@ enum TokenType {
   RBRACKET_TOK,  // )
   LBRACE_TOK,    // {
   RBRACE_TOK,    // }
+  LSQBRACE_TOK,  // [
+  RSQBRACE_TOK,  // ]
   ARROW,         // ->
   COLON_TOK,     // :
   SEMICOLON_TOK, // ;

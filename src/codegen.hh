@@ -56,6 +56,10 @@ enum PixIROpcode {
   PRINT,
   DUP,
   HALT,
+  // array operations
+  ALLOCA,
+  STA,
+  LDA,
 };
 
 std::string to_string(const PixIROpcode type);
@@ -146,6 +150,8 @@ private:
     blockStack.top()->instrs.push_back(instr);
   }
 
+  void popInstr() { blockStack.top()->instrs.pop_back(); }
+
   void enterFuncDefFrame(ast::FuncDeclStmt &node);
   void exitFuncDefFrame();
 
@@ -167,6 +173,13 @@ public:
                 CodeGeneratorOptions &&opts)
       : opts(std::move(opts)), symbolTable(symbolTable) {}
 
+  // nothing to generate for types.
+  void visit(ast::IntTypeNode &node) override {}
+  void visit(ast::FloatTypeNode &node) override {}
+  void visit(ast::ColourTypeNode &node) override {}
+  void visit(ast::BoolTypeNode &node) override {}
+  void visit(ast::ArrayTypeNode &node) override {}
+
   void visit(ast::BinaryExprNode &node) override;
   void visit(ast::UnaryExprNode &node) override;
   void visit(ast::FunctionCallNode &node) override;
@@ -179,6 +192,9 @@ public:
   void visit(ast::PadHeightExprNode &node) override;
   void visit(ast::ReadExprNode &node) override;
   void visit(ast::RandiExprNode &node) override;
+  void visit(ast::NewArrExprNode &node) override;
+  void visit(ast::NullArrExprNode &node) override;
+  void visit(ast::ArrayAccessNode &node) override;
 
   void visit(ast::AssignmentStmt &node) override;
   void visit(ast::VariableDeclStmt &node) override;

@@ -38,6 +38,8 @@ enum LexerState {
   RBRACKET_STATE,
   LBRACE_STATE,
   RBRACE_STATE,
+  LSQBRACE_STATE,
+  RSQBRACE_STATE,
   ARROW_STATE,
   COLON_STATE,
   SEMICOLON_STATE,
@@ -79,6 +81,8 @@ enum CharClass {
   RBRACKET,    // )
   LBRACE,      // {
   RBRACE,      // }
+  LSQBRACE,    // [
+  RSQBRACE,    // ]
   HEX,         // [a-fA-F]
   ALPHA,       // [g-zG-Z]
   DIGIT,       // [0-9]
@@ -153,13 +157,15 @@ static const LexerTransitionTable tt{
     {{START, MINUS}, MINUS_STATE},
     {{MINUS_STATE, GREATER}, ARROW_STATE},
 
-    // +, *, (, ), {, }, :, ;
+    // +, *, (, ), {, }, [, ] :, ;
     {{START, PLUS}, PLUS_STATE},
     {{START, STAR}, STAR_STATE},
     {{START, LBRACKET}, LBRACKET_STATE},
     {{START, RBRACKET}, RBRACKET_STATE},
     {{START, LBRACE}, LBRACE_STATE},
     {{START, RBRACE}, RBRACE_STATE},
+    {{START, LSQBRACE}, LSQBRACE_STATE},
+    {{START, RSQBRACE}, RSQBRACE_STATE},
     {{START, COLON}, COLON_STATE},
     {{START, SEMICOLON}, SEMICOLON_STATE},
 
@@ -190,6 +196,8 @@ static const LexerTransitionTable tt{
     {{S8, RBRACKET}, S8},
     {{S8, LBRACE}, S8},
     {{S8, RBRACE}, S8},
+    {{S8, LSQBRACE}, S8},
+    {{S8, RSQBRACE}, S8},
     {{S8, HEX}, S8},
     {{S8, ALPHA}, S8},
     {{S8, DIGIT}, S8},
@@ -215,6 +223,8 @@ static const LexerTransitionTable tt{
     {{S9, RBRACKET}, S8},
     {{S9, LBRACE}, S8},
     {{S9, RBRACE}, S8},
+    {{S9, LSQBRACE}, S8},
+    {{S9, RSQBRACE}, S8},
     {{S9, HEX}, S8},
     {{S9, ALPHA}, S8},
     {{S9, DIGIT}, S8},
@@ -242,6 +252,8 @@ static const LexerTransitionTable tt{
     {{LINE_COMMENT_STATE, RBRACKET}, LINE_COMMENT_STATE},
     {{LINE_COMMENT_STATE, LBRACE}, LINE_COMMENT_STATE},
     {{LINE_COMMENT_STATE, RBRACE}, LINE_COMMENT_STATE},
+    {{LINE_COMMENT_STATE, LSQBRACE}, LINE_COMMENT_STATE},
+    {{LINE_COMMENT_STATE, RSQBRACE}, LINE_COMMENT_STATE},
     {{LINE_COMMENT_STATE, HEX}, LINE_COMMENT_STATE},
     {{LINE_COMMENT_STATE, ALPHA}, LINE_COMMENT_STATE},
     {{LINE_COMMENT_STATE, DIGIT}, LINE_COMMENT_STATE},
@@ -261,6 +273,7 @@ static const std::map<std::string, TokenType> keywords{
     {"__height", TokenType::PAD_HEIGHT},
     {"__read", TokenType::READ},
     {"__randi", TokenType::RANDI},
+    {"__newarr", TokenType::NEWARR},
     {"let", TokenType::LET},
     {"__print", TokenType::PRINT},
     {"__delay", TokenType::DELAY},
@@ -394,6 +407,10 @@ TokenType tokenType(LexerState finalState) {
     return LBRACE_TOK;
   case RBRACE_STATE:
     return RBRACE_TOK;
+  case LSQBRACE_STATE:
+    return LSQBRACE_TOK;
+  case RSQBRACE_STATE:
+    return RSQBRACE_TOK;
   case ARROW_STATE:
     return ARROW;
   case COLON_STATE:
@@ -448,6 +465,10 @@ CharClass characterClass(char c) {
     return LBRACE;
   case '}':
     return RBRACE;
+  case '[':
+    return LSQBRACE;
+  case ']':
+    return RSQBRACE;
   case '\n':
     return NEWLINE;
   default:
@@ -566,6 +587,10 @@ std::string to_string(TokenType tokType) {
     return "{";
   case RBRACE_TOK:
     return "}";
+  case LSQBRACE_TOK:
+    return "[";
+  case RSQBRACE_TOK:
+    return "]";
   case ARROW:
     return "->";
   case COLON_TOK:

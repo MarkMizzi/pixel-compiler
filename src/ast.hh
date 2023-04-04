@@ -6,21 +6,11 @@
 
 #include <algorithm>
 #include <memory>
+#include <numeric>
 #include <string>
 #include <vector>
 
 namespace ast {
-
-// since the number of types is finite, we can represent them using an enum,
-// rather than an AST node.
-enum Typename {
-  FLOAT,
-  INT,
-  BOOL,
-  COLOUR,
-};
-
-std::string to_string(Typename type);
 
 class ASTNode {
 public:
@@ -29,6 +19,207 @@ public:
 
   virtual void accept(AbstractVisitor *v) = 0;
   virtual std::vector<ASTNode *> children() = 0;
+
+  virtual ~ASTNode() {}
+};
+
+class TypeNode;
+using TypeNodePtr = std::unique_ptr<TypeNode>;
+
+class TypeNode : public ASTNode {
+public:
+  using ASTNode::ASTNode;
+
+  virtual TypeNodePtr copy() const = 0;
+
+  virtual std::string to_string() const = 0;
+
+  bool operator==(const TypeNode &other) const {
+    if (typeid(*this) != typeid(other)) {
+      return false;
+    }
+    return this->equals(other);
+  }
+
+  bool operator!=(const TypeNode &other) const { return !(*this == other); }
+
+  virtual bool isFuncType() const { return false; }
+  virtual bool isArrType() const { return false; }
+
+protected:
+  virtual bool equals(const TypeNode &) const = 0;
+};
+
+class IntTypeNode : public TypeNode {
+public:
+  using TypeNode::TypeNode;
+
+  // useful in the type checker
+  IntTypeNode() : TypeNode(Location{}) {}
+
+  TypeNodePtr copy() const override {
+    return std::make_unique<IntTypeNode>(loc);
+  };
+
+  std::string to_string() const override { return "int"; };
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {}; };
+
+protected:
+  bool equals(const TypeNode &) const override { return true; }
+};
+
+class FloatTypeNode : public TypeNode {
+public:
+  using TypeNode::TypeNode;
+
+  // useful in the type checker
+  FloatTypeNode() : TypeNode(Location{}) {}
+
+  TypeNodePtr copy() const override {
+    return std::make_unique<FloatTypeNode>(loc);
+  };
+
+  std::string to_string() const override { return "float"; };
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {}; };
+
+protected:
+  bool equals(const TypeNode &) const override { return true; }
+};
+
+class ColourTypeNode : public TypeNode {
+public:
+  using TypeNode::TypeNode;
+
+  // useful in the type checker
+  ColourTypeNode() : TypeNode(Location{}) {}
+
+  TypeNodePtr copy() const override {
+    return std::make_unique<ColourTypeNode>(loc);
+  };
+
+  std::string to_string() const override { return "colour"; };
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {}; };
+
+protected:
+  bool equals(const TypeNode &) const override { return true; }
+};
+
+class BoolTypeNode : public TypeNode {
+public:
+  using TypeNode::TypeNode;
+
+  // useful in the type checker
+  BoolTypeNode() : TypeNode(Location{}) {}
+
+  TypeNodePtr copy() const override {
+    return std::make_unique<BoolTypeNode>(loc);
+  };
+
+  std::string to_string() const override { return "bool"; };
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {}; };
+
+protected:
+  bool equals(const TypeNode &) const override { return true; }
+};
+
+class ArrayTypeNode : public TypeNode {
+public:
+  TypeNodePtr contained;
+
+  ArrayTypeNode(TypeNodePtr &&contained, Location loc)
+      : TypeNode(loc), contained(std::move(contained)) {}
+
+  TypeNodePtr copy() const override {
+    return std::make_unique<ArrayTypeNode>(contained->copy(), loc);
+  };
+
+  std::string to_string() const override {
+    return "[]" + contained->to_string();
+  };
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {contained.get()}; };
+
+  bool isArrType() const override { return true; }
+
+protected:
+  bool equals(const TypeNode &other) const override {
+    const ArrayTypeNode *arrTypeOther =
+        static_cast<const ArrayTypeNode *>(&other);
+    return *this->contained == *arrTypeOther->contained;
+  }
+};
+
+class FunctionTypeNode : public TypeNode {
+public:
+  TypeNodePtr retType;
+  std::vector<TypeNodePtr> argTypes;
+
+  FunctionTypeNode(TypeNodePtr &&retType, std::vector<TypeNodePtr> &&argTypes,
+                   Location loc)
+      : TypeNode(loc), retType(std::move(retType)),
+        argTypes(std::move(argTypes)) {}
+
+  TypeNodePtr copy() const override {
+    std::vector<TypeNodePtr> argTypesCopy(argTypes.size());
+
+    std::transform(argTypes.begin(), argTypes.end(), argTypesCopy.begin(),
+                   [](const TypeNodePtr &argType) { return argType->copy(); });
+
+    return std::make_unique<FunctionTypeNode>(retType->copy(),
+                                              std::move(argTypesCopy), loc);
+  }
+
+  std::string to_string() const override {
+    return retType->to_string() + "(" +
+           std::accumulate(
+               argTypes.begin(), argTypes.end(), std::string(),
+               [](const std::string &res, const TypeNodePtr &argType) {
+                 return res + argType->to_string();
+               }) +
+           ")";
+  };
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override {
+    std::vector<ASTNode *> children(1 + argTypes.size());
+    children[0] = retType.get();
+    std::transform(argTypes.begin(), argTypes.end(), children.begin() + 1,
+                   [](TypeNodePtr &type) { return type.get(); });
+    return children;
+  };
+
+  bool isFuncType() const override { return true; }
+
+protected:
+  bool equals(const TypeNode &other) const override {
+    const FunctionTypeNode *funcTypeOther =
+        static_cast<const FunctionTypeNode *>(&other);
+    if (*this->retType != *funcTypeOther->retType) {
+      return false;
+    }
+
+    if (argTypes.size() != funcTypeOther->argTypes.size()) {
+      return false;
+    }
+
+    for (auto it1 = argTypes.cbegin(), it2 = funcTypeOther->argTypes.cbegin();
+         it1 != argTypes.cend(); ++it1, ++it2) {
+      if (**it1 != **it2) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 };
 
 class ExprNode : public ASTNode {
@@ -103,11 +294,29 @@ public:
   };
 };
 
+class ArrayAccessNode : public ExprNode {
+public:
+  ExprNodePtr array;
+  ExprNodePtr idx;
+  bool isLValue;
+
+  ArrayAccessNode(ExprNodePtr &&array, ExprNodePtr &&idx, bool isLValue,
+                  Location loc)
+      : ExprNode(loc), array(std::move(array)), idx(std::move(idx)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override {
+    return {array.get(), idx.get()};
+  }
+};
+
 class IdExprNode : public ExprNode {
 public:
   std::string id;
+  bool isLValue;
 
-  IdExprNode(std::string &id, Location loc) : ExprNode(loc), id(id) {}
+  IdExprNode(std::string &id, bool isLValue, Location loc)
+      : ExprNode(loc), id(id), isLValue(isLValue) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
   std::vector<ASTNode *> children() override { return {}; };
@@ -192,6 +401,29 @@ public:
   std::vector<ASTNode *> children() override { return {operand.get()}; };
 };
 
+class NewArrExprNode : public ExprNode {
+public:
+  TypeNodePtr ofType;
+  ExprNodePtr operand;
+
+  NewArrExprNode(TypeNodePtr &&ofType, ExprNodePtr &&operand, Location loc)
+      : ExprNode(loc), ofType(std::move(ofType)), operand(std::move(operand)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {operand.get()}; };
+};
+
+class NullArrExprNode : public ExprNode {
+public:
+  TypeNodePtr ofType;
+
+  NullArrExprNode(TypeNodePtr &&ofType, Location loc)
+      : ExprNode(loc), ofType(std::move(ofType)) {}
+
+  void accept(AbstractVisitor *v) override { v->visit(*this); }
+  std::vector<ASTNode *> children() override { return {ofType.get()}; };
+};
+
 class StmtNode : public ASTNode {
 public:
   using ASTNode::ASTNode;
@@ -201,11 +433,11 @@ using StmtNodePtr = std::unique_ptr<StmtNode>;
 
 class AssignmentStmt : public StmtNode {
 public:
-  std::string id;
+  ExprNodePtr lvalue;
   ExprNodePtr expr;
 
-  AssignmentStmt(std::string &id, ExprNodePtr &&expr, Location loc)
-      : StmtNode(loc), id(id), expr(std::move(expr)) {}
+  AssignmentStmt(ExprNodePtr &&lvalue, ExprNodePtr &&expr, Location loc)
+      : StmtNode(loc), lvalue(std::move(lvalue)), expr(std::move(expr)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
   std::vector<ASTNode *> children() override { return {expr.get()}; };
@@ -214,15 +446,18 @@ public:
 class VariableDeclStmt : public StmtNode {
 public:
   std::string id;
-  Typename type;
+  TypeNodePtr type;
   ExprNodePtr initExpr;
 
-  VariableDeclStmt(std::string &id, Typename type, ExprNodePtr &&initExpr,
+  VariableDeclStmt(std::string &id, TypeNodePtr &&type, ExprNodePtr &&initExpr,
                    Location loc)
-      : StmtNode(loc), id(id), type(type), initExpr(std::move(initExpr)) {}
+      : StmtNode(loc), id(id), type(std::move(type)),
+        initExpr(std::move(initExpr)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
-  std::vector<ASTNode *> children() override { return {initExpr.get()}; };
+  std::vector<ASTNode *> children() override {
+    return {type.get(), initExpr.get()};
+  };
 };
 
 class PrintStmt : public StmtNode {
@@ -344,22 +579,32 @@ public:
   }
 };
 
-using FormalParam = std::pair<std::string, Typename>;
+using FormalParam = std::pair<std::string, TypeNodePtr>;
 
 class FuncDeclStmt : public StmtNode {
 public:
   std::string funcName;
   std::vector<FormalParam> params;
-  Typename retType;
+  TypeNodePtr retType;
   StmtNodePtr body;
 
   FuncDeclStmt(std::string &funcName, std::vector<FormalParam> &&params,
-               Typename retType, StmtNodePtr &&body, Location loc)
+               TypeNodePtr &&retType, StmtNodePtr &&body, Location loc)
       : StmtNode(loc), funcName(funcName), params(std::move(params)),
-        retType(retType), body(std::move(body)) {}
+        retType(std::move(retType)), body(std::move(body)) {}
 
   void accept(AbstractVisitor *v) override { v->visit(*this); }
-  std::vector<ASTNode *> children() override { return {body.get()}; }
+  std::vector<ASTNode *> children() override {
+    std::vector<ASTNode *> children(params.size() + 2);
+
+    std::transform(params.begin(), params.end(), children.begin(),
+                   [](auto const &param) { return param.second.get(); });
+
+    *-- --children.end() = retType.get();
+    *--children.end() = body.get();
+
+    return children;
+  }
 };
 
 class BlockStmt : public StmtNode {
