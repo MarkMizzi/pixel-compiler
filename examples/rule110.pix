@@ -1,0 +1,59 @@
+
+
+fun update(row: []bool, n: int) -> []bool {
+     let updated: []bool = __newarr bool, n;
+
+     for (let i: int = 1; i < n-1; i = i + 1) {
+         let count: int = 0;
+         if (row[i-1]) {
+            count = count + 1;
+         }
+         if (row[i]) {
+            count = count + 1;
+         }
+         if (row[i+1]) {
+            count = count + 1;
+         }
+
+         if (count == 3) {
+            updated[i] = false;
+         } else {
+            if ((count == 2) or row[i] or row[i+1]) {
+               updated[i] = true;
+            } else {
+               updated[i] = false;
+            }
+         }
+     }
+
+     return updated;
+}
+
+__pixelr 0, 0, __width, __height, #ffffff;
+
+let row: []bool = __newarr bool, __width;
+
+for (let j: int = 0; j < __width; j = j + 1) {
+    row[j] = false;
+}
+
+row[4] = true;
+row[7] = true;
+row[8] = true;
+row[10] = true;
+row[11] = true;
+row[12] = true;
+row[13] = true;
+row[14] = true;
+
+for (let i: int = 0; i < __height; i = i + 1) {
+    for (let j: int = 0; j < __width; j = j + 1) {
+        if (row[j]) {
+           __pixel j, i, #000000;
+        } else {
+           __pixel j, i, #ffffff;
+        }
+    }
+    row = update(row, __width);
+    __delay 500;
+}
