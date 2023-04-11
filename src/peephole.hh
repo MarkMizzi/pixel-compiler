@@ -19,10 +19,10 @@ public:
   PixIRPattern(CodePeephole &&pattern) : pattern(std::move(pattern)) {}
 
   bool match(CodePeephole::iterator codeIt,
-             const CodePeephole::iterator code_end) const {
+             const CodePeephole::iterator codeEnd) const {
 
     auto patternIt = pattern.cbegin();
-    for (; codeIt != code_end && patternIt != pattern.cend();
+    for (; codeIt != codeEnd && patternIt != pattern.cend();
          ++codeIt, ++patternIt) {
       if (codeIt->opcode != patternIt->opcode) {
         return false;
