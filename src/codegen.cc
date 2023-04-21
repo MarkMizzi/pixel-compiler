@@ -220,7 +220,8 @@ void CodeGenerator::visit(ast::IdExprNode &node) {
     addInstr({PixIROpcode::PUSH, std::to_string(depth)});
   } else {
     addInstr({PixIROpcode::PUSH,
-              "[" + std::to_string(index) + ":" + std::to_string(depth) + "]"});
+              "[" + std::to_string(index) +
+                  (depth == 0 ? "" : ":" + std::to_string(depth)) + "]"});
   }
 }
 
