@@ -22,6 +22,9 @@ namespace codegen {
 #define MAIN_FUNC_NAME "main"
 
 enum PixIROpcode {
+  AND,
+  OR,
+  NOT,
   ADD,
   SUB,
   MUL,
@@ -34,6 +37,7 @@ enum PixIROpcode {
   LT,
   LE,
   EQ,
+  NEQ,
   GT,
   GE,
   PUSH,

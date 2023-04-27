@@ -163,10 +163,10 @@ void CodeGenerator::visit(ast::BinaryExprNode &node) {
     addInstr({PixIROpcode::MUL});
     break;
   case ast::BinaryExprNode::BinaryOp::AND:
-    addInstr({PixIROpcode::MIN});
+    addInstr({PixIROpcode::AND});
     break;
   case ast::BinaryExprNode::BinaryOp::OR:
-    addInstr({PixIROpcode::MAX});
+    addInstr({PixIROpcode::OR});
     break;
   case ast::BinaryExprNode::BinaryOp::GREATER:
     addInstr({PixIROpcode::GT});
@@ -178,9 +178,7 @@ void CodeGenerator::visit(ast::BinaryExprNode &node) {
     addInstr({PixIROpcode::EQ});
     break;
   case ast::BinaryExprNode::BinaryOp::NEQ:
-    addInstr({PixIROpcode::EQ});
-    addInstr({PixIROpcode::PUSH, "1"});
-    addInstr({PixIROpcode::SUB});
+    addInstr({PixIROpcode::NEQ});
     break;
   case ast::BinaryExprNode::BinaryOp::GE:
     addInstr({PixIROpcode::GE});
@@ -195,8 +193,7 @@ void CodeGenerator::visit(ast::UnaryExprNode &node) {
   rvisitChildren(&node);
   switch (node.op) {
   case ast::UnaryExprNode::UnaryOp::NOT:
-    addInstr({PixIROpcode::PUSH, "1"});
-    addInstr({PixIROpcode::SUB});
+    addInstr({PixIROpcode::NOT});
     break;
   case ast::UnaryExprNode::UnaryOp::MINUS:
     addInstr({PixIROpcode::PUSH, "0"});
@@ -503,6 +500,12 @@ void dumpCode(PixIRCode &pixIRCode, std::ostream &s) {
 
 std::string to_string(const PixIROpcode type) {
   switch (type) {
+  case AND:
+    return "and";
+  case OR:
+    return "or";
+  case NOT:
+    return "not";
   case ADD:
     return "add";
   case SUB:
@@ -527,6 +530,8 @@ std::string to_string(const PixIROpcode type) {
     return "le";
   case EQ:
     return "eq";
+  case NEQ:
+    return "neq";
   case GT:
     return "gt";
   case GE:
