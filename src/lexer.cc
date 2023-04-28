@@ -547,6 +547,8 @@ std::string to_string(TokenType tokType) {
     return "while";
   case FUN:
     return "fun";
+  case NEWARR:
+    return "__newarr";
 
     // operators, special characters
   case COMMA_TOK:
