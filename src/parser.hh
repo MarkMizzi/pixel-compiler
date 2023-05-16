@@ -27,9 +27,9 @@ private:
 
   lexer::Token peek(size_t i) {
     if (i + 1 > lookahead.size()) {
-      lexer::Token tok = lexer.getNextToken();
-      lookahead.push_back(tok);
-      return tok;
+      for (int j = lookahead.size(); j < i + 1; ++j) {
+        lookahead.push_back(lexer.getNextToken());
+      }
     }
     return lookahead[i];
   }
