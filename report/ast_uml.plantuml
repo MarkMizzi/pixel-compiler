@@ -1,0 +1,224 @@
+@startuml
+left to right direction
+
+class ASTNode {
++Location loc
++pure virtual void accept(AbstractVisitor *v)
++pure virtual std::vector<ASTNode *> children()
++virtual ~ASTNode()
+}
+
+ASTNode <|-- TypeNode
+class TypeNode {
+  +pure virtual TypeNodePtr copy() const
+  +pure virtual std::string to_string() const
+  +bool operator==(const TypeNode &other) const
+  +bool operator!=(const TypeNode &other) const
+  +virtual bool isFuncType()
+  +virtual bool isArrType()
+  #pure virtual bool equals(const TypeNode &) const
+}
+
+TypeNode <|-- IntTypeNode
+class IntTypeNode {
+  +TypeNodePtr copy() const override
+  +std::string to_string() const override
+  #bool equals(const TypeNode &) const override
+}
+
+TypeNode <|-- FloatTypeNode
+class FloatTypeNode {
+  +TypeNodePtr copy() const override
+  +std::string to_string() const override
+  #bool equals(const TypeNode &) const override
+}
+
+TypeNode <|-- ColourTypeNode
+class ColourTypeNode {
+  +TypeNodePtr copy() const override
+  +std::string to_string() const override
+  #bool equals(const TypeNode &) const override
+}
+
+TypeNode <|-- BoolTypeNode
+class BoolTypeNode {
+  +TypeNodePtr copy() const override
+  +std::string to_string() const override
+
+  #bool equals(const TypeNode &) const override
+}
+
+TypeNode <|-- ArrayTypeNode
+class ArrayTypeNode {
+  +TypeNodePtr contained
+  +TypeNodePtr copy() const override
+  +std::string to_string() const override
+  #bool equals(const TypeNode &) const override
+}
+
+TypeNode <|-- FunctionTypeNode
+class FunctionTypeNode {
+  +TypeNodePtr retType
+  +std::vector<TypeNodePtr> argTypes
+
+  +TypeNodePtr copy() const override
+  +std::string to_string() const override
+  #bool equals(const TypeNode &) const override
+}
+
+ASTNode <|-- ExprNode
+
+ExprNode <|-- BinaryExprNode
+class BinaryExprNode {
+  +BinaryOp op
+  +ExprNodePtr left, right
+}
+
+ExprNode <|-- UnaryExprNode
+class UnaryExprNode {
+  +UnaryOp op
+  +ExprNodePtr operand
+}
+
+ExprNode <|-- FunctionCallNode
+class FunctionCallNode {
+  +std::string funcName
+  +std::vector<ExprNodePtr> args
+}
+
+ExprNode <|-- ArrayAccessNode
+class ArrayAccessNode {
+  +ExprNodePtr array
+  +ExprNodePtr idx
+  +bool isLValue
+}
+
+
+ExprNode <|-- IdExprNode
+class IdExprNode {
+  +std::string id
+  +bool isLValue
+}
+
+ExprNode <|-- BoolLiteralExprNode
+class BoolLiteralExprNode {
++bool x
+}
+
+ExprNode <|-- IntLiteralExprNode
+class IntLiteralExprNode {
++int x
+}
+
+ExprNode <|-- FloatLiteralExprNode
+class FloatLiteralExprNode {
++float x
+}
+
+ExprNode <|-- ColourLiteralExprNode
+class ColourLiteralExprNode {
++unsigned colour
+}
+
+ExprNode <|-- PadWidthExprNode
+ExprNode <|-- PadHeightExprNode
+
+ExprNode <|-- ReadExprNode
+class ReadExprNode {
+  +ExprNodePtr x, y
+}
+
+ExprNode <|-- RandiExprNode
+class RandiExprNode {
+  +ExprNodePtr operand
+}
+
+ExprNode <|-- NewArrExprNode
+class NewArrExprNode {
+  +TypeNodePtr ofType
+  +ExprNodePtr operand
+}
+
+ASTNode <|-- StmtNode
+
+StmtNode <|-- AssignmentStmt
+class AssignmentStmt {
+  +ExprNodePtr lvalue
+  +ExprNodePtr expr
+}
+
+StmtNode <|-- VariableDeclStmt
+class VariableDeclStmt {
+  +std::string id
+  +TypeNodePtr type
+  +ExprNodePtr initExpr
+}
+
+StmtNode <|-- PrintStmt
+class PrintStmt {
++ExprNodePtr expr
+}
+
+StmtNode <|-- DelayStmt
+class DelayStmt {
++ExprNodePtr expr
+}
+
+StmtNode <|-- PixelStmt
+class PixelStmt {
++ExprNodePtr x, y
++ExprNodePtr colour
+}
+
+StmtNode <|-- PixelRStmt
+class PixelRStmt {
+  +ExprNodePtr x, y
+  +ExprNodePtr w, h
+  +ExprNodePtr colour
+}
+
+StmtNode <|-- ReturnStmt
+class ReturnStmt {
++ExprNodePtr expr
+}
+
+StmtNode <|-- IfElseStmt
+class IfElseStmt {
+  +ExprNodePtr cond
+  +StmtNodePtr ifBody
+  +StmtNodePtr elseBody
+}
+
+StmtNode <|-- ForStmt
+class ForStmt {
+  StmtNodePtr varDecl
+  ExprNodePtr cond
+  StmtNodePtr assignment
+  StmtNodePtr body
+}
+
+StmtNode <|-- WhileStmt
+class WhileStmt {
+  +ExprNodePtr cond
+  +StmtNodePtr body
+}
+
+StmtNode <|-- FuncDeclStmt
+class FuncDeclStmt {
+  +std::string funcName
+  +std::vector<FormalParam> params
+  +TypeNodePtr retType
+  +StmtNodePtr body
+}
+
+StmtNode <|-- BlockStmt
+class BlockStmt {
+  +std::vector<StmtNodePtr> stmts
+}
+
+StmtNode <|-- TranslationUnit
+class TranslationUnit {
+  +std::vector<StmtNodePtr> stmts
+}
+
+@enduml

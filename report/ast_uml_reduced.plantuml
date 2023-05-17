@@ -1,0 +1,128 @@
+@startuml
+left to right direction
+
+class ASTNode {
++Location loc
++pure virtual void accept(AbstractVisitor *v)
++pure virtual std::vector<ASTNode *> children()
++virtual ~ASTNode()
+}
+
+ASTNode <|-- TypeNode
+class TypeNode {
+  +pure virtual TypeNodePtr copy() const
+  +pure virtual std::string to_string() const
+  +bool operator==(const TypeNode &other) const
+  +bool operator!=(const TypeNode &other) const
+  +virtual bool isFuncType()
+  +virtual bool isArrType()
+  #pure virtual bool equals(const TypeNode &) const
+}
+
+TypeNode <|-- IntTypeNode
+class IntTypeNode {
+  +TypeNodePtr copy() const override
+  +std::string to_string() const override
+  #bool equals(const TypeNode &) const override
+}
+
+TypeNode <|-- FloatTypeNode
+class FloatTypeNode {
+  +TypeNodePtr copy() const override
+  +std::string to_string() const override
+  #bool equals(const TypeNode &) const override
+}
+
+TypeNode <|-- ColourTypeNode
+class ColourTypeNode {
+  +TypeNodePtr copy() const override
+  +std::string to_string() const override
+  #bool equals(const TypeNode &) const override
+}
+
+TypeNode <|-- BoolTypeNode
+class BoolTypeNode {
+  +TypeNodePtr copy() const override
+  +std::string to_string() const override
+
+  #bool equals(const TypeNode &) const override
+}
+
+TypeNode <|-- ArrayTypeNode
+class ArrayTypeNode {
+  +TypeNodePtr contained
+  +TypeNodePtr copy() const override
+  +std::string to_string() const override
+  #bool equals(const TypeNode &) const override
+}
+
+TypeNode <|-- FunctionTypeNode
+class FunctionTypeNode {
+  +TypeNodePtr retType
+  +std::vector<TypeNodePtr> argTypes
+
+  +TypeNodePtr copy() const override
+  +std::string to_string() const override
+  #bool equals(const TypeNode &) const override
+}
+
+ASTNode <|-- ExprNode
+
+ExprNode <|-- BinaryExprNode
+class BinaryExprNode
+ExprNode <|-- UnaryExprNode
+class UnaryExprNode
+ExprNode <|-- FunctionCallNode
+class FunctionCallNode
+ExprNode <|-- ArrayAccessNode
+class ArrayAccessNode
+
+ExprNode <|-- IdExprNode
+class IdExprNode
+ExprNode <|-- BoolLiteralExprNode
+class BoolLiteralExprNode
+ExprNode <|-- IntLiteralExprNode
+class IntLiteralExprNode
+ExprNode <|-- FloatLiteralExprNode
+class FloatLiteralExprNode
+ExprNode <|-- ColourLiteralExprNode
+class ColourLiteralExprNode
+ExprNode <|-- PadWidthExprNode
+ExprNode <|-- PadHeightExprNode
+
+ExprNode <|-- ReadExprNode
+class ReadExprNode
+ExprNode <|-- RandiExprNode
+class RandiExprNode
+ExprNode <|-- NewArrExprNode
+class NewArrExprNode
+ASTNode <|-- StmtNode
+
+StmtNode <|-- AssignmentStmt
+class AssignmentStmt
+StmtNode <|-- VariableDeclStmt
+class VariableDeclStmt
+StmtNode <|-- PrintStmt
+class PrintStmt
+StmtNode <|-- DelayStmt
+class DelayStmt
+StmtNode <|-- PixelStmt
+class PixelStmt
+StmtNode <|-- PixelRStmt
+class PixelRStmt
+StmtNode <|-- ReturnStmt
+class ReturnStmt
+StmtNode <|-- IfElseStmt
+class IfElseStmt
+StmtNode <|-- ForStmt
+class ForStmt
+StmtNode <|-- WhileStmt
+class WhileStmt
+StmtNode <|-- FuncDeclStmt
+class FuncDeclStmt
+StmtNode <|-- BlockStmt
+class BlockStmt
+StmtNode <|-- TranslationUnit
+class TranslationUnit
+
+@enduml
