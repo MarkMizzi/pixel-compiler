@@ -198,7 +198,7 @@ void XMLVisitor::visit(FuncDeclStmt &node) {
 
   for (const FormalParam &param : node.params) {
     ss << std::string(indent, ' ') << "<FormalParam name=\"" << param.first
-       << ">" << std::endl;
+       << "\">" << std::endl;
 
     indent++;
     param.second->accept(this);
