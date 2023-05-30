@@ -98,7 +98,8 @@ void SemanticVisitor::visit(BinaryExprNode &node) {
 void SemanticVisitor::visit(UnaryExprNode &node) {
   visitChildren(&node);
 
-  const ast::TypeNodePtr &operandType = typeCheckerTable().at(&node);
+  const ast::TypeNodePtr &operandType =
+      typeCheckerTable().at(node.operand.get());
 
   switch (node.op) {
   case UnaryExprNode::UnaryOp::MINUS:
