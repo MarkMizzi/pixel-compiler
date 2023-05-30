@@ -1,0 +1,260 @@
+// perform integer division using Euclids algorithm.
+fun idiv(n: int, d: int) -> int {
+    // hack to handle division when n is negative.
+    let negative: bool = n < 0;
+    if (negative) {
+       n = -n;
+    }
+
+    let r: int = n;
+    let q: int = 0;
+
+    while (r >= d) {
+        r = r - d;
+        q = q + 1;
+    }
+
+    if (negative) {
+       return -q;
+    }
+
+    return q;
+}
+
+// perform integer modulo using Euclids algorithm.
+fun imod(n: int, d: int) -> int {
+    let r: int = n;
+    let q: int = 0;
+
+    while (r >= d) {
+        r = r - d;
+        q = q + 1;
+    }
+
+    return r;
+}
+
+fun min(x: int, y: int) -> int {
+    if (x <= y) {
+       return x;
+    }
+    return y;
+}
+
+fun rsin_theta(r: int, theta: int) -> int {
+    let sin_table: []int = __newarr int, 60;
+    let amplitude_factor: int = 512;
+
+    sin_table[0] = 0;
+    sin_table[1] = 53;
+    sin_table[2] = 106;
+    sin_table[3] = 158;
+    sin_table[4] = 208;
+    sin_table[5] = 255;
+    sin_table[6] = 300;
+    sin_table[7] = 342;
+    sin_table[8] = 380;
+    sin_table[9] = 414;
+    sin_table[10] = 443;
+    sin_table[11] = 467;
+    sin_table[12] = 486;
+    sin_table[13] = 500;
+    sin_table[14] = 509;
+    sin_table[15] = 512;
+    sin_table[16] = 509;
+    sin_table[17] = 500;
+    sin_table[18] = 486;
+    sin_table[19] = 467;
+    sin_table[20] = 443;
+    sin_table[21] = 414;
+    sin_table[22] = 380;
+    sin_table[23] = 342;
+    sin_table[24] = 300;
+    sin_table[25] = 255;
+    sin_table[26] = 208;
+    sin_table[27] = 158;
+    sin_table[28] = 106;
+    sin_table[29] = 53;
+    sin_table[30] = 0;
+    sin_table[31] = -53;
+    sin_table[32] = -106;
+    sin_table[33] = -158;
+    sin_table[34] = -208;
+    sin_table[35] = -255;
+    sin_table[36] = -300;
+    sin_table[37] = -342;
+    sin_table[38] = -380;
+    sin_table[39] = -414;
+    sin_table[40] = -443;
+    sin_table[41] = -467;
+    sin_table[42] = -486;
+    sin_table[43] = -500;
+    sin_table[44] = -509;
+    sin_table[45] = -512;
+    sin_table[46] = -509;
+    sin_table[47] = -500;
+    sin_table[48] = -486;
+    sin_table[49] = -467;
+    sin_table[50] = -443;
+    sin_table[51] = -414;
+    sin_table[52] = -380;
+    sin_table[53] = -342;
+    sin_table[54] = -300;
+    sin_table[55] = -255;
+    sin_table[56] = -208;
+    sin_table[57] = -158;
+    sin_table[58] = -106;
+    sin_table[59] = -53;
+
+   return idiv(r * sin_table[idiv(theta, 6)], amplitude_factor);
+}
+
+fun rcos_theta(r: int, theta: int) -> int {
+    let cos_table: []int = __newarr int, 60;
+    let amplitude_factor: int = 512;
+
+    cos_table[0] = 512;
+    cos_table[1] = 509;
+    cos_table[2] = 500;
+    cos_table[3] = 486;
+    cos_table[4] = 467;
+    cos_table[5] = 443;
+    cos_table[6] = 414;
+    cos_table[7] = 380;
+    cos_table[8] = 342;
+    cos_table[9] = 300;
+    cos_table[10] = 256;
+    cos_table[11] = 208;
+    cos_table[12] = 158;
+    cos_table[13] = 106;
+    cos_table[14] = 53;
+    cos_table[15] = 0;
+    cos_table[16] = -53;
+    cos_table[17] = -106;
+    cos_table[18] = -158;
+    cos_table[19] = -208;
+    cos_table[20] = -255;
+    cos_table[21] = -300;
+    cos_table[22] = -342;
+    cos_table[23] = -380;
+    cos_table[24] = -414;
+    cos_table[25] = -443;
+    cos_table[26] = -467;
+    cos_table[27] = -486;
+    cos_table[28] = -500;
+    cos_table[29] = -509;
+    cos_table[30] = -512;
+    cos_table[31] = -509;
+    cos_table[32] = -500;
+    cos_table[33] = -486;
+    cos_table[34] = -467;
+    cos_table[35] = -443;
+    cos_table[36] = -414;
+    cos_table[37] = -380;
+    cos_table[38] = -342;
+    cos_table[39] = -300;
+    cos_table[40] = -256;
+    cos_table[41] = -208;
+    cos_table[42] = -158;
+    cos_table[43] = -106;
+    cos_table[44] = -53;
+    cos_table[45] = 0;
+    cos_table[46] = 53;
+    cos_table[47] = 106;
+    cos_table[48] = 158;
+    cos_table[49] = 208;
+    cos_table[50] = 256;
+    cos_table[51] = 300;
+    cos_table[52] = 342;
+    cos_table[53] = 380;
+    cos_table[54] = 414;
+    cos_table[55] = 443;
+    cos_table[56] = 467;
+    cos_table[57] = 486;
+    cos_table[58] = 500;
+    cos_table[59] = 509;
+
+   return idiv(r * cos_table[idiv(theta, 6)], amplitude_factor);
+}
+
+// radius of the clock face
+let clock_radius: int = idiv(min(__width, __height), 2) - 2;
+
+let clock_origin_x: int = idiv(__width, 2);
+let clock_origin_y: int = idiv(__height, 2);
+
+// clear the display
+__pixelr 0, 0, __width, __height, #000000;
+
+// draw clock face
+
+__pixel clock_origin_x + rcos_theta(clock_radius, 0), clock_origin_y + rsin_theta(clock_radius, 0), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-1, 0), clock_origin_y + rsin_theta(clock_radius-1, 0), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-2, 0), clock_origin_y + rsin_theta(clock_radius-2, 0), #D0D0D0;
+
+__pixel clock_origin_x + rcos_theta(clock_radius, 30), clock_origin_y + rsin_theta(clock_radius, 30), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-1, 30), clock_origin_y + rsin_theta(clock_radius-1, 30), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-2, 30), clock_origin_y + rsin_theta(clock_radius-2, 30), #D0D0D0;
+
+__pixel clock_origin_x + rcos_theta(clock_radius, 60), clock_origin_y + rsin_theta(clock_radius, 60), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-1, 60), clock_origin_y + rsin_theta(clock_radius-1, 60), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-2, 60), clock_origin_y + rsin_theta(clock_radius-2, 60), #D0D0D0;
+
+__pixel clock_origin_x + rcos_theta(clock_radius, 90), clock_origin_y + rsin_theta(clock_radius, 90), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-1, 90), clock_origin_y + rsin_theta(clock_radius-1, 90), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-2, 90), clock_origin_y + rsin_theta(clock_radius-2, 90), #D0D0D0;
+
+__pixel clock_origin_x + rcos_theta(clock_radius, 120), clock_origin_y + rsin_theta(clock_radius, 120), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-1, 120), clock_origin_y + rsin_theta(clock_radius-1, 120), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-2, 120), clock_origin_y + rsin_theta(clock_radius-2, 120), #D0D0D0;
+
+__pixel clock_origin_x + rcos_theta(clock_radius, 150), clock_origin_y + rsin_theta(clock_radius, 150), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-1, 150), clock_origin_y + rsin_theta(clock_radius-1, 150), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-2, 150), clock_origin_y + rsin_theta(clock_radius-2, 150), #D0D0D0;
+
+__pixel clock_origin_x + rcos_theta(clock_radius, 180), clock_origin_y + rsin_theta(clock_radius, 180), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-1, 180), clock_origin_y + rsin_theta(clock_radius-1, 180), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-2, 180), clock_origin_y + rsin_theta(clock_radius-2, 180), #D0D0D0;
+
+__pixel clock_origin_x + rcos_theta(clock_radius, 210), clock_origin_y + rsin_theta(clock_radius, 210), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-1, 210), clock_origin_y + rsin_theta(clock_radius-1, 210), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-2, 210), clock_origin_y + rsin_theta(clock_radius-2, 210), #D0D0D0;
+
+__pixel clock_origin_x + rcos_theta(clock_radius, 240), clock_origin_y + rsin_theta(clock_radius, 240), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-1, 240), clock_origin_y + rsin_theta(clock_radius-1, 240), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-2, 240), clock_origin_y + rsin_theta(clock_radius-2, 240), #D0D0D0;
+
+__pixel clock_origin_x + rcos_theta(clock_radius, 270), clock_origin_y + rsin_theta(clock_radius, 270), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-1, 270), clock_origin_y + rsin_theta(clock_radius-1, 270), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-2, 270), clock_origin_y + rsin_theta(clock_radius-2, 270), #D0D0D0;
+
+__pixel clock_origin_x + rcos_theta(clock_radius, 300), clock_origin_y + rsin_theta(clock_radius, 300), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-1, 300), clock_origin_y + rsin_theta(clock_radius-1, 300), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-2, 300), clock_origin_y + rsin_theta(clock_radius-2, 300), #D0D0D0;
+
+__pixel clock_origin_x + rcos_theta(clock_radius, 330), clock_origin_y + rsin_theta(clock_radius, 330), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-1, 330), clock_origin_y + rsin_theta(clock_radius-1, 330), #D0D0D0;
+__pixel clock_origin_x + rcos_theta(clock_radius-2, 330), clock_origin_y + rsin_theta(clock_radius-2, 330), #D0D0D0;
+
+// length of clock hand
+let hand_length: int = clock_radius - 5;
+
+let clock_pos: int = 12;
+let ticks: int = 8;
+
+
+for (let i: int = 0; i < ticks; i = i + 1) {
+    // render clock hand
+    for (let r: int = 1; r < hand_length; r = r + 1) {
+        __pixel clock_origin_x + rcos_theta(r, 6*clock_pos), clock_origin_y + rsin_theta(r, 6*clock_pos), #ff0000;
+    }
+
+    __delay 60000;
+
+    // erase clock hand
+    for (let r: int = 1; r < hand_length; r = r + 1) {
+        __pixel clock_origin_x + rcos_theta(r, 6*clock_pos), clock_origin_y + rsin_theta(r, 6*clock_pos), #000000;
+    }
+
+    clock_pos = imod(clock_pos + 1, 60);
+}
