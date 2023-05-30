@@ -46,12 +46,30 @@ row[12] = true;
 row[13] = true;
 row[14] = true;
 
+fun rand_colour() -> colour {
+    let x: int = __randi 4;
+    if (x == 0) {
+        return #FC7300;
+    }
+
+    if (x == 1) {
+       return #BFDB38;
+    }
+
+    if (x == 2) {
+        return #1F8A70;
+    }
+
+    return #00425A;
+}
+
+__pixelr 0, 0, __width, __height, #000000;
 for (let i: int = 0; i < __height; i = i + 1) {
     for (let j: int = 0; j < __width; j = j + 1) {
         if (row[j]) {
            __pixel j, i, #000000;
         } else {
-           __pixel j, i, #ffffff;
+           __pixel j, i, rand_colour();
         }
     }
     row = update(row, __width);
