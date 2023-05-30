@@ -250,8 +250,7 @@ void SemanticVisitor::visit(AssignmentStmt &node) {
 void SemanticVisitor::visit(VariableDeclStmt &node) {
   visitChildren(&node);
 
-  const SymbolTableEntry *entry = currentScope->get(node.id);
-  if (entry != nullptr) {
+  if (currentScope->symbols.count(node.id) != 0) {
     throw SemanticError("Symbol " + node.id + " defined twice in scope.",
                         node.loc);
   }
