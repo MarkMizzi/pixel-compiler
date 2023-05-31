@@ -16,52 +16,36 @@ FetchContent_MakeAvailable(Catch2)
 
 include_directories(src)
 
-add_executable(pixarc
-  src/location.hh
+set(SRC_FILES
   src/util.hh
+  src/location.hh
   src/lexer.hh
-  src/ast.hh
   src/parser.hh
+  src/ast.hh
   src/visitor.hh
   src/xml_visitor.hh
   src/semantic_visitor.hh
-  src/compiler.hh
   src/codegen.hh
   src/deadcode.hh
   src/peephole.hh
+  src/compiler.hh
   src/lexer.cc
-  src/ast.cc
   src/parser.cc
+  src/ast.cc
   src/visitor.cc
   src/xml_visitor.cc
   src/semantic_visitor.cc
   src/codegen.cc
   src/deadcode.cc
   src/peephole.cc
+)
+
+add_executable(pixarc
+  ${SRC_FILES}
   src/main.cc)
 
 add_executable(pixarc_tests
-  src/location.hh
-  src/util.hh
-  src/lexer.hh
-  src/ast.hh
-  src/parser.hh
-  src/visitor.hh
-  src/xml_visitor.hh
-  src/semantic_visitor.hh
-  src/compiler.hh
-  src/codegen.hh
-  src/deadcode.hh
-  src/peephole.hh
-  src/lexer.cc
-  src/ast.cc
-  src/parser.cc
-  src/visitor.cc
-  src/xml_visitor.cc
-  src/semantic_visitor.cc
-  src/codegen.cc
-  src/peephole.cc
-  src/deadcode.cc
+  ${SRC_FILES}
   tests/lexer_tests.cc
   tests/semantic_visitor_tests.cc)
 
