@@ -80,6 +80,9 @@
 \usepackage{mathtools, nccmath}
 \usepackage{physics}
 
+% pretty print directory structure.
+\usepackage{dirtree}
+
 % change figure placement
 \usepackage{float}
 
@@ -126,31 +129,73 @@
 
 This report describes the implementation of a compiler for the PixAR langauge targeting the PixAR virtual machine.
 
-\subsubsection{Code standards and organization}
+\subsection{Language and tools used}
 
-The code for the project is written using C++17, and makes use of several modern features in the language, including \href{https://en.cppreference.com/mwiki/index.php?title=cpp/language/structured_binding&oldid=150915}{structured binding}, and the \href{https://en.cppreference.com/mwiki/index.php?title=cpp/utility/variant&oldid=150622}{\verb|std::variant|} container.
+The code for the project is written using C++17, and makes use of several modern features in the language, including \href{https://en.cppreference.com/mwiki/index.php?title=cpp/language/structured_binding&oldid=150915}{structured binding}, and the \href{https://en.cppreference.com/mwiki/index.php?title=cpp/utility/variant&oldid=150622}{\Verb|std::variant|} container.
 
-The \href{https://cmake.org}{CMake} build system is used to manage and compile the source code. In order to build the project, run the following commands from the root directory:
-\begin{minted}[bgColor=LightGray]{bash}
+The \href{https://cmake.org}{CMake} build system is used to manage and compile the source code.
+
+\subsection{Code organization}
+
+The source code itself can be found in the \verb|src/| subdirectory. There are also some example PixAR programs used to test the compiler in the \verb|examples/| subdirectory.
+
+\begin{figure}
+  \dirtree{%
+.1 /.
+.2 src.
+.3 util.hh\DTcomment{Miscellaneous utilities used by several parts of the compiler.}.
+.3 location.hh\DTcomment{Definition of Location type used to track source code locations.}.
+.3 lexer.hh\DTcomment{Code for the table-driven lexer. Described in Section~\ref{sec:lexer}}.
+.3 lexer.cc.
+.3 parser.hh\DTcomment{Code for the parser. Described in Section~\ref{sec:parser}}.
+.3 parser.cc.
+.3 ast.hh\DTcomment{Code for the AST representation. Described in Section~\ref{sec:ast}}.
+.3 ast.cc.
+.3 visitor.hh\DTcomment{Abstract class definition of a visitor. Described in Section~\ref{sec:visitor}}.
+.3 xml\_visitor.hh\DTcomment{Code for XML output of an AST. Described in Section~\ref{sec:xml-visitor}}.
+.3 xml\_visitor.cc.
+.3 semantic\_visitor.hh\DTcomment{Code for semantic checking. Described in Section~\ref{sec:semantic-checker}}.
+.3 semantic\_visitor.cc.
+.3 codegen.hh\DTcomment{Code for generating PixIR bytecode. Described in Section~\ref{sec:codegen}}.
+.3 codegen.cc.
+.3 deadcode.hh\DTcomment{Code for dead code elimination. Described in Section~\ref{sec:deadcode}}.
+.3 deadcode.cc.
+.3 peephole.hh\DTcomment{Code for peephole optimization. Described in Section~\ref{sec:peephole}}.
+.3 peephole.cc.
+.3 compiler.hh\DTcomment{Definition of a Compiler class which orchestrates compilation.}.
+.3 main.cc\DTcomment{Main program, contains code for parsing user options.}.
+.2 examples\DTcomment{Examples of programs written in the PixAR language.}.
+.2 report\DTcomment{\LaTeX~source code for the report.}.
+.2 CMakeLists.txt\DTcomment{CMake file used to build the project.}.
+}
+  \caption{Organization of source code into files.}~\label{fig:code-organization}
+\end{figure}
+
+This report is written in \LaTeX~and its source can be found in the \verb|report/| subdirectory of the project.
+
+Figure~\ref{fig:code-organization} shows a bird's eye view of the source code organization, including helpful links to the relevant parts of the report.
+
+\subsection{Building the project}
+
+In order to build the project, run the following commands from the root directory:
+\begin{minted}[bgcolor=LightGray]{bash}
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release .
 make
 \end{minted}
 
-The source code itself can be found in the \verb|src/| subdirectory, and is organized into files as shown in Figure~\ref{fig:code-organization}. There are also some example PixAR programs used to test the compiler in the \verb|examples/| subdirectory.
-
-This report is written in Latex and its source can be found in the \verb|report/| subdirectory of the project. It can be compiled by running the following commands:
-\begin{minted}[bgColor=LightGray]{bash}
+The report can be compiled by running the following commands:
+\begin{minted}[bgcolor=LightGray]{bash}
 cd report
 make
 \end{minted}
 
-\subsubsection{Video presentation}
+\subsection{Video presentation}
 
-A video presentation of the compiler can be found at %% TODO
+A video presentation of the compiler implemented was developed, and can be found \href{https://drive.google.com/file/d/1YSH7jUDW-PpR4YmvCW0ssTWVA2O2pTK9/view?usp=sharing}{on my Google drive}.
 
 \newpage
 
-\section{Lexing}
+\section{Lexing}~\label{sec:lexer}
 
 \subsection{Design considerations}
 
@@ -244,7 +289,7 @@ Finally, keywords are not handled directly by the table-driven portion of the le
 
 % TODO
 
-\subsection{Abstract syntax trees}
+\subsection{Abstract syntax trees}~\label{sec:ast}
 
 Abstract syntax trees are represented by an inheritance hierarchy shown in Figure~\ref{fig:ast-hierarchy}.
 
@@ -276,13 +321,13 @@ A subclass of \verb!TypeNode! called \verb!FunctionTypeNode! is used to represen
 
 Instances of \verb!TypeNode! also have \verb!isFuncType! and \verb!isArrType! methods which can be used to check whether a \verb!TypeNode! is an \verb!ArrayTypeNode! or a \verb!FunctionTypeNode! respectively.
 
-\subsection{The Visitor Pattern}
+\subsection{The Visitor Pattern}~\label{sec:visitor}
 
 The visitor pattern is widely used in compilers to cleanly separate an abstract syntax tree data structure from the implementation of algorithms that need to traverse it.
 
 The SIPLang compiler employs a fairly pedestrian implementation of the visitor pattern. Visitors subclass an \verb!AbstractVisitor! class, which has an overloaded pure virtual \verb!visit! method for each concrete derived class of \verb!ASTNode!, which is passed as an argument (by reference):
 
-\begin{minted}[bgColor=LightGray]{c++}
+\begin{minted}[bgcolor=LightGray]{c++}
 class AbstractVisitor {
 public:
   virtual void visit(IntTypeNode &node) = 0;
@@ -292,7 +337,7 @@ public:
 
 \verb!ASTNode! contains a pure virtual method called \verb!accept!, which takes a pointer to an \verb!AbstractVisitor! instance. Each concrete derived class of \verb!ASTNode! implements \verb!accept! to call the version of the \verb!visit! method that accepts its type:
 
-\begin{minted}[bgColor=LightGray]{c++}
+\begin{minted}[bgcolor=LightGray]{c++}
   void accept(AbstractVisitor *v) override { v->visit(*this); }
 \end{minted}
 
@@ -300,7 +345,7 @@ In addition \verb!AbstractVisitor! has concrete methods \verb!visitChildren! and
 
 Concrete subclasses of \verb!AbstractVisitor! are used to generate XML for a parsed AST, for semantic checking, as well as for code generation.
 
-\subsection{Design considerations for the parser}
+\subsection{Design considerations for the parser}~\label{sec:parser}
 
 The compiler uses a recursive descent parser which directly produces the AST.
 
@@ -322,7 +367,7 @@ In addition, recursion is avoided where possible. For example, where the EBNF of
 
 The following snippet shows the implementation of block parsing, which demonstrates the features described above:
 
-\begin{minted}[bgColor=LightGray]{c++}
+\begin{minted}[bgcolor=LightGray]{c++}
 ast::StmtNodePtr Parser::parseBlock() {
   Location loc = consume().loc; // consume {
 
@@ -346,7 +391,7 @@ Finally, the \verb!}! token is consumed, and a new \verb!BlockStmt! node is cons
 
 \newpage
 
-\section{XML generation}
+\section{XML generation}~\label{sec:xml-visitor}
 
 XML generation is implemented using a subclass of \verb!AbstractVisitor! called \verb!XMLVisitor!.
 
@@ -387,7 +432,7 @@ __pixelr 0, 0, 3, 4, #ff0000;
 
 \newpage
 
-\section{Semantic checking}
+\section{Semantic checking}~\label{sec:semantic-checker}
 
 \subsection{Types defined for semantic checking}
 
@@ -551,7 +596,7 @@ Note that an \verb|AssignmentStmt| actually represents its LHS using a pointer t
 
 \newpage
 
-\section{Code generation and Optimizations}
+\section{Code generation and Optimizations}~\label{sec:codegen}
 
 \subsection{Types defined for code generation}
 
@@ -708,7 +753,7 @@ Handing array access lvalues is more complicated, however. The \verb|visit()| me
 It is best to illustrate why this scheme works with an example. Consider the assignment statement \verb|arr[3][4] = 5;|. According to our scheme, this is translated into the following program
 
 \begin{center}
-  \includegraphics[width=0.35\textwidth]{lvalue_example}
+  \includegraphics[width=0.31\textwidth]{lvalue_example}
 \end{center}
 
 where we have assumed (arbitrarily) that the \verb|arr| variable gets allocated to index \verb|2| in the current frame.
@@ -761,7 +806,7 @@ Figure~\ref{fig:loop-rotation} shows control flow graphs for rotated and unrotat
 
 In the implementation, loop rotation is enabled/disabled for an entire program using a \verb|boolean| option in the \verb|CodeGenerator|. The \verb|visit()| methods for \verb|ForStmt| and \verb|WhileStmt| check this field, and generate code accordingly.
 
-\subsubsection{Dead code elimination}
+\subsubsection{Dead code elimination}~\label{sec:deadcode}
 
 Dead code elimination can be enabled using the \verb|-felim-dead-code| flag, and transforms a \verb|PixIRCode| instance generated by \verb|CodeGenerator| by removing unreachable code in a basic block, as well as dead functions.
 
@@ -802,7 +847,7 @@ In order to add the corresponding \verb|PixIRFunction| to the worklist, we need 
 
 The \verb|eliminate()| method of \verb|DeadFunctionEliminator| first calls \verb|findReachable()| to obtain a set of the names of all reachable functions. It then iterates over the code to be transformed, removing every \verb|PixIRFunction| whose name is not in this set.
 
-\subsubsection{Peephole optimization}
+\subsubsection{Peephole optimization}~\label{sec:peephole}
 
 The peephole optimizer transforms small runs of instructions within a single basic block. This may lead to optimization because there are situations where the \verb|CodeGenerator| may generate bad code due to locality (each \verb|visit()| method views a very small fragment of the AST).
 
@@ -825,6 +870,16 @@ A global, constant \verb|patterns| variable maps \verb|PixIRPattern|s to the cor
 The \verb|peepholeOptimize()| function puts everything together: it takes a \verb|PixIRCode| instance and iterates over each of its basic blocks' list of instructions, calling \verb|match_and_replace()| for every pattern in \verb|patterns| at each location in the list.
 
 This peephole optimizer has some obvious limitations. The largest shortcoming stems from the fact that it can only match exact runs of instructions. So for example any program of the form $e$\verb| + 1| where $e$ is an arbitrary expression will not be optimized to use \verb|INC|, because there is no way to match the instructions for the arbitrary expression in the generated code.
+
+\newpage
+
+\section{Some example programs used to test the compiler}
+
+\subsection{Wall clock}
+
+\subsection{Text rendering}
+
+\subsection{Rule 110 automaton}
 
 \newpage
 
