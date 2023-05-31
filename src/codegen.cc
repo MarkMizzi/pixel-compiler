@@ -285,7 +285,7 @@ void CodeGenerator::visit(ast::AssignmentStmt &node) {
 // nothing to generate here. Space for variables is allocated when entering a
 // BlockStmt.
 void CodeGenerator::visit(ast::VariableDeclStmt &node) {
-  // NOTE: unsafe unwrapping here because SemanticVisitor has already dealth
+  // NOTE: unsafe unwrapping here because SemanticVisitor has already dealt
   // with error case.
   auto [depth, index] = frameIndexMap->getDepthAndIndex(node.id);
 
