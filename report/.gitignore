@@ -7,3 +7,8 @@ tmp/
 *.toc
 *.synctex.gz
 .auctex-auto/**
+*.out
+*.blg
+_minted-report/**
+
+!Makefile
