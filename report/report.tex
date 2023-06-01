@@ -5,6 +5,9 @@
 \makesavenoteenv{tabular}
 \makesavenoteenv{table}
 
+% support for eBNF
+\usepackage[nounderscore]{syntax}
+
 % Support for UTF-8 and non-English letters require the following two
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -197,97 +200,137 @@ A video presentation of the compiler implemented was developed, and can be found
 
 \section{Lexing}~\label{sec:lexer}
 
-\subsection{Design considerations}
+\subsection{Types defined for lexing}
 
-THere are several approaches available to the implementer when it comes to writing a hand-coded lexer.
+\subsubsection{Locations}
 
-The implementation uses a table-driven approach to lexing. This approach assumes that the micro-syntax of each token type $t_{i}$ can be specified using a regular expression $e_{i}$. The lexer emulates a particular DFSA (deterministic finite state automaton) that accepts the language specified by the following regular expression:
+Both tokens and AST nodes carry locations indicating the parts of the source code which produced them. A \verb|Location| struct is used for this purpose. This struct contains \verb|sline|, \verb|scol|, \verb|eline| and \verb|ecol| fields, representing the starting and ending line and coloumn in the source code respectively.
+
+\verb|Location| structs also have a \verb|merge()| method, which can be used to combine two \verb|Location|s into a new one which represents the entire range specified by the minimum and maximum bounds of the merged \verb|Location|s.
+
+This method is used during parsing for example, to combine \verb|Location|s of child nodes and tokens into the \verb|Location| of a new AST node.
+
+During parsing or semantic checking, errors are reported by throwing an exception of type \verb|ParserError|, or \verb|SemanticError| respectively. Each of these exception types takes a \verb|Location| argument in its constructor, and uses it to indicate the location of the error in the source code in its error message.
+
+In the case of parsing, the \verb|Location| is sourced from the token being consumed when the parse error occurs (see below). In the case of semantic checking, the \verb|Location| is sourced from the AST node which failed the check.
+
+\subsubsection{Tokens}
+
+Tokens are represented by a \verb|Token| struct which contains three pieces of information; a \verb|TokenType| indicating the kind of token (this is an \verb|enum|), a \verb|std::string| containing the text constituting the token, and a \verb|Location| field which indicates the location of the token's text in the source code.
+
+\subsection{Lexing approach}
+
+The PixAR compiler uses a hand-coded, table-driven lexer. Much of the code is encapsulated in a \verb|Lexer| class.
+
+The table-driven approach\cite{cooper2011} assumes that the micro-syntax of each token type $t_{i}$ can be specified using a regular expression $e_{i}$. The lexer emulates a particular DFSA (deterministic finite state automaton) that accepts the language specified by the following regular expression:
 $$ e = e_{1} | ... | e_{k} $$
 
-The DFSA emulated by this compiler's lexer is shown in Figure~\ref{fig:lexer-dfsa}.
+A portion of the DFSA emulated by this compiler's lexer is shown in Figure~\ref{fig:lexer-dfsa}.
 
-\begin{figure}[H]
+\begin{figure}
   \centering
-  \caption{DFSA that lexes tokens in the PixAR language.}~\label{fig:lexer-dfsa}
-\begin{tikzpicture}
-\node[state] (a) { $START$ };
-\node[state, accepting, right of=a] (id) { $ID$ };
-\node[state, accepting, above of=a] (colon) { $COLON$ };
-\node[state, accepting, above right of=a] (comma) { $COMMA$ };
-\node[state, accepting, below right of=a] (greater) { $GREATER$ };
-\node[state, accepting, below of=a] (less) { $LESS$ };
-\node[state, accepting, below left of=a] (assign) { $ASSIGN$ };
-\node[state, accepting, left of=a] (plus) { $PLUS$ };
-\node[state, accepting, above left of=a] (minus) { $MINUS$ };
-\node[state, accepting, left of=minus] (div) { $DIV$ };
-\node[state, accepting, left of=plus] (star) { $STAR$ };
-\node[state, accepting, below right of=greater] (ge) { $GE$ };
-\node[state, accepting, below of=less] (le) { $LE$ };
-\node[state, accepting, below left of=assign] (eq) { $EQ$ };
-\node[state, accepting, above left of=minus] (arrow) { $ARROW$ };
-
-\draw (a) edge[above] node{a-zA-Z\_} (id)
-    (id) edge[loop right] node{a-zA-Z\_0-9} (id)
-    (a) edge[left] node{:} (colon)
-    (a) edge[above] node{,} (comma)
-    (a) edge[above] node{>} (greater)
-    (greater) edge[above] node{=} (ge)
-    (less) edge[right] node{=} (le)
-    (a) edge[right] node{<} (less)
-    (a) edge[above] node{=} (assign)
-    (assign) edge[above] node{=} (eq)
-    (a) edge[above] node{+} (plus)
-    (a) edge[bend left, below] node{*} (star)
-    (a) edge[below] node{/} (div)
-    (a) edge[above] node{-} (minus)
-    (minus) edge[above] node{>} (arrow);
-
-\end{tikzpicture}
+  \includegraphics[width=0.8\textwidth]{lexer_dfsa}
+  \caption{A portion of the partial DFSA on which the PixAR compiler's lexer is based. For simplicity the states for some of the simpler tokens, as well as the handling of whitespace and comments is ommitted from the diagram.}~\label{fig:lexer-dfsa}
 \end{figure}
 
-The transition table of the deterministic finite state automaton is stored in an auxiliary data structure, and a ``skeleton'' function uses this table to carry out lexing itself. Pseudo-code for this function is shown in Algorithm~\ref{lst:lexer}.
+The transition table of the emulated deterministic finite state automaton is stored in an auxiliary data structure. When a token needs to be lexed, a ``skeleton'' function simulates a run of the DFSA using this data structure; the initial state is a specified start state, and input is consumed until there is no more, or until the transition table indicates that there is no outgoing transition from the current state with the current character. The skeleton function is greedy, as it consumes as much input as possible.
 
-% \begin{algorithm}
-% \caption{Pseudo-code for the ``skeleton'' function at the heart of the table-driven lexer}\label{lst:lexer}
-% \begin{algorithmic}
-%   \Require $n \geq 0$
-%   \If{$Eof()$}
-%     \State $\return Token(type=END)$
-%   \EndIf
+In our implementation, the ``skeleton'' function is contained in the \verb|nextToken()| method of a \verb|Lexer|, and pseudocode for it is shown in Algorithm~\ref{alg:lexer-skeleton}.
 
-%   \While{$!Eof()$}
+DFSA states are represented by a \verb|LexerState| \verb|enum|.
 
-%   \EndWhile
-% \State $c \gets nextChar()$
-% \State $X \gets x$
-% \State $N \gets n$
-% \While{$N \neq 0$}
-% \If{$N$ is even}
-%     \State $X \gets X \times X$
-%     \State $N \gets \frac{N}{2}$  \Comment{This is a comment}
-% \ElsIf{$N$ is odd}
-%     \State $y \gets y \times X$
-%     \State $N \gets N - 1$
-% \EndIf
-% \EndWhile
-% \end{algorithmic}
-% \end{algorithm}
+\begin{algorithm}
+   \caption{Pseudocode for the skeleton function at the core of the table-driven lexer.}~\label{alg:lexer-skeleton}
 
-Several simplifying decisions were made in designing the lexer. Firstly, each valid input character was classified into a character class. The character classes are mutually exclusive, and group together characters which result in the same state transitions for each state of the DFSA. For example, the digit characters $0-9$ are classified into a single group. This greatly decreases the size of the table used. Choosing character classes is not as straightforward as it may seem, and new classes may be needed as more token types are added to the language. For example, although one may think it sufficient to create a single class for the alphabetic characters $a-zA-Z$, two classes are needed for $a-fA-F$ and $g-zG-Z$ as the former characters can appear in hexadecimal literals, whereas the latter cannot.
+   \KwData{
+      \begin{itemize}
+        \item $input$ is the input stream.
+        \item $line$ is the current line in the source being lexed.
+        \item $col$ is the current column in the source being lexed.
+        \item $c$ is the last character obtained from the input stream.
+        \item $token$ is the result: the token lexed from an initial segment of $input$. In the pseudocode, tokens are represented by a pair, with the first element being the token type, and the second being the value (the input characters which were lexed).
+        \item $state$ is the current state of the lexer.
+        \item $transTable$ is the transition table of the lexer.
+      \end{itemize}}
+    \If{$\mathbf{isEmpty}(input)$}{
+      $token \gets \langle END, \epsilon \rangle$;\\
+    }\Else{
+      $state \gets START$;\\
+      \While{$\neg \mathbf{isEmpty}(input)$}{
+        $c \gets \mathbf{getNext}(input)$;\\
+        $cclass \gets \mathbf{characterClass}(c)$;\\
+        \If{$\langle state, cclass \rangle \notin transTable$}{
+          $\mathbf{putBack}(input, c)$;\\
+          $\mathbf{break}$;
+        }
+        $state \gets transTable[\langle state, cclass \rangle]$;\\
+        $token[1] = token[1] + c$;\\
+        \If{$\mathbf{isNewline}(c)$}{
+          $line \gets line + 1$;\\
+          $col \gets 0$;
+        }\Else{
+          $col \gets col + 1$;
+        }
+      }
+    }
 
-Secondly, a \verb!std::map! data structure was used to store the table. This allows us to encode the partial DFSA shown in Figure~\ref{fig:lexer-dfsa} directly. Transitions that would lead to an error state are ommitted from this map, and the skeleton function throws a \verb!LexerError! if it cannot make a transition while the current state is not an accepting state. The use of an array for storing the table would require transitions to an error state to be declared explicitly.
+    \If{$\mathbf{isErrorState}(state)$}{
+      Deal with lexer error.
+    }\Else{
+      $token[0] \gets \mathbf{finalStateToTokenType}(state)$;
+    }
+\end{algorithm}
+
+Several simplifying decisions were made in implementing the lexer.
+
+Firstly, each valid input character was classified into a character class. The character classes are mutually exclusive, and group together characters which result in the same state transitions for each state of the DFSA. For example, the digit characters $0-9$ were classified into a single group. This greatly decreases the size of the table used. Choosing character classes is not as straightforward as it may seem, and new classes may be needed as more token types are added to the language. For example, although one may think it sufficient to create a single class for the alphabetic characters $a-zA-Z$, two classes are needed for $a-fA-F$ and $g-zG-Z$ as the former characters can appear in hexadecimal literals, whereas the latter cannot.
+
+Secondly, a \verb!std::map! data structure was used to store the transition table. This allowed us to encode the \textbf{partial} DFSA shown in Figure~\ref{fig:lexer-dfsa} directly. Transitions that would lead to an error state are ommitted from this map. The lexing loop exits when there is no more input to process, or when there is no outgoing transition from the current state with the character class of the current character. In this case, the last state of the lexer may be a final state, indicating successful lexing, or a non-final state, indicating a lexing error. The difference is determined in the \verb|tokenType| method, which takes a DFSA state and returns the associated token type if it is a final state, throwing a \verb|std::logic_error| otherwise. Any \verb|std::logic_error| thrown by this method is caught in \verb|nextToken()|, and re-thrown as a \verb|LexerError|.
+
+The use of an array for storing the table would require a total DFSA to be implemented, which necessitates an error state and transitions to it. In addition, the destination states for each transition would have to be referenced using a numerical index rather than an \verb|enum|, making the code harder to debug.
 
 Finally, keywords are not handled directly by the table-driven portion of the lexer. Instead keywords are lexed as regular identifiers, and then filtered by another method which wraps the skeleton function. As a side effect of this design decision, the former function must also reject any identifiers which start with an underscore, which is disallowed by the language specification. This cannot be done by the skeleton function itself as certain keywords start with an underscore.
 
-\subsection{Code organization}
+The latter responsibilities are delegated to a public \verb|getNextToken()| method in \verb|Lexer|, which wraps the private ``skeleton'' function (\verb|nextToken()|).
+
+Instead of a \verb|std::string|, the \verb|Lexer| class represents its input stream using a \verb|std::istream&|, which is passed on construction. This means that, for example, a \verb|std::fstream| can be used to feed input from a file to the \verb|Lexer| incrementally, potentially saving memory in cases where a lexing error is thrown halfway through reading the file.
 
 \newpage
 
-\section{Abstract Syntax tree, Visitors, and Parsing}
+\section{Parsing}
 
-\subsection{Modifications made to eBNF}
+\subsection{Modifications made to eBNF grammar}
 
-% TODO
+The version of the PixAR language supported by the implemented compiler is an extension which supports dynamically sized arrays.
+
+A few modifications had to be made to the eBNF specified in the assignment sheet in order to achieve this.
+
+The $Type$ non-terminal was extended with a recursive production to include array types:
+\begin{grammar}
+  <Type> ::= `float' | `int' | `bool' | `colour' | `[' `]' <Type>
+\end{grammar}
+
+Two new types of expression non-terminals were added to the productions of $Factor$:
+\begin{grammar}
+  <Factor> ::= ... | <ArrayAccessExpr> | <NewArrExpr>
+\end{grammar}
+
+These non-terminals represent expressions used to access and create arrays respectively, and are defined by the following grammar rules:
+\begin{grammar}
+  <ArrayAccessExpr> ::= ( <Identifier> | <ArrayAccessExpr> ) `[' <Expr> `]'\\
+\end{grammar}
+\begin{grammar}
+  <NewArrExpr> ::= `__newarr' <Type> `,' <Expr>
+\end{grammar}
+
+Array access expressions can be used as lvalues. Hence the $Assignment$ non-terminal had to be redefined as
+\begin{grammar}
+  <Assignment> ::= <Lvalue> `=' <Expr>
+\end{grammar}
+with $Lvalue$ being a new non-terminal defined as
+\begin{grammar}
+  <Lvalue> ::= <ArrayAccessExpr> | <Identifier>
+\end{grammar}
 
 \subsection{Abstract syntax trees}~\label{sec:ast}
 
