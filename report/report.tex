@@ -5,7 +5,7 @@
 \makesavenoteenv{tabular}
 \makesavenoteenv{table}
 
-% support for eBNF
+% support for EBNF
 \usepackage[nounderscore]{syntax}
 
 % Support for UTF-8 and non-English letters require the following two
@@ -186,7 +186,7 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release .
 make
 \end{minted}
 
-The report can be compiled by running the following commands:
+This report can be compiled by running the following commands:
 \begin{minted}[bgcolor=LightGray]{bash}
 cd report
 make
@@ -202,27 +202,32 @@ A video presentation of the compiler implemented was developed, and can be found
 
 \subsection{Types defined for lexing}
 
-\subsubsection{Locations}
+\subsubsection{Locations}~\label{sec:location}
 
-Both tokens and AST nodes carry locations indicating the parts of the source code which produced them. A \verb|Location| struct is used for this purpose. This struct contains \verb|sline|, \verb|scol|, \verb|eline| and \verb|ecol| fields, representing the starting and ending line and coloumn in the source code respectively.
+Both tokens and AST nodes carry locations indicating the source code range which produced them. A \verb|Location| struct is used for this purpose. This struct contains \verb|sline|, \verb|scol|, \verb|eline| and \verb|ecol| fields, representing the starting and ending line and coloumn in the source code respectively.
 
 \verb|Location| structs also have a \verb|merge()| method, which can be used to combine two \verb|Location|s into a new one which represents the entire range specified by the minimum and maximum bounds of the merged \verb|Location|s.
 
 This method is used during parsing for example, to combine \verb|Location|s of child nodes and tokens into the \verb|Location| of a new AST node.
 
-During parsing or semantic checking, errors are reported by throwing an exception of type \verb|ParserError|, or \verb|SemanticError| respectively. Each of these exception types takes a \verb|Location| argument in its constructor, and uses it to indicate the location of the error in the source code in its error message.
+During parsing or semantic checking, errors are reported by throwing an exception of type \verb|ParserError|, or \verb|SemanticError| respectively. Each of these exception types takes a \verb|Location| argument in its constructor, and uses it to indicate the source code location of the error in its message.
 
-In the case of parsing, the \verb|Location| is sourced from the token being consumed when the parse error occurs (see below). In the case of semantic checking, the \verb|Location| is sourced from the AST node which failed the check.
+In the case of parsing, the \verb|Location| is sourced from the token being consumed when the parse error occurs. During semantic checking, the \verb|Location| is sourced from the AST node which failed the check.
 
 \subsubsection{Tokens}
 
-Tokens are represented by a \verb|Token| struct which contains three pieces of information; a \verb|TokenType| indicating the kind of token (this is an \verb|enum|), a \verb|std::string| containing the text constituting the token, and a \verb|Location| field which indicates the location of the token's text in the source code.
+Tokens are represented by a \verb|Token| struct which contains three pieces of information:
+\begin{itemize}
+  \item A \verb|TokenType| field indicating the kind of token (this is an \verb|enum|).
+  \item A \verb|std::string| containing the text constituting the token,
+  \item and a \verb|Location| field which indicates the location of the token's text in the source code.
+\end{itemize}
 
 \subsection{Lexing approach}
 
-The PixAR compiler uses a hand-coded, table-driven lexer. Much of the code is encapsulated in a \verb|Lexer| class.
+The PixAR compiler uses a hand coded, table driven lexer. Much of the code is encapsulated in a \verb|Lexer| class.
 
-The table-driven approach\cite{cooper2011} assumes that the micro-syntax of each token type $t_{i}$ can be specified using a regular expression $e_{i}$. The lexer emulates a particular DFSA (deterministic finite state automaton) that accepts the language specified by the following regular expression:
+The table driven approach\cite{cooper2011} assumes that the microsyntax of each token type $t_{i}$ can be specified using a regular expression $e_{i}$. The lexer emulates a particular DFSA (deterministic finite state automaton) which accepts the language specified by the following regular expression:
 $$ e = e_{1} | ... | e_{k} $$
 
 A portion of the DFSA emulated by this compiler's lexer is shown in Figure~\ref{fig:lexer-dfsa}.
@@ -233,9 +238,11 @@ A portion of the DFSA emulated by this compiler's lexer is shown in Figure~\ref{
   \caption{A portion of the partial DFSA on which the PixAR compiler's lexer is based. For simplicity the states for some of the simpler tokens, as well as the handling of whitespace and comments is ommitted from the diagram.}~\label{fig:lexer-dfsa}
 \end{figure}
 
-The transition table of the emulated deterministic finite state automaton is stored in an auxiliary data structure. When a token needs to be lexed, a ``skeleton'' function simulates a run of the DFSA using this data structure; the initial state is a specified start state, and input is consumed until there is no more, or until the transition table indicates that there is no outgoing transition from the current state with the current character. The skeleton function is greedy, as it consumes as much input as possible.
+The transition table of the emulated deterministic finite state automaton is stored in an auxiliary data structure.
 
-In our implementation, the ``skeleton'' function is contained in the \verb|nextToken()| method of a \verb|Lexer|, and pseudocode for it is shown in Algorithm~\ref{alg:lexer-skeleton}.
+When a token needs to be lexed, a ``skeleton'' function simulates a run of the DFSA using this data structure; the initial state is set to a specified start state, and input is consumed until there is no more, or until the transition table indicates that there is no outgoing transition from the current state with the current character. The ``skeleton'' function is greedy, as it consumes as much input as possible.
+
+In our implementation, this ``skeleton'' function is contained in the \verb|nextToken()| method of a \verb|Lexer|. Pseudocode for this method is shown in Algorithm~\ref{alg:lexer-skeleton}.
 
 DFSA states are represented by a \verb|LexerState| \verb|enum|.
 
@@ -245,14 +252,14 @@ DFSA states are represented by a \verb|LexerState| \verb|enum|.
    \KwData{
       \begin{itemize}
         \item $input$ is the input stream.
-        \item $line$ is the current line in the source being lexed.
-        \item $col$ is the current column in the source being lexed.
+        \item $line$ is the line number of the source line being lexed.
+        \item $col$ is the column number of the source location being lexed.
         \item $c$ is the last character obtained from the input stream.
-        \item $token$ is the result: the token lexed from an initial segment of $input$. In the pseudocode, tokens are represented by a pair, with the first element being the token type, and the second being the value (the input characters which were lexed).
+        \item $token$ is the result; the token lexed from an initial segment of $input$. In the pseudocode, tokens are represented by a pair, with the first element being the token type, and the second being the value (the input characters which constitute the token).
         \item $state$ is the current state of the lexer.
-        \item $transTable$ is the transition table of the lexer.
+        \item $transTable$ is the hard coded transition table of the lexer.
       \end{itemize}}
-    \If{$\mathbf{isEmpty}(input)$}{
+    \uIf{$\mathbf{isEmpty}(input)$}{
       $token \gets \langle END, \epsilon \rangle$;\\
     }\Else{
       $state \gets START$;\\
@@ -264,58 +271,74 @@ DFSA states are represented by a \verb|LexerState| \verb|enum|.
           $\mathbf{break}$;
         }
         $state \gets transTable[\langle state, cclass \rangle]$;\\
-        $token[1] = token[1] + c$;\\
-        \If{$\mathbf{isNewline}(c)$}{
+        $token[1] \gets token[1] + c$;\\
+        \uIf{$\mathbf{isNewline}(c)$}{
           $line \gets line + 1$;\\
           $col \gets 0$;
         }\Else{
           $col \gets col + 1$;
         }
       }
-    }
 
-    \If{$\mathbf{isErrorState}(state)$}{
-      Deal with lexer error.
-    }\Else{
-      $token[0] \gets \mathbf{finalStateToTokenType}(state)$;
+      \uIf{$\neg\mathbf{isFinalState}(state)$}{
+        Deal with lexer error.
+      }\Else{
+        $token[0] \gets \mathbf{finalStateToTokenType}(state)$;
+      }
     }
 \end{algorithm}
 
 Several simplifying decisions were made in implementing the lexer.
 
-Firstly, each valid input character was classified into a character class. The character classes are mutually exclusive, and group together characters which result in the same state transitions for each state of the DFSA. For example, the digit characters $0-9$ were classified into a single group. This greatly decreases the size of the table used. Choosing character classes is not as straightforward as it may seem, and new classes may be needed as more token types are added to the language. For example, although one may think it sufficient to create a single class for the alphabetic characters $a-zA-Z$, two classes are needed for $a-fA-F$ and $g-zG-Z$ as the former characters can appear in hexadecimal literals, whereas the latter cannot.
+Firstly, each valid input character was classified into a character class. This is a standard approach\cite{cooper2011}.
 
-Secondly, a \verb!std::map! data structure was used to store the transition table. This allowed us to encode the \textbf{partial} DFSA shown in Figure~\ref{fig:lexer-dfsa} directly. Transitions that would lead to an error state are ommitted from this map. The lexing loop exits when there is no more input to process, or when there is no outgoing transition from the current state with the character class of the current character. In this case, the last state of the lexer may be a final state, indicating successful lexing, or a non-final state, indicating a lexing error. The difference is determined in the \verb|tokenType| method, which takes a DFSA state and returns the associated token type if it is a final state, throwing a \verb|std::logic_error| otherwise. Any \verb|std::logic_error| thrown by this method is caught in \verb|nextToken()|, and re-thrown as a \verb|LexerError|.
+Character classes are mutually exclusive, and group together characters which result in the same state transitions for each state of the DFSA. For example, the digit characters $0-9$ were classified into a single character class. This greatly decreases the size of the table used.
+
+Choosing character classes is not as straightforward as it may seem, and new classes may be needed as more token types are added to the language. For example, although one may think it sufficient to create a single class for the alphabetic characters $[a-zA-Z]$, two classes are needed; $[a-fA-F]$ and $[g-zG-Z]$, as the former characters can appear in hexadecimal literals, whereas the latter cannot.
+
+Secondly, a \verb!std::map! data structure was used to store the transition table. This allowed us to encode the \textbf{partial} DFSA shown in Figure~\ref{fig:lexer-dfsa} directly. Transitions that would lead to an error state are ommitted from this map.
+
+The lexing loop exits when there is no more input to process, or when there is no outgoing transition from the current state with the character class of the current character. In this case, the last state of the lexer may be a final state, indicating successful lexing, or a non-final state, indicating a lexing error.
+
+The difference is determined in the \verb|tokenType()| method, which takes a DFSA state and returns the associated token type if it is a final state, throwing a \verb|std::logic_error| otherwise. Any \verb|std::logic_error| thrown by this method is caught in \verb|nextToken()|, and re-thrown as a \verb|LexerError|.
 
 The use of an array for storing the table would require a total DFSA to be implemented, which necessitates an error state and transitions to it. In addition, the destination states for each transition would have to be referenced using a numerical index rather than an \verb|enum|, making the code harder to debug.
 
-Finally, keywords are not handled directly by the table-driven portion of the lexer. Instead keywords are lexed as regular identifiers, and then filtered by another method which wraps the skeleton function. As a side effect of this design decision, the former function must also reject any identifiers which start with an underscore, which is disallowed by the language specification. This cannot be done by the skeleton function itself as certain keywords start with an underscore.
+Finally, keywords are not handled directly in the ``skeleton'' function. Instead keywords are lexed as regular identifiers, and then filtered by a public \verb|getNextToken()| method which wraps the (private ``skeleton'' function. As a side effect of this design decision, \verb|getNextToken()| must also reject any identifiers which start with an underscore, which is disallowed by the language specification. This cannot be done by the ``skeleton'' function itself as certain keywords start with an underscore.
 
-The latter responsibilities are delegated to a public \verb|getNextToken()| method in \verb|Lexer|, which wraps the private ``skeleton'' function (\verb|nextToken()|).
+\verb|getNextToken()| also has another responsibility; it filters tokens which have a \verb|WHITESPACE_TOK| token type out of the token stream. Such tokens are generated by \verb|nextToken()| when it encounters comments or whitespace. Dealing with whitespace and comments \textit{after} lexing allows us to retain accurate locations in all of the produced \verb|Token|s.
 
 Instead of a \verb|std::string|, the \verb|Lexer| class represents its input stream using a \verb|std::istream&|, which is passed on construction. This means that, for example, a \verb|std::fstream| can be used to feed input from a file to the \verb|Lexer| incrementally, potentially saving memory in cases where a lexing error is thrown halfway through reading the file.
+
+\subsection{Error handling}
+
+Errors produced during lexing are handled by throwing a \verb|LexerError|. This exception type subclasses the generic \verb|CompilationError| type, and its constructor takes two \verb|size_t| parameters which indicate the location of the character that caused the lexing error in the source code. This location is included in \verb|LexerError|'s error message.
+
+There are two situations which can cause errors; these have already been mentioned in passing above.
+
+Firsly, the \verb|nextToken()| function may terminate the lexing loop while the current state is not final. Secondly, an identifier which starts with an underscore character may be lexed, and then rejected by \verb|getNextToken()|.
 
 \newpage
 
 \section{Parsing}
 
-\subsection{Modifications made to eBNF grammar}
+\subsection{Modifications made to EBNF grammar}
 
-The version of the PixAR language supported by the implemented compiler is an extension which supports dynamically sized arrays.
+The version of the PixAR language implemented is an extension which supports dynamically sized arrays.
 
-A few modifications had to be made to the eBNF specified in the assignment sheet in order to achieve this.
+A few modifications had to be made to the EBNF specified in the assignment sheet in order to achieve this.
 
-The $Type$ non-terminal was extended with a recursive production to include array types:
+Array type annotations were added by extending the $Type$ nonterminal with a recursive production:
 \begin{grammar}
   <Type> ::= `float' | `int' | `bool' | `colour' | `[' `]' <Type>
 \end{grammar}
 
-Two new types of expression non-terminals were added to the productions of $Factor$:
+Two new types of expression nonterminals were added to the productions of $Factor$:
 \begin{grammar}
   <Factor> ::= ... | <ArrayAccessExpr> | <NewArrExpr>
 \end{grammar}
 
-These non-terminals represent expressions used to access and create arrays respectively, and are defined by the following grammar rules:
+These nonterminals represent expressions used to access and create arrays respectively, and are defined by the following rules:
 \begin{grammar}
   <ArrayAccessExpr> ::= ( <Identifier> | <ArrayAccessExpr> ) `[' <Expr> `]'\\
 \end{grammar}
@@ -323,18 +346,18 @@ These non-terminals represent expressions used to access and create arrays respe
   <NewArrExpr> ::= `__newarr' <Type> `,' <Expr>
 \end{grammar}
 
-Array access expressions can be used as lvalues. Hence the $Assignment$ non-terminal had to be redefined as
+Array access expressions can be used as lvalues. In order to express this in the grammar, the $Assignment$ nonterminal was redefined as
 \begin{grammar}
   <Assignment> ::= <Lvalue> `=' <Expr>
 \end{grammar}
-with $Lvalue$ being a new non-terminal defined as
+with $Lvalue$ being a new nonterminal defined as
 \begin{grammar}
   <Lvalue> ::= <ArrayAccessExpr> | <Identifier>
 \end{grammar}
 
 \subsection{Abstract syntax trees}~\label{sec:ast}
 
-Abstract syntax trees are represented by an inheritance hierarchy shown in Figure~\ref{fig:ast-hierarchy}.
+Abstract syntax trees are represented by the inheritance hierarchy shown in Figure~\ref{fig:ast-hierarchy}.
 
 \begin{figure}
   \centering
@@ -342,33 +365,37 @@ Abstract syntax trees are represented by an inheritance hierarchy shown in Figur
   \caption{Inheritance hierarchy for AST nodes. Some methods are ommitted for brevity.}~\label{fig:ast-hierarchy}
 \end{figure}
 
-Every node type inherits from an \verb!ASTNode! abstract class. This class contains a \verb!Location! member that stores the position of the source code that produced the node. This allows the compiler to produce very useful error messages which indicate the location of the error to the user.
+Every node type inherits from an \verb!ASTNode! abstract class. This class contains a \verb!Location! member that stores the position of the source code that produced the node. As mentioned in Section~\ref{sec:location}, this allows the compiler to produce very useful error messages which indicate the location of the error to the user.
 
-The \verb!ASTNode! type also contains a pure virtual method \verb!accept!, that subclasses must implement to support visitors. Another pure virtual method \verb!children! is implemented by subclasses to return their child nodes.
+The \verb!ASTNode! type also contains a pure virtual method \verb!accept()!, that subclasses must implement to support visitors. Another pure virtual method \verb!children()! is implemented by subclasses to return a \verb|std::vector| of pointers to their child nodes.
 
-There are three direct subclasses of \verb!ASTNode!, which are themselves abstract: \verb!StmtNode!, \verb!ExprNode!, \verb!TypeNode!. These three subclasses represent the three basic kinds of syntactic structures in SIPLang: statements, expressions, and types.
+There are three direct subclasses of \verb!ASTNode!, which are themselves abstract: \verb!StmtNode!, \verb!ExprNode!, \verb!TypeNode!. These three subclasses represent the three fundamental kinds of syntactic structures in SIPLang: statements, expressions, and types.
 
-Concrete subclasses of these three classes use \verb!unique_ptr! to reference child nodes.
+Concrete subclasses of these three classes use \href{https://en.cppreference.com/w/cpp/memory/unique_ptr}{\Verb!std::unique_ptr!} to reference child nodes.
 
-Type nodes are used extensively in semantic checking. In order to aid this \verb!TypeNode! has additional methods \verb!copy! and \verb!to_string! which produces a deep copy of the node, and prints it in human readable form respectively.
+Type nodes are used extensively in semantic checking (see Section~\ref{sec:type-checking}), and in this context, copies of a \verb|TypeNode| may be needed in order to temporarily map an expression AST to a type. For this reason, \verb|TypeNode| has a pure virtual \verb|copy()| method which is implemented by each subclass.
 
-Note that deep copying is necessary in the semantic checker due to the use of \verb!unique_ptr!. However, copying is rarely needed, and is considered a small cost compared to the convenience of using \verb!unique_ptr!.
+Note that \verb|copy()| must implement deep copying, due to the use of \verb!unique_ptr!. However, copying is rarely needed, and is considered a small cost compared to the convenience of the automatic deallocation offered by \verb!unique_ptr!.
 
-In addition, type nodes also implement the comparision operator \verb!==!. Implementing comparision over a type hierarchy requires an unusual pattern. The implementation of \verb!operator==! in \verb!TypeNode! compares the \verb!typeid! of the two nodes being compared, and returns \verb!false! if they are not the same (dealing with the condition where the two \verb!TypeNode!s are of different types). Otherwise, a virtual \verb!equals! method is called.
+In addition, type nodes also implement the equality operator \verb!==!. In order to be useful, the implementation of this operator must be able to compare instances of any two (potentially different) subclasses of \verb|TypeNode|. This requires an unusual pattern.
 
-In simple subclasses of \verb!TypeNode!, such as \verb!IntTypeNode! or \verb!FloatTypeNode!, this method simply returns true, as any two instances of such simple nodes are semantically equal.
+The implementation of \verb!operator==! in \verb!TypeNode! first compares the \href{https://en.cppreference.com/w/cpp/language/typeid}{\Verb!typeid!} of the two nodes passed to it, and returns \verb!false! if they are not the same. This handles the case where the two \verb!TypeNode!s are of different types.
 
-For more complex subclasses, such as \verb!ArrayTypeNode!, the \verb!equals! method statically casts its argument to the type of the subclass. This is guaranteed to be type safe provided \verb!equals! is only called by \verb!operator==!. The \verb!equals! method can then perform subclass-specific equality checks, (in this case making sure the type of array elements is the same).
+If the \verb|typeid| check succeeds, a pure virtual \verb!equals()! method is called.
 
-A subclass of \verb!TypeNode! called \verb!FunctionTypeNode! is used to represent function types during semantic checking. Nodes of this type are not produced during parsing, but are used to represent the type of function symbols.
+In simple subclasses of \verb!TypeNode!, such as \verb!IntTypeNode! or \verb!FloatTypeNode!, this method unconditionally returns \verb|true|, as any two instances of such simple nodes are semantically equivalent.
 
-Instances of \verb!TypeNode! also have \verb!isFuncType! and \verb!isArrType! methods which can be used to check whether a \verb!TypeNode! is an \verb!ArrayTypeNode! or a \verb!FunctionTypeNode! respectively.
+For more complex subclasses, such as \verb!ArrayTypeNode!, the \verb!equals()! method statically casts its argument to the type of the subclass. This is type safe provided \verb!equals()! is only called by \verb!operator==!, since the latter calls it if and only if the \verb|typeid| check succeeds. The \verb!equals()! method can then perform subclass-specific equality checks, (in this case making sure the type of array elements is the same). In order to prevent abuse, the \verb|equals()| method is declared as protected.
+
+A subclass of \verb!TypeNode! called \verb!FunctionTypeNode! is used to represent function types. Nodes of this type are not produced during parsing, but are used to represent the type of function symbols during semantic checking. This allows us to treat function and variable symbols on the same footing in the semantic checker, greatly simplifying the code.
+
+Subclasses of \verb!TypeNode! also implement \verb!isFuncType()! and \verb!isArrType()! methods which can be used to check whether a \verb!TypeNode! is an \verb!ArrayTypeNode! or a \verb!FunctionTypeNode! respectively.
 
 \subsection{The Visitor Pattern}~\label{sec:visitor}
 
-The visitor pattern is widely used in compilers to cleanly separate an abstract syntax tree data structure from the implementation of algorithms that need to traverse it.
+The visitor pattern is widely used in compilers to cleanly separate the code for the AST representation from the implementation of algorithms that need to traverse it.
 
-The SIPLang compiler employs a fairly pedestrian implementation of the visitor pattern. Visitors subclass an \verb!AbstractVisitor! class, which has an overloaded pure virtual \verb!visit! method for each concrete derived class of \verb!ASTNode!, which is passed as an argument (by reference):
+The SIPLang compiler employs a fairly pedestrian implementation of the visitor pattern. Visitors subclass an \verb!AbstractVisitor! class, which has an overloaded pure virtual \verb!visit()! method for each concrete derived class of \verb!ASTNode!:
 
 \begin{minted}[bgcolor=LightGray]{c++}
 class AbstractVisitor {
@@ -378,38 +405,43 @@ public:
   virtual void visit(TranslationUnit &node) = 0;
 \end{minted}
 
-\verb!ASTNode! contains a pure virtual method called \verb!accept!, which takes a pointer to an \verb!AbstractVisitor! instance. Each concrete derived class of \verb!ASTNode! implements \verb!accept! to call the version of the \verb!visit! method that accepts its type:
+As mentioned above, \verb!ASTNode! contains a pure virtual method called \verb!accept()!, which takes a pointer to an \verb!AbstractVisitor! instance. Each concrete derived class of \verb!ASTNode! overrides \verb!accept()! to call the version of the \verb!visit()! method that accepts its type:
 
 \begin{minted}[bgcolor=LightGray]{c++}
   void accept(AbstractVisitor *v) override { v->visit(*this); }
 \end{minted}
 
-In addition \verb!AbstractVisitor! has concrete methods \verb!visitChildren! and \verb!rvisitChildren!. These methods both take a pointer to an \verb!ASTNode! instance, and use its \verb!children! method to visit each of its child nodes (by calling the \verb!accept! method on each of the children). \verb!rvisitChildren! traverses the \verb!vector! of children in reverse order (this proves useful during code generation).
+In addition to the fundamental \verb|visit()| methods, \verb!AbstractVisitor! has concrete utility methods called \verb!visitChildren()! and \verb!rvisitChildren()!.
+
+These methods both take a pointer to an \verb!ASTNode! instance, and use its \verb!children()! method to visit each of its child nodes, by calling the \verb!accept()! method on each of the child nodes. \verb!rvisitChildren! traverses the \verb!std::vector! of children in reverse order\footnote{One example of where this proves useful is in code generation, where code for arguments to a function or subexpressions of a binary operator often has to be generated in reverse order of declaration, due to the stack based semantics of the VM. See Listing~\ref{lst:codegen-example-1} for an example.}.
 
 Concrete subclasses of \verb!AbstractVisitor! are used to generate XML for a parsed AST, for semantic checking, as well as for code generation.
 
 \subsection{Design considerations for the parser}~\label{sec:parser}
 
-The compiler uses a recursive descent parser which directly produces the AST.
+The compiler uses a recursive descent parser\cite{cooper2011} which directly produces the AST representation.
 
 Parse errors are handled by \verb!throw!ing an instance of \verb!ParserError!. This class inherits from the generic \verb!CompilationError! class, and reports an error message along with the location in the source file where the error originated.
 
-Logic for the parser is encapsulated in a \verb!Parser! class. This class has two methods which are fundamental to parsing: \verb!peek! and \verb!consume!.
+Logic for the parser is encapsulated in a \verb!Parser! class, which amongst other things holds a reference to an instance \verb|Lexer| which is used to obtain a token stream.
 
-\verb!peek! takes an integer parameter \verb!i!, and looks ahead \verb!i! tokens in the token stream. Since tokens are obtained one by one from the lexer, and there is no way to look-ahead without consuming a token, the parser keeps an internal queue of tokens. If a lookahead smaller than the size of the queue is requested, \verb!peek! simply returns the appropriate token from the queue. Otherwise, the method gets the required tokens from the lexer and pushes them onto the queue, returning the last one.
+\verb|Parser| also has two methods which are fundamental to parsing; \verb!peek()! and \verb!consume()!.
 
-Similarly \verb!consume! checks the internal queue. If it is non-empty, it pops and returns the token at the front of the queue. Otherwise, it gets the next token from the lexer, and returns it.
+\verb!peek()! takes an integer parameter \verb|i|, and looks ahead \verb|i| tokens in the token stream. Since tokens are obtained one by one from the lexer, and there is no way to look-ahead without consuming a token, the parser keeps an internal queue of tokens. If a lookahead smaller than the size of the queue is requested, \verb!peek()! simply returns the appropriate token from the queue. Otherwise, the method consumes an appropriate number of tokens from the lexer, pushes them onto the queue and returning the last one.
 
-The parsing functions interact with the token stream through these functions. Due to the limited expressivity of SIPLang, the largest lookahead required is of 2 tokens. This lookahead of 2 tokens is used to differentiate between function calls (in which case a lookahead of 2 yields a \verb!(! token), or array accesses (in which case a lookahead of 2 yields a \verb![! token), or identity expressions.
+\verb!consume()! uses the same internal queue. If the latter is non-empty, it pops and returns the token at the front of the queue. Otherwise, it gets the next token from the lexer, and returns it.
 
-In order to aid parsing, a \verb!CHECK_TOKEN! macro is used to check the type of a token with an expected type, and throw an appropriate \verb!ParserError! if the types don't match.
+Parsing is carred out by a set of methods with the prefix \verb|parse|. These parsing methods interact with the token stream exclusively through \verb|peek()| and \verb|consume()|, allowing for neat seperation of concerns.
 
-In general, duplicate or redundant checks are avoided in the parsing functions. For example, the method \verb!parseWhile! which parses a \verb!while! statement is only invoked by the \verb!parseStatement! function when the next lookahead token is a \verb!while! keyword token. The method therefore consumes a token without checking it, assuming that it is a \verb!while! keyword token.
+Due to the limited expressivity of SIPLang, the largest lookahead required is of 2 tokens. This lookahead of 2 tokens is used to differentiate between function calls (in which case a lookahead of 2 yields a ``\verb|(|'' token), array accesses (in which case a lookahead of 2 yields a ``\verb|[|'' token), or identity expressions.
 
-In addition, recursion is avoided where possible. For example, where the EBNF of SIPLang specifies that zero or more repetitions of a non-terminal are part of a valid production rule, a loop is used to implement parsing of these repetitions. This makes construction of the AST simpler; nodes are simply accumulated into a vector, and then passed directly to the node constructor.
+In order to aid parsing, a \verb!CHECK_TOKEN! macro is used to compare the type of a token with an expected type, and throw an appropriate \verb!ParserError! if these don't match.
 
-The following snippet shows the implementation of block parsing, which demonstrates the features described above:
+In general, duplicate or redundant checks are avoided in the parsing functions. For example, the method \verb!parseWhile()! which parses a \verb!while! statement is only invoked by the \verb!parseStatement()! function when the next lookahead token is a \verb!while! keyword token. The method therefore starts by consuming a token without checking it, assuming that it is a \verb!while! keyword token.
 
+\SaveVerb{parseBlock}|parseBlock()|
+\SaveVerb{BlockStmt}|BlockStmt|
+\begin{lstfloat}[H]
 \begin{minted}[bgcolor=LightGray]{c++}
 ast::StmtNodePtr Parser::parseBlock() {
   Location loc = consume().loc; // consume {
@@ -425,12 +457,20 @@ ast::StmtNodePtr Parser::parseBlock() {
   return std::make_unique<ast::BlockStmt>(std::move(stmts), loc.merge(endloc));
 }
 \end{minted}
+  \caption{Implementation of the \protect\UseVerb{parseBlock} method, which parses a $Block$ nonterminal, producing a \protect\UseVerb{BlockStmt} AST node.}~\label{lst:parseBlock}
+\end{lstfloat}
 
-Firstly, note that the first token is consumed without checking that it is indeed a \verb!{! token. Its location is saved to a variable, as it is needed to construct the location of the node produced.
+\pagebreak
+
+In addition, recursion is avoided where possible. For example, where the EBNF of SIPLang specifies that zero or more repetitions of a nonterminal are part of a valid production rule, a loop is used to implement parsing of these potential repetitions. This makes construction of the AST simpler; nodes are simply accumulated into a vector, and then moved directly into the node constructor.
+
+Listing~\ref{lst:parseBlock} shows the implementation of block parsing, which demonstrates some of the characteristics described above.
+
+Firstly, note that the first token is consumed without checking that it is indeed a ``\verb|{|'' token. Its location is saved to a variable, as it is needed to construct the location of the node produced.
 
 Secondly, note that statements are parsed using a \verb!while! loop, and collected in a \verb!vector!.
 
-Finally, the \verb!}! token is consumed, and a new \verb!BlockStmt! node is constructed using the \verb!StmtNode!s parsed. There is no check to confirm that the last token consumed is a \verb!}! token, as this is the terminating condition of the \verb!while! loop.
+Finally, the ``\verb|}|'' token is consumed, and a new \verb!BlockStmt! node is constructed using the \verb!StmtNode!s parsed. There is no check to confirm that the last token consumed is a ``\verb|}|'' token, as this is the terminating condition of the \verb!while! loop.
 
 \newpage
 
@@ -438,13 +478,15 @@ Finally, the \verb!}! token is consumed, and a new \verb!BlockStmt! node is cons
 
 XML generation is implemented using a subclass of \verb!AbstractVisitor! called \verb!XMLVisitor!.
 
-Generating XML is straightforward, but tedious, so two macros, \verb!XML_ELEM_WITH_CHILDREN!, and \verb!XML_ELEM_WITH_CONTENT!, are used to ease the job. One of the macros generates XML for AST nodes which have children (using, among other things, the \verb!visitChildren! method), while the other generates XML for leaves of the AST tree, where the content between XML tags is derived directly from the node.
+Generating XML is straightforward but tedious, so two macro functions \verb!XML_ELEM_WITH_CHILDREN()! and \verb!XML_ELEM_WITH_CONTENT()! are used to ease the job. One of the macros generates XML for AST nodes which have children (using, among other things, the \verb!visitChildren()! method), while the other generates XML for leaves of the AST tree, where the content between XML tags is derived directly from the node.
 
-Each of these macros writes to a \verb!std::stringstream! in the \verb!XMLVisitor! class, which is used to store the incrementally generated XML. An \verb!indent! member variable is used to keep track of the current indentation level of the XML being produced.
+Each of these macros writes to a \href{https://en.cppreference.com/w/cpp/io/basic_stringstream}{\Verb!std::stringstream!} in the \verb!XMLVisitor! class, which is used to store the incrementally generated XML. An \verb!indent! member variable is used to keep track of the current indentation level of the XML being produced.
 
-The generated XML includes source locations for each of the AST nodes. In addition, special characters are sanitized. For example, the \verb!<! character is converted to \verb!&gt;!. This allows external programs, such as a browser, to correctly parse the XML produced.
+The generated XML includes source locations for each of the AST nodes.
 
-Once an AST has been visited, the generated XML can be extracted from the visitor using the \verb!xml()! method, which simply produces a \verb!std::string! from the \verb!std::stringstream! member.
+In addition, special characters are sanitized. For example, the ``\verb|<|'' character is converted to ``\verb!&gt;!''. This allows external programs, such as a browser, to correctly parse the XML produced.
+
+Once an entire AST has been visited, the generated XML can be extracted from the visitor using the \verb!xml()! method, which simply produces a \verb!std::string! from the \verb!std::stringstream! member.
 
 Listing~\ref{lst:example-xml-1} shows the XML generated by the compiler for the example program in Listing~\ref{lst:example-program-1}.
 
@@ -453,7 +495,7 @@ Listing~\ref{lst:example-xml-1} shows the XML generated by the compiler for the 
 \begin{minted}[bgcolor=LightGray]{text}
 __pixelr 0, 0, 3, 4, #ff0000;
 \end{minted}
-  \caption{Example program which renders a red rectangle in the bottom left corner of the VM display}~\label{lst:example-program-1}
+  \caption{Example program which renders a red rectangle in the bottom left corner of the VM display.}~\label{lst:example-program-1}
 \end{lstfloat}
 
 \begin{lstfloat}
@@ -469,7 +511,7 @@ __pixelr 0, 0, 3, 4, #ff0000;
  </PixelRStmt>
 </TranslationUnit>
 \end{minted}
-  \caption{XML generated for the program shown in Listing~\ref{lst:example-program-1}}~\label{lst:example-xml-1}
+  \caption{XML generated for the program shown in Listing~\ref{lst:example-program-1}.}~\label{lst:example-xml-1}
 
 \end{lstfloat}
 
@@ -537,7 +579,7 @@ Symbols can be accessed in a scope that is more deeply nested than the one in wh
 
 The answer lies in the implementation of the \verb|visit()| method for \verb|IdExprNode|. This method indiscrimately fetches type information for a symbol using the \verb|get()| method of \verb|currentScope|, and places it in the \verb|TypeCheckerTable| at the top of the stack, where it is available for type checking of parent expressions.
 
-\subsubsection{Type checking}
+\subsubsection{Type checking}~\label{sec:type-checking}
 
 Several checks were implemented in the \verb|SemanticVisitor|'s \verb|visit()| methods.
 
@@ -548,13 +590,13 @@ Firstly, as mentioned above, type checking was implemented for all compound expr
   \begin{tabular}{|c|c|c|c|}
     \hline
     Operator & Left operand type & Right operand type & Result type \\ \hline\hline
-    \Verb|+|,\Verb|-|, \Verb|*| & \Verb|int| & \Verb|int| & \Verb|int|\\ \hline
-    \Verb|+|,\Verb|-|, \Verb|*| & \Verb|float| & \Verb|float| & \Verb|float|\\ \hline
-    \Verb|/| & \Verb|int| & \Verb|int| & \Verb|float| \\ \hline
-    \Verb|/| & \Verb|float| & \Verb|float| & \Verb|float| \\ \hline
+    \verb|+|,\verb|-|, \verb|*| & \Verb|int| & \Verb|int| & \Verb|int|\\ \hline
+    \verb|+|,\verb|-|, \verb|*| & \Verb|float| & \Verb|float| & \Verb|float|\\ \hline
+    \verb|/| & \Verb|int| & \Verb|int| & \Verb|float| \\ \hline
+    \verb|/| & \Verb|float| & \Verb|float| & \Verb|float| \\ \hline
     \Verb|and|, \Verb|or| & \Verb|bool| & \Verb|bool| & \Verb|bool| \\ \hline
-    \Verb|>|, \Verb|<|, \Verb|>=|, \Verb|<=| & \Verb|int| & \Verb|int| & \Verb|bool| \\ \hline
-    \Verb|>|, \Verb|<|, \Verb|>=|, \Verb|<=| & \Verb|float| & \Verb|float| & \Verb|bool| \\ \hline
+    \verb|>|, \verb|<|, \Verb|>=|, \Verb|<=| & \Verb|int| & \Verb|int| & \Verb|bool| \\ \hline
+    \verb|>|, \verb|<|, \Verb|>=|, \Verb|<=| & \Verb|float| & \Verb|float| & \Verb|bool| \\ \hline
     \Verb|==|, \Verb|!=| & \Verb|int| & \Verb|int| & \Verb|bool| \\ \hline
     \Verb|==|, \Verb|!=| & \Verb|float| & \Verb|float| & \Verb|bool| \\ \hline
     \Verb|==|, \Verb|!=| & \Verb|bool| & \Verb|bool| & \Verb|bool| \\ \hline
@@ -566,8 +608,8 @@ Firstly, as mentioned above, type checking was implemented for all compound expr
     \hline
     Operator & Operand & Result type \\ \hline\hline
     \Verb|!| & \Verb|bool| & \Verb|bool| \\ \hline
-    \Verb|-| & \Verb|int| & \Verb|int| \\ \hline
-    \Verb|-| & \Verb|float| & \Verb|float| \\ \hline
+    \verb|-| & \Verb|int| & \Verb|int| \\ \hline
+    \verb|-| & \Verb|float| & \Verb|float| \\ \hline
   \end{tabular}
 
   \caption{Valid type combinations for binary and unary operators in the PixAR language. $T$ indicates a type variable, i.e. a variable ranging over all valid PixAR types.}~\label{tab:type-checking-operators}
