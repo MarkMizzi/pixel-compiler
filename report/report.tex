@@ -875,11 +875,137 @@ This peephole optimizer has some obvious limitations. The largest shortcoming st
 
 \section{Some example programs used to test the compiler}
 
+This section describes some of the more creative programs implemented in the PixAR language in order to test the PixAR compiler.
+
 \subsection{Wall clock}
+
+This example program, which can be found at \verb|examples/wall_clock.pix| in the source code, renders a wall clock on the VM's display which ticks periodically. A snapshot of the rendered clock is shown in Figure~\ref{fig:wall-clock}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{wall_clock}
+  \caption{Screenshot of the rendered wall clock, shown here with VM display dimensions of $100 \times 100$}~\label{fig:wall-clock}
+\end{figure}
+
+Rendering a circular clock face is challenging for several reasons. Calculation of coordinates is easiest to do in polar coordinates, but this requires some version of the trigonometric functions. In addition, integer division and modulo are needed; for example, the radius of the clock face is dynamically computed as
+$$ r = \bigg\lfloor \frac{\min(\text{\Verb|__width|}, \text{\Verb|__height|})}{2} \bigg\rfloor - 2 $$
+
+Integer division is not natively supported by the language, as the native division operator returns a \verb|float|, and there is no way to convert a \verb|float| to an integer. This is not an inherent limitation of the language, but of the VM, which only has a float division instruction (\verb|DIV|), and has no instructions for rounding or flooring floats.
+
+Integer division and modulo were implemented using Euclidian division\cite{herstein1991}, which is slow but simple. The pseudocode is shown in Algorithm~\ref{alg:euclidian-division}.
+
+\begin{algorithm}
+   \caption{Pseudocode for the Euclidian division algorithm used to implement integer division in a PixAR program.}~\label{alg:euclidian-division}
+
+   \KwData{
+      \begin{itemize}
+        \item $n$ is the dividend.
+        \item $d$ is the divisor; this is assumed to be non-negative.
+        \item $q$ is the result of division, i.e. $\lfloor n / d \rfloor$ if $n \ge 0$ and $\lceil n / d \rceil$ otherwise.
+        \item $r$ is the remainder (modulo result) of division, and is always $\ge 0$.
+      \end{itemize}}
+    $isNegative \gets n < 0$;\\
+    \If{$isNegative$}{
+      $n \gets -n$;\\
+    }
+    $r \gets n$;\\
+    $q \gets 0$; \\
+    \While{$r \ge d$}{
+      $r \gets r - d$;\\
+      $q \gets q + 1$;
+    }
+    \If{$Negative$}{
+      $q \gets -q$;
+    }
+\end{algorithm}
+
+The trigonometric functions were implemented in a much simpler way. Two arrays, each of size $60$, were filled with hardcoded values for $\cos(x)$ and $\sin(x)$, with $x = \frac{2\pi i}{60}$ for $0 \le i < 60$.
+
+The values of $\sin$ and $\cos$ are in the range $[-1, 1]$, and hence cannot be represented faithfully by integers. Hence the hardcoded values computed for the tables are actually the values of $\sin$ and $\cos$ multipled by $512$. The code which hardcodes values into the program was auto-generated using a simple Python script.
+
+Since the trigonometric functions are only used for converting polar coordinates to Cartesian ones, two functions \Verb|rsin_theta| and \Verb|rcos_theta| were defined which take a radius $r$ and an angle $\theta \in [0, 360)$ and compute
+$$ \mathbf{idiv}\bigg(r \times \text{\Verb|sin_table|}\bigg[\bigg\lfloor \frac{\theta}{6} \bigg\rfloor\bigg], 512\bigg) $$
+and
+$$ \mathbf{idiv}\bigg(r \times \text{\Verb|cos_table|}\bigg[\bigg\lfloor \frac{\theta}{6} \bigg\rfloor\bigg], 512\bigg) $$
+respectively\footnote{$\mathbf{idiv}$ is integer division implemented using Euclidian division, as defined above.}. The order of operations used ensures that the division by $512$, which scales the computed value to account for the hardcoded trigonometric values, causes the smallest possible loss in precision.
+
+With these functions in hand, it is easy to render the clock face; the radius of the face is computed from the formula mentioned above, and the Cartesian coordinates to colour in are found using \Verb|rsin_theta| and \Verb|rcos_theta| with the appropriate arguments. The $x$ and $y$ coordinates computed are shifted by $\lfloor \text{\Verb|__width|} / 2 \rfloor$ and $\lfloor \text{\Verb|__width|} / 2 \rfloor$ respectively to center the clock face).
+
+Rendering the hand is also easy, and happens in a \verb|for| loop with one iteration per tick of the clock.
+
+The angle is kept track of using a \verb|clock_pos| variable, which is updated every tick using the formula
+$$ \text{\Verb|clock_pos|} = \mathbf{imod}(\text{\Verb|clock_pos|} + 1, 60)$$
+\footnote{$\mathbf{imod}$ is the modulo result of integer division implemented using Euclidian division.}to keep it in the range $\{0,...,59\}$. The effective angle that $\theta$ has to be passed to \Verb|rsin_theta| and \Verb|rcos_theta| is then $6 \times \text{\Verb|clock_pos|}$.
+
+To render the whole hand, the radius is varied from $1$ to a little less than the clock radius, keeping $\theta$ constant, and each coordinate returned by \Verb|rsin_theta| and \Verb|rcos_theta| is coloured in.
+
+After a fixed delay, the colour of the hand coordinates is set back to the background colour of the clock face, effectively rendering the hand invisible, and a new iteration of the loop begins.
+
+Unfortunately, due to the slow nature of the VM, the clock could not be synchronized to tick with a specified duration of time.
 
 \subsection{Text rendering}
 
+A program was also developed which is capable of rendering text. This can be found at \verb|examples/text.pix| in the source code.
+
+The main function used to render text is \verb|render_letter|. This takes $x$, $y$ coordinates and a colour, as well as an integer representing an encoded letter. It then renders the decoded letter in a $3 \times 5$ rectange with the top corner specified by the $x$, $y$ coordinates, and the colour specified by the corresponding argument.
+
+Only capital letters can be rendered, and these are encoded by mapping $A-Z$ directly to the numerical range $0-25$. ``$.$'' and ``$,$'' characters can be rendered as well, and are encoded as the numbers $26$ and $27$.
+
+Passing a number which is outside of the range $0-27$ to \verb|render_letter| causes nothing to happen. Note also that \verb|render_letter| unconditionally returns $0$, as the PixAR language does not support functions which return nothing.
+
+The \verb|render_text| function takes $x$, $y$ coordinates, a colour, and an array of integers meant to represent an encoded stream of characters.
+
+This stream of characters is rendered using \verb|render_letter|, with a single pixel being used for both vertical and horizontal inter-character spacing.
+
+Spaces are encoded in the stream using $28$ by convention. This causes \verb|render_letter| to do nothing, while \verb|render_text| skips ahead by a single character position, effectively creating a ``space character''.
+
+Note also that \verb|render_text| implements line wrapping, but not word wrapping (this would be very difficult). This means that when rendering a character would cause the current $x$ position to go out of bounds, \verb|render_text| resets $x$ to $1$ and starts rendering text in a new line (which has a $y$ position of $6$ less than the previous line).
+
+An example run of this text rendering program is shown in Figure~\ref{fig:text-render}. The
+character streams used were encoded and hardcoded into the program using a simple Python script.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{text_render}
+  \caption{Screenshot of an invocation of the text rendering program. Line wrapping can be seen in action.}~\label{fig:text-render}
+\end{figure}
+
 \subsection{Rule 110 automaton}
+
+Another program developed simulates the Rule 110 automaton, and can be found in \verb|examples/rule110.pix|.
+
+The Rule 110 automaton is a one-dimensional cellular automaton\cite{wolfram2002} whose state is updated in a series of steps. At each step, the state of one cell is updated according to some rule based on the previous states of itself and its neighbours.
+
+In the case of the Rule 110 automaton, the rule for updating the state is shown in Table~\ref{tab:rule-110}.
+
+\begin{table}[!h]
+  \centering
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    State of left neighbour & State of cell & State of right neighbour & New state of cell \\\hline\hline
+    Dead & Dead & Dead & Dead \\ \hline
+    Dead & Dead & Alive & Alive \\ \hline
+    Dead & Alive & Dead & Alive \\ \hline
+    Dead & Alive & Alive & Alive \\ \hline
+    Alive & Dead & Dead & Dead \\ \hline
+    Alive & Dead & Alive & Alive \\ \hline
+    Alive & Alive & Dead & Alive \\ \hline
+    Alive & Alive & Alive & Dead \\ \hline
+  \end{tabular}
+  \caption{Rule used to update the state of the Rule 110 automaton. Cells at the extremal ends (ones which only have one neighbour) are not updated.}~\label{tab:rule-110}
+\end{table}
+
+The program developed renders each state of the automaton on a seperate line. The initial state is rendered on the bottom line of the display, and updated states are rendered on progressively higher lines until the entire display is full.
+
+Dead cells are coloured black, while the colour of live cells is randomly picked from a palette of 4 colours.
+
+An example run of this program is shown in Figure~\ref{fig:rule110}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{rule110}
+  \caption{Screenshot of an invocation of the Rule 110 automaton program.}\label{fig:rule110}
+\end{figure}
 
 \newpage
 
