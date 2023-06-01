@@ -199,6 +199,7 @@ static const LexerTransitionTable tt{
     {{S8, HEX}, S8},
     {{S8, ALPHA}, S8},
     {{S8, DIGIT}, S8},
+    {{S8, UNRECOGNIZED}, S8},
     {{S8, NEWLINE}, S8},
     {{S8, WHITESPACE}, S8},
 
@@ -256,6 +257,7 @@ static const LexerTransitionTable tt{
     {{LINE_COMMENT_STATE, ALPHA}, LINE_COMMENT_STATE},
     {{LINE_COMMENT_STATE, DIGIT}, LINE_COMMENT_STATE},
     {{LINE_COMMENT_STATE, WHITESPACE}, LINE_COMMENT_STATE},
+    {{LINE_COMMENT_STATE, UNRECOGNIZED}, LINE_COMMENT_STATE},
     {{LINE_COMMENT_STATE, NEWLINE}, WHITESPACE_STATE},
 
 };
@@ -324,10 +326,6 @@ Token Lexer::nextToken() {
 
   while (!input.eof()) {
     CharClass cclass = characterClass(c);
-
-    if (cclass == UNRECOGNIZED) {
-      throw LexerError("Unrecognized character " + std::string{c}, line, col);
-    }
 
     if (!tt.count({state, cclass})) {
       // no transition to make
