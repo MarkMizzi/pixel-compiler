@@ -12,8 +12,6 @@ namespace lexer {
 enum LexerState {
   START,
 
-  ERROR_STATE,
-
   // literals
   INTEGER_LITERAL_STATE,
   FLOAT_LITERAL_STATE,
@@ -349,8 +347,10 @@ Token Lexer::nextToken() {
     input.get(c);
   }
 
-  if (state == LexerState::ERROR_STATE) {
-    // bad character encountered.
+  try {
+    token.type = tokenType(state);
+  } catch (std::logic_error &e) {
+    // we didn't finish on a final state.
     throw LexerError("Lexer got into bad state", line, col);
   }
 
