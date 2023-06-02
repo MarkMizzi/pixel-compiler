@@ -523,25 +523,25 @@ __pixelr 0, 0, 3, 4, #ff0000;
 
 \subsubsection{Errors}
 
-Semantic errors encountered while visiting an AST are handled by throwing an instance of \verb|SemanticError|, with a useful error message and the location of the error in the source code, which is obtained from the AST.
+Semantic errors encountered while visiting an AST are handled by throwing an instance of \verb|SemanticError|, with a useful message and the location of the error in the source code. The latter is obtained from the AST.
 
-Semantic error subclasses \verb|CompilationError|, and simply calls its constructor with a formatted version of the error message passed to it, in similar fashion to \verb|LexerError| and \verb|ParserError|.
+\verb|SemanticError| subclasses \verb|CompilationError|, calling its constructor with a formatted version of the error message passed to it, in similar fashion to \verb|LexerError| and \verb|ParserError|.
 
 \subsubsection{Symbol tables}
 
-The purpose of a symbol table is to map a \verb|StmtNode| in the AST to information about the symbols in the scope it defines. For example, a \verb|ForStmt| node gets mapped to a scope containing information about (at least) its loop variable. Not every type of \verb|StmtNode| can have a scope associated with it, for example \verb|AssignmentStmt| cannot.
+A symbol table maps a \verb|StmtNode| in the AST to information about the symbols in the scope it defines. For example, a \verb|ForStmt| node gets mapped to a scope containing information about (at least) its loop index variable. Not every type of \verb|StmtNode| can have a scope associated with it, for example \verb|AssignmentStmt| cannot.
 
 Symbol tables are represented by a \Verb|SymbolTable| type. This is an alias for a \verb|std::map| which maps \verb|StmtNode| pointers to a \verb|Scope|.
 
 \subsubsection{Scopes}~\label{scope-sect}
 
-A \verb|Scope| is a struct which contains the actual symbol information inside a \verb|std::map| field that maps \verb|std::string| (identifiers) to a \verb|SymbolTableEntry| struct.
+A \verb|Scope| is a struct which contains the actual symbol information. This is stored inside a \verb|std::map| field which maps \verb|std::string| (identifiers) to a \verb|SymbolTableEntry| struct.
 
 Aside from symbol information, \verb|Scope|s also contain a pointer to their parent scope (if any). This pointer is used in the \verb|get()| method of a \verb|Scope|, which returns the symbol information for a variable if it is in the current \verb|Scope| instance, or in some \verb|Scope| which can be reached via the parent pointer.
 
-The \verb|get| method proves useful during semantic checking, chiefly when checking that a variable is defined at a point where it is referenced or assigned to.
+The \verb|get()| is used during semantic checking, chiefly when checking that a variable is defined at a point where it is referenced or assigned to.
 
-\verb|Scope|s also contain a \verb|std::optional<FunctionTypeNode>| field, which contains nothing for most \verb|Scope|s, but contains the function type (signature) for the outermost scope of a function.
+\verb|Scope|s also contain a \verb|std::optional<FunctionTypeNode>| field, which contains nothing for most \verb|Scope|s, but contains the function type (signature) for the \verb|Scope| corresponding to a \verb|FuncDeclStmt| node (this is the outermost scope of a function).
 
 The \verb|getFuncType()| method gets the function type (signature) for the function which the scope is defined in. Since only the outermost scope of a function carries its signature, this method may recursively call itself on the parent scope.
 
@@ -549,11 +549,11 @@ The \verb|getFuncType()| method gets the function type (signature) for the funct
 
 \verb|SymbolTableEntry| instances hold the information for a specific program symbol. In the final compiler implemented, the only field in this struct is a \verb|std::unique_ptr<TypeNode>| field containing the type of the symbol. Types are deep copied from the AST when constructing a \verb|SymbolTableEntry|, using the \verb|copy()| method mentioned above.
 
-Note that the semantic checker treats function names as regular symbols, and uses the same structures discussed above to keep track of information for them. This is catered to by the \verb|FunctionTypeNode| type, a subclass of \verb|TypeNode| which is not produced by a \verb|Parser|, but is used in \verb|SymbolTableEntry|.
+Note that the semantic checker treats function names as regular symbols, and uses the same structures discussed above to keep track of information for them. As mentioned in Section~\ref{sec:ast}, this is catered to by the \verb|FunctionTypeNode| type, a subclass of \verb|TypeNode| which is not produced by a \verb|Parser|, but is used in \verb|SymbolTableEntry|.
 
 \subsubsection{Type checking tables}
 
-A \verb|TypeCheckerTable| is a temporary table used by the \verb|SemanticVisitor| class during semantic checking. It is a \verb|std::map| which maps \verb|ExprNode| pointers to a \verb|std::unique_ptr<TypeNode>|.
+A \verb|TypeCheckerTable| is a temporary table used by the \verb|SemanticVisitor| class during semantic checking. It is a type alias for a \verb|std::map| which maps \verb|ExprNode| pointers to a \verb|std::unique_ptr<TypeNode>|.
 
 This allows an \verb|ExprNode| to be type checked by looking up the types of its subexpressions in an instance of \verb|TypeCheckerTable|.
 
@@ -567,11 +567,11 @@ Information about program symbols is collected by the \Verb|SemanticVisitor|, an
 
 Finally, provided that the type check succeeds, an entry mapping the current expression node to its type is placed in the \verb|TypeCheckerTable| at the top of the stack, so that it can be used to type-check parent nodes.
 
-\verb|SemanticVisitor| also has a pair of \verb|enterScope|/\verb|exitScope| helper functions, which are used in \verb|visit| functions for \verb|StmtNode|s with an associated scope.
+\verb|SemanticVisitor| also has a pair of \verb|enterScope()|/\verb|exitScope()| helper functions, which are used in \verb|visit| functions for \verb|StmtNode|s with an associated scope.
 
-\verb|enterScope| adds a new entry to the \verb|SymbolTable| for the given \verb|StmtNode|, and sets the \verb|currentScope| pointer to point to the newly created \verb|Scope| instance (which has the old value of \verb|currentScope| as its parent). In addition, it pushes a new \verb|TypeCheckerTable| onto the stack.
+\verb|enterScope()| adds a new entry to the \verb|SymbolTable| for the given \verb|StmtNode|, and sets the \verb|currentScope| pointer to point to the newly created \verb|Scope| instance (which has the old value of \verb|currentScope| as its parent). In addition, it pushes a new \verb|TypeCheckerTable| onto the stack.
 
-\verb|exitScope| sets the \verb|currentScope| pointer to the old value's parent pointer, and pops a \verb|TypeCheckerTable| off the stack, effectively de-allocating it. This is a safe operation, as the types of sub-expressions within a scope cannot affect types of expressions in the parent scope.
+\verb|exitScope()| sets the \verb|currentScope| pointer to the old value's parent pointer, and pops a \verb|TypeCheckerTable| off the stack, effectively de-allocating it. This is a safe operation, as the types of sub-expressions within a scope cannot affect types of expressions in the parent scope.
 
 This is precisely why a stack of \verb|TypeCheckerTable|s is used; the compiler saves memory by getting rid of type information when it is no longer needed.
 
@@ -606,7 +606,7 @@ Firstly, as mentioned above, type checking was implemented for all compound expr
 
   \begin{tabular}{|c|c|c|}
     \hline
-    Operator & Operand & Result type \\ \hline\hline
+    Operator & Operand type & Result type \\ \hline\hline
     \Verb|!| & \Verb|bool| & \Verb|bool| \\ \hline
     \verb|-| & \Verb|int| & \Verb|int| \\ \hline
     \verb|-| & \Verb|float| & \Verb|float| \\ \hline
@@ -635,7 +635,7 @@ Firstly, as mentioned above, type checking was implemented for all compound expr
 
 The type checking rules used for array expressions are straightforward. Let $T$ be a valid PixAR type. Then
 \begin{itemize}
-  \item A \Verb|__newarr| expression passed element type $T$ as the first argument has type \verb|[]|$T$. Also, the size expression passed to \verb|__newarr| must have type \verb|int|.
+  \item A \Verb|__newarr| expression which is passed element type $T$ as the first argument has type \verb|[]|$T$. Also, the size expression passed to \verb|__newarr| must have type \verb|int|.
   \item If an expression of type $T$ is assigned to an array location, that array must have type \Verb|[]|$T$. In addition, the location must be specified using an expression of type \Verb|int|.
   \item If an array location is read, then the expression specifying the location must have a type \Verb|int|. If the array has type \Verb|[]|$T$, the resulting array access expression has type $T$.
 \end{itemize}
@@ -643,16 +643,16 @@ The type checking rules used for array expressions are straightforward. Let $T$ 
 These rules are summarized in the following inference rules:
 $$
 \frac{T: \mathcal{T}, n : \text{\Verb|int|}}{\text{\Verb|__newarr|}\,\,T, n : \text{\Verb|[]|}T} \qquad
-\frac{e_{1}[e_{2}] = e_{3}}{e_{2} : \text{\Verb|int|} \land \bigg(\exists T : \mathcal{T} \cdot e_{1} : \text{\Verb|[]|}T \land e_{3} : T\bigg)} \qquad
+\frac{e_{1}[e_{2}] = e_{3}}{e_{2} : \text{\Verb|int|} \land \bigg(\exists T \in \mathcal{T} \cdot e_{1} : \text{\Verb|[]|}T \land e_{3} : T\bigg)} \qquad
 \frac{e_{1}[e_{2}], e_{1} : \text{\Verb|[]|}T}{e_{2}: \text{\Verb|int|}, e_{1}[e_{2}] : T}
 $$
 where $\mathcal{T}$ is the universe of valid PixAR types.
 
 For \verb|FunctionCallNode|s, the \verb|FunctionTypeNode| (signature) of the function is fetched from the \verb|currentScope| pointer using the \verb|get()| method, and the types of the arguments are checked against it. There is also a check which makes sure that the symbol used as a function actually has the type of a function.
 
-\verb|ReturnStmt| nodes have their return expression checked in a similar way. In addition the \verb|visit()| method for this kind of node handles the semantic error where a return statement is used outside of a function definition. This case is detected by checking whether \verb|getFuncType()| returns \verb|std::nullopt|.
+\verb|ReturnStmt| nodes have their return expression checked in a similar way. In addition the \verb|visit()| method for this kind of node handles the semantic error where a return statement is used outside of a function definition. This case is detected by checking whether \verb|currentScope->getFuncType()| returns \verb|std::nullopt|.
 
-Note that \verb|FunctionTypeNode|s for each function are constructed and passed to \verb|enterScope| (which in turn uses them in constructing the new \verb|Scope|) in the \verb|visit()| method invocation for the corresponding \verb|FuncDeclStmt| node.
+Note that \verb|FunctionTypeNode|s for each function are constructed and passed to \verb|enterScope()| (which in turn uses them in constructing the new \verb|Scope|) in the \verb|visit()| method invocation for the corresponding \verb|FuncDeclStmt| node.
 
 The AST nodes dedicated to control flow (\verb|IfElseStmt|, \verb|WhileStmt| and \verb|ForStmt|) are also type checked to ensure that the child expression nodes representing conditions have the right (\verb|bool|) type.
 
