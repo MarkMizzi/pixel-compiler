@@ -685,33 +685,35 @@ Note that an \verb|AssignmentStmt| actually represents its LHS using a pointer t
 
 \subsection{Types defined for code generation}
 
-Several aspects of a compiled program must be represented in the code generation code. For this reason, a number of auxiliary structs were defined which support the task of translation. These will now be described.
+Several aspects of a compiled program must be represented during code generation. For this reason, a number of auxiliary structs were defined which support the task. These will now be described.
 
 \subsubsection{Opcodes and instructions}
 
-VM opcodes are represented using an \verb|enum| called \verb|PixIROpcode|.
+PixAR VM opcodes are represented using an \verb|enum| called \verb|PixIROpcode|.
 
-Instructions in the generated \verb|PixIR| program are represented using a \verb|PixIRInstruction| struct. This struct contains an opcode indicating the operation performed by the instruction, as well as a \verb|std::variant| which holds any data associated with the instruction.
+Instructions in the generated program are represented using a \verb|PixIRInstruction| struct. This struct contains an opcode indicating the operation performed by the instruction, as well as a \verb|std::variant| which holds any data associated with the instruction.
 
-The variant is only used with \verb|PUSH| instructions, and can hold a \verb|std::monostate| (representing the case where there is no data associated with the instruction), a \verb|std::string|, and a pointer to a \verb|BasicBlock|. The latter is used temporarily during compilation (in order to make computing jump offsets easier), and is later converted into a \verb|std::string|, as described below.
+The variant is only used with \verb|PUSH| instructions, and can hold a \href{https://en.cppreference.com/w/cpp/utility/variant/monostate}{\Verb|std::monostate|} (representing the case where there is no data associated with the instruction), a \verb|std::string|, and a pointer to a \verb|BasicBlock|. The latter is used temporarily during compilation (in order to make computing jump offsets easier), and is later converted into a \verb|std::string|, as described below.
 
-Finally, \verb|PixIRInstruction| has a \verb|to_string()| method which returns a \verb|std::string| representation in a form that the VM can parse.
+Finally, \verb|PixIRInstruction| has a \verb|to_string()| method which returns a \verb|std::string| representation of the instruction in a form that the VM can parse.
 
 \subsubsection{Basic blocks and Functions}
 
-Basic blocks are runs of instructions where control flow runs sequentially. There are no jumps in the middle of or to the middle of a basic block.
+Basic blocks are runs of instructions where control flow executes sequentially. There are no jumps in the middle of or to the middle of a basic block.
 
-Basic blocks are represented by a \verb|BasicBlock| struct, which contains a backpointer to the \verb|PixIRFunction| containing the basic block, as well as a \verb|std::list| of \verb|PixIRInstruction|s constituting the basic block. The rationale for using a \verb|std::list|, which is a linked list data structure over another container (such as \verb|std::vector|) is that such a data structure is more efficient when changing or removing elements at the middle of the container, as done by the peephole optimizer (see below).
+Basic blocks are represented by a \verb|BasicBlock| struct, which contains a parent pointer to the \verb|PixIRFunction| containing the basic block, as well as a \href{https://en.cppreference.com/w/cpp/container/list}{\Verb|std::list|} of \verb|PixIRInstruction|s constituting the basic block.
+
+The rationale for using a \verb|std::list|, which is a linked list data structure, over another container (such as \verb|std::vector|) is that such a data structure is more efficient when changing or removing elements at the middle of the container, as done by the peephole optimizer (see Section~\ref{sec:peephole}).
 
 The list of instructions is also iterated over, and elements are added to/removed from its end by parts of the code generator/optimizer. In these respects, however, \verb|std::list| offers roughly the same performance as other container types.
 
-Functions in the generated PixIR code are represented by a \verb|PixIRFunction| struct. This contains a field with the function name, as well as a \verb|std::vector| of \verb|unique_ptr|s to the \verb|BasicBlock|s of the function. Note that a basic block can only belong to a single function in our compiler, and hence the use of \verb|unique_ptr| is justified.
+Functions in the generated PixIR code are represented by a \verb|PixIRFunction| struct. This contains a field with the function name, as well as a \verb|std::vector| of \verb|unique_ptr|s to the \verb|BasicBlock|s of the function. Note that a basic block can only belong to a single function in our compiler, justifying the use of \verb|unique_ptr|\footnote{Some compilers, such as the \href{https://github.com/ethereum/solidity}{Solidity compiler} may share basic blocks between functions in order to reduce code size.}.
 
-An entire PixIR program is represented by \verb|PixIRCode|, which is an alias for a \verb|std::vector| of \verb|unique_ptr|s to \verb|PixIRFunction|s.
+An entire PixIR program is represented by a type called \verb|PixIRCode|, which is an alias for a \verb|std::vector| of \verb|unique_ptr|s to \verb|PixIRFunction|s.
 
 \subsubsection{Frame index maps}
 
-During code generation, each variable is allocated an index in some frame. In order to generate \verb|PUSH| instructions correctly, a data structure is needed which allows easy access to a variable's frame (relative to the current top of the frame stack) and index.
+During code generation, each variable is allocated an index in some frame. In order to generate \verb|PUSH| instructions correctly, a data structure is needed which allows easy access to a variable's frame depth (relative to the top of the frame stack at that point in the code) and index.
 
 The \verb|FrameIndexMap| struct is defined for this purpose. In many respects, it resembles the \verb|Scope| struct from Section~\ref{scope-sect}; it has a parent pointer to another \verb|FrameIndexMap|, and a map from variable names to a \verb|FrameIndex| (an alias for \verb|int|). A \verb|FrameIndexMap| is also created for each \verb|Scope| in the \verb|SymbolTable|.
 
@@ -725,17 +727,17 @@ This method is used extensively when generating \verb|PUSH| instructions of the 
 
 Code generation is carried out by a subclass of \verb|AbstractVisitor| called \verb|CodeGenerator|.
 
-The task requires keeping track of several state variables, which are listed below.
+\verb|CodeGenerator| uses a number of state variables. These variables will now be listed and their role in code generation will be described:
 \begin{itemize}
   \item A pointer \verb|currentScope| which points to the \verb|Scope| for which code is currently being generated.
 
-  \item A reference to a \verb|SymbolTable|. This reference is passed to the \verb|CodeGenerator| on construction, and is meant to be the same table as that populated by the \verb|SemanticVisitor|.
+  \item A reference to a \verb|SymbolTable|. This reference is passed to the \verb|CodeGenerator| on construction, and is meant to be the same table populated by the \verb|SemanticVisitor| for a run of the compiler.
 
         The symbol table is mainly used to set the \verb|currentScope| pointer.
 
   \item A \verb|PixIRCode| field containing the code generated so far by the \verb|CodeGenerator|.
 
-  \item A \verb|std::stack| of \verb|BasicBlock| pointers. The top of this stack is always used to add new instructions as the visitor visits new nodes (via an \verb|addInstr()| method).
+  \item A \verb|std::stack| of \verb|BasicBlock| pointers. New instructions are always added to the block at the top of this stack (using an \verb|addInstr()| method) as the visitor visits AST nodes.
 
         A \verb|terminateBlock()| method can be used to finalize the current block, popping it off the stack, and pushing a new one. An important subtlety is that the new block inherits the same backpointer to \verb|PixIRFunction| as the old one, and is added to that function's list of (owned) \verb|BasicBlock|s. So \verb|terminateBlock()| is used to finalize and start new blocks within the same function.
 
@@ -749,7 +751,7 @@ The task requires keeping track of several state variables, which are listed bel
 
   \item A \verb|std::unique_ptr| to a \verb|FrameIndexMap|, called \verb|frameIndexMap|. This keeps track of the entire frame stack (through the chain of parent pointers) during code generation.
 
-        A new frame is created every time that a \verb|StmtNode| with a corresponding \verb|Scope| (for example a \verb|ForStmt| or \verb|IfElseStmt| node) is visited. The pointer to \verb|FrameIndexMap| is used as the parent of the new frame, and is reset to point to it.
+        \verb|frameIndexMap| is reset to a newly created frame every time that a \verb|StmtNode| with a corresponding \verb|Scope| (for example a \verb|ForStmt| or \verb|IfElseStmt| node) is visited. The old value of \verb|frameIndexMap| becomes the parent of the new frame.
 
         After visiting the \verb|StmtNode| corresponding to the new frame, the frame pointer is reset to point to the parent again.
 
@@ -759,31 +761,41 @@ The task requires keeping track of several state variables, which are listed bel
 
         \verb|enterFrame()| and \verb|exitFrame()| also issue instructions to the current basic block to open a new frame of the required size, and to close the current frame respectively.
 
-        Note that the \verb|enterBlock()|/\verb|exitBlock()| pair have a different function from \verb|enterFrame()|/\verb|exitFrame()|. The latter handles memory (frame stack) considerations for the generated code, while the former handles management of basic blocks.
+        Note that the \verb|enterBlock()|/\verb|exitBlock()| pair have a different functionality from \verb|enterFrame()|/ \verb|exitFrame()|. The latter handles memory (frame stack) considerations for the generated code, while the former handles management of basic blocks.
 
-        However, since \verb|enterFrame()|/\verb|exitFrame()| issue code to the current basic block, it is important that within a single visit method, the methods are used in the following order: \verb|enterBlock()|, \verb|enterFrame()|, \verb|exitFrame()|, \verb|exitBlock()|.
+        However, since \verb|enterFrame()|/\verb|exitFrame()| issue code to the current basic block, it is important that within a single visit method, the methods are always used in the following order: \verb|enterBlock()|, \verb|enterFrame()|, \verb|exitFrame()|, \verb|exitBlock()|.
 
         A careful symmetry is employed between \verb|enterFrame()| and \verb|exitFrame()| to ensure that there are no memory leaks when changing the pointers to the current \verb|FrameIndexMap|.
 
-        Firstly, \verb|enterFrame()| \verb|release|es the current frame pointed to, and then resets \verb|frameIndexMap| to point to the new instance of \verb|FrameIndexMap| (which takes the released pointer as a constructer argument, and stores it as its parent).
+        Firstly, \verb|enterFrame()| \verb|release|s the current frame pointed to, and then resets \verb|frameIndexMap| to point to the new instance of \verb|FrameIndexMap| (which takes the released pointer as a constructer argument, and stores it as its parent).
 
         Secondly, \verb|exitFrame()| \verb|reset|s \verb|frameIndexMap| to the parent of the current value, therefore \verb|delete|ing the no longer needed frame.
 
-        Since \verb|enterFrame()|/\verb|exitFrame()| generate code, they are not suitable for use with \verb|FuncDeclStmt| and \verb|TranslationUnit| nodes. In order to handle visiting these kinds of nodes, two further pairs of functions are defined, called \verb|enterFuncDefFrame()|/\verb|exitFuncDefFrame()| and \verb|enterMainFrame()|/\verb|exitMainFrame()| respectively.
+        \verb|enterFrame()|/\verb|exitFrame()| are not generic enough for use with \verb|FuncDeclStmt| and \verb|TranslationUnit| nodes. In order to handle visiting these kinds of nodes, two further pairs of functions are defined, called \verb|enterFuncDefFrame()|/\verb|exitFuncDefFrame()| and \verb|enterMainFrame()|/\verb|exitMainFrame()| respectively.
 
-        \verb|enterFuncDefFrame()|/\verb|exitFuncDefFrame()| do not have to generate code to open or close a new frame, as this is handled automatically by the \verb|CALL| instruction.
+        \verb|enterFuncDefFrame()|/\verb|exitFuncDefFrame()| do not have to generate code to open or close a new frame, as creating a frame is handled automatically by the \verb|CALL| instruction, and a function's frames are closed before a \verb|RET| instruction, rather than at the end of a function's generated code.
 
-        However, \verb|enterFuncDefFrame()| still needs to create a new \verb|FrameIndexMap| to represent the automatically created frame.
+        However, \verb|enterFuncDefFrame()| still needs to update \verb|frameIndexMap| to represent the automatically created frame.
 
         In addition, when assigning indices to each variable in the new frame, special care is taken to ensure that indices are assigned to function parameters in the same order as they are declared in the source code, so that the calling convention used by the VM is respected\footnote{i.e. that arguments are assigned in order of declaration to the initial segment of the frame created by CALL.}.
 
-        Note that \verb|enterFrame()| has no such consideration; it uses an arbitrary order to allocate frame indices to each variable in the new \verb|Scope|.
+        Note that \verb|enterFrame()| has no such consideration; it uses an arbitrary order to allocate frame indices to each variable in \verb|currentScope|.
 
         \verb|enterFuncDefFrame()| also checks for local variables defined in the outermost scope of the function (excluding parameters), and issues an \verb|ALLOC| instruction to allocate space for them if there are any.
 
         \verb|enterMainFrame()| simply allocates frame indices to variables defined in the outermost scope of the main function, and issues an \verb|ALLOC| instruction if needed. This simplicity is possible because the main function has no parameters.
 
         \verb|exitMainFrame()| also issues a \verb|HALT| instruction to the current basic block.
+
+  \item A \verb|std::stack| of \verb|int|s called \verb|frameLevels|.
+
+        As mentioned above, code for a \verb|ReturnStmt| must include \verb|CFRAME| instructions to close all of the function's frames.
+
+        For this reason, the top of \verb|frameLevels| keeps track of the number of frames that have been created by a function at a code point. The \verb|visit()| method for a \verb|ReturnStmt| node issues a number of \verb|CFRAME| instructions equivalent to the top of \verb|frameLevels|.
+
+        A new item is pushed onto the stack by \verb|enterFuncDefFrame()|, and the top of the stack is popped by \verb|exitFuncDefFrame()|.
+
+        The top of the stack is incremented and decremented by \verb|enterFrame()| and \verb|exitFrame()| respectively.
 \end{itemize}
 
 Armed with this state and the corresponding methods to modify it, code generation is an easy task.
@@ -802,48 +814,51 @@ void CodeGenerator::visit(ast::FunctionCallNode &node) {
   addInstr({PixIROpcode::CALL});
 }
 \end{minted}
-  \caption{\protect\UseVerb{visit} method for \Verb|FunctionCallNode|s. Note the use of \protect\UseVerb{rvisitChildren}, so that in the generated code each argument is pushed onto the stack in reverse order of declaration, as required by the PixAR VM semantics.}~\label{lst:codegen-example-1}
+  \caption{\protect\UseVerb{visit} method for \Verb|FunctionCallNode|s. Note the use of \protect\UseVerb{rvisitChildren}, so that in the generated code each argument is pushed onto the stack in reverse order of declaration, as required by the semantics of the PixAR VM.}~\label{lst:codegen-example-1}
 \end{lstfloat}
 
-The \verb|visit()| methods for more complex statements use the \verb|enter*|/\verb|exit*| pairs described above, as well as \verb|terminateBlock()| to handle memory allocation and creation of new basic blocks.
+The \verb|visit()| methods for more complex statements use the \verb|enter*|/\verb|exit*| pairs and \verb|terminateBlock()| method described above to handle memory allocation and creation of new basic blocks. Listing~\ref{lst:codegen-example-2} shows the \verb|visit()| method for \verb|FuncDeclStmt| as an example.
 
-% As an example, Listing~\ref{lst:codegen-example-2} shows the implementation of \verb|visit()| for \verb|BlockStmt| nodes.
+\SaveVerb{visit}|visit()|
+\SaveVerb{rvisitChildren}|rvisitChildren()|
+\SaveVerb{FuncDeclStmt}|FuncDeclStmt|
+\begin{lstfloat}
 
-% \SaveVerb{visit}|visit()|
-% \SaveVerb{BlockStmt}|BlockStmt|
-% \begin{lstfloat}
-
-% \begin{minted}[bgcolor=LightGray]{c++}
-% void CodeGenerator::visit(ast::BlockStmt &node) {
-%   enterFrame(&node);
-%   visitChildren(&node);
-%   exitFrame();
-% }
-% \end{minted}
-%   \caption{\protect\UseVerb{visit} method for \protect\UseVerb{BlockStmt}s.}~\label{lst:codegen-example-2}
-% \end{lstfloat}
+\begin{minted}[bgcolor=LightGray]{c++}
+void CodeGenerator::visit(ast::FuncDeclStmt &node) {
+  beginFunc(node.funcName);
+  enterFuncDefFrame(node);
+  visitChildren(&node);
+  exitFuncDefFrame();
+  endFunc();
+}
+\end{minted}
+  \caption{\protect\UseVerb{visit} method for \protect\UseVerb{FuncDeclStmt}s.}~\label{lst:codegen-example-2}
+\end{lstfloat}
 
 \subsubsection{Handling of lvalues}
 
 Special consideration must be taken in handling lvalue expressions. \verb|IdExprNode|s have an \verb|isLValue| boolean field which is set by the parser if the corresponding node appears on the LHS of an assignment statement (even if the node is part of a more complex array access lvalue).
 
-In the \verb|visit()| method of \verb|IdExprNode|, this boolean field is checked. If it is \verb|false|, a \verb|PUSH| instruction is issued with the frame/index address of the corresponding variable.
+In the \verb|CodeGenerator|'s \verb|visit()| method for \verb|IdExprNode|, this boolean field is checked. If it is \verb|false|, a \verb|PUSH [x:y]| instruction is issued with the frame/index address of the corresponding variable.
 
-Otherwise, two \verb|PUSH| instructions for the index and frame of the corresponding variable are issued.
+Otherwise, two \verb|PUSH| instructions with the index and frame of the corresponding variable are issued.
 
 If the entire lvalue in an assignment is an identifier, an \verb|ST| instruction is issued when \verb|visit|ing the corresponding \verb|AssignmentStmt|, and that is the whole story. The combination of the two \verb|PUSH| instructions and \verb|ST| stores the assigned value to the frame/index slot allocated to the variable.
 
-Handing array access lvalues is more complicated, however. The \verb|visit()| method for \verb|ArrayAccessNode| unconditionally visits the index expression and the array expression (in that order), and then issues a \verb|LDA| (load array) instruction. The corresponding \verb|AssignmentStmt| pops the last instruction issued to the current basic block, and issues a \verb|STA| (store to array) instruction.
+Handing array access lvalues is more complicated, however. The \verb|visit()| method for \verb|ArrayAccessNode| unconditionally visits the index expression and the array expression (in that order), and then issues a \verb|LDA| (load array) instruction.
 
-It is best to illustrate why this scheme works with an example. Consider the assignment statement \verb|arr[3][4] = 5;|. According to our scheme, this is translated into the following program
+The \verb|visit()| method for an \verb|AssignmentStmt| whose lvalue is an array access pops the last instruction issued to the current basic block (which is always a \verb|LDA| generated by \verb|visit|ing \verb|ArrayAccessNode|), and issues a \verb|STA| (store to array) instruction.
+
+It is best to illustrate why this scheme works with an example. Consider the program fragment \verb|arr[3][4] = 5;|. According to our scheme, this is translated into the following bytecode:
 
 \begin{center}
   \includegraphics[width=0.31\textwidth]{lvalue_example}
 \end{center}
 
-where we have assumed (arbitrarily) that the \verb|arr| variable gets allocated to index \verb|2| in the current frame.
+where we have assumed (arbitrarily) that the \verb|arr| variable gets allocated to index \verb|2| in the frame at the top of the stack.
 
-In the PixAR VM, the frame slot allocated to an array contains a pointer to its head. Multidimensional arrays are arrays containing pointers to the heads of other arrays. Hence, the first \verb|LDA| instruction effectively pushes a \textbf{pointer} to \verb|arr[3]| onto the work stack, which is the array which we want to store to.
+In the PixAR VM, the frame slot allocated to an array contains a pointer to its head. Multidimensional arrays are arrays containing pointers to the heads of other arrays. Hence, the first \verb|LDA| instruction effectively pushes a \textit{pointer} to \verb|arr[3]| onto the work stack, which is the array which we want to store to.
 
 If an \verb|ArrayAccessNode| is used as an rvalue, a second \verb|LDA| would load the required element from the multidimensional array. In this case, however, we remove this second \verb|LDA|, and replace it with an \verb|STA| instruction, effectively storing $5$ to the $4\textsuperscript{th}$ location of the array at the top of the working stack, which is \verb|arr[3]|.
 
@@ -851,23 +866,23 @@ If an \verb|ArrayAccessNode| is used as an rvalue, a second \verb|LDA| would loa
 
 While translating control flow statements, it is often the case that a jump instruction needs to be issued which redirects control flow to the beginning of another \verb|BasicBlock|. This can be implemented by pushing a PC-relative offset onto the work stack, and then calling one of the jump instructions.
 
-However, there are scenarios where we do not know the offset when we need to issue the jump instruction. For example, consider the translation of an \verb|IfElseStmt|. The jump instruction needs to be issued after visiting the branch condition expression, but before visiting the if/else body. Hence we do not know ``how far forward'' we need to jump if the branch condition is not met.
+However, there are scenarios where we do not know the offset when we need to issue the jump instruction. For example, consider the translation of an \verb|IfElseStmt|. The jump instruction needs to be issued after visiting the branch condition expression, but before visiting the if/else body. At this point we do not know ``how far forward'' we need to jump if the branch condition is not met, and hence cannot compute the required offset.
 
-To solve this problem, \verb|PUSH| instructions with relative offsets are not issued by the code generator at all. Instead a \verb|PUSH| instruction is issued with the corresponding data field set to point to the \verb|BasicBlock| that we want to jump to.
+To solve this problem, \verb|PUSH| instructions containing relative jump offsets are not issued by the code generator at all. Instead a \verb|PUSH| instruction is issued with the corresponding data field set to point to the \verb|BasicBlock| that we want to jump to.
 
 After \verb|CodeGenerator| has finished visiting all nodes in the AST, a \verb|linearizeCode()| function can be called on the \verb|PixIRCode| generated.
 
 In one pass of the generated program, this function builds a \verb|std::map| which maps \verb|BasicBlock| pointers to the PC offset of their first instruction in the overall program.
 
-In a separate pass, the function then uses the built map to convert \verb|BasicBlock| pointers in any \verb|PixIRInstruction|s to the corresponding PC offset.
+In a separate pass, the function then uses the built map to convert \verb|BasicBlock| pointers in any \verb|PUSH| instructions to the corresponding PC offset.
 
 This scheme is also advantageous for optimization passes which process the generated code, as instructions within a basic block can be transformed, and entire basic blocks or functions can be removed before linearization without invalidating any computed PC offsets.
 
-In order to keep code generation simple, \verb|CodeGenerator| may generate some empty blocks. \verb|linearizeCode| has a final pass over the generated code where it removes these empty blocks. Note that this is safe to do after linearization, because an empty block has the same PC offset as its immediate successor.
+In order to keep code generation simple, \verb|CodeGenerator| may produce some empty basic blocks. \verb|linearizeCode| has a final pass over the generated code where it removes these empty blocks. Note that this is safe to do after linearization, because an empty block has the same PC offset as its immediate successor.
 
 \subsection{Optimization passes}
 
-The implemented compiler includes three optimization passes which may improve the quality of the code produced. These passes can be enabled individually, and will be described below.
+The implemented compiler includes three optimization passes which may improve the quality of the code produced. These passes can be enabled individually, and will now be described.
 
 \subsubsection{Loop rotation}
 
@@ -879,7 +894,7 @@ In the regular translation of a loop, code for the loop's condition check is pla
 
 While this gives the required semantic behaviour, there are two jump instructions per iteration of the loop. For a tight loop\footnote{A tight loop is one which has a body consisting of a single basic block with only a few instructions.} the extra jump instruction may pose a significant overhead on execution.
 
-Loop rotation duplicates the code for the condition check, and adds it to the last block in the loop body. A jump is also added which redirects control flow to the beginning of the loop body if the loop condition is met. In this way, a single iteration of the loop will only execute a single jump. Note that the loop head must be kept in place in order to handle the case where the loop condition fails immediately, since otherwise the loop body will always execute at least once. This means that the overall code size of the generated program will be larger, with this being the trade-off made for speed up.
+Loop rotation duplicates the code for the condition check, and appends it to the last block in the loop body. A jump is also added which redirects control flow to the beginning of the loop body if the loop condition is met. In this way, a single iteration of the loop will only execute a single jump. Note that the loop head must be kept in place in order to handle the case where the loop condition fails immediately, since otherwise the loop body will always execute at least once. This means that the overall code size of the generated program will be larger, with this being the trade-off made for speed up.
 
 Figure~\ref{fig:loop-rotation} shows control flow graphs for rotated and unrotated versions of a \verb|while| loop.
 
@@ -893,15 +908,15 @@ In the implementation, loop rotation is enabled/disabled for an entire program u
 
 \subsubsection{Dead code elimination}~\label{sec:deadcode}
 
-Dead code elimination can be enabled using the \verb|-felim-dead-code| flag, and transforms a \verb|PixIRCode| instance generated by \verb|CodeGenerator| by removing unreachable code in a basic block, as well as dead functions.
+Dead code elimination can be enabled using the \verb|-felim-dead-code| flag. It transforms the generated code by removing unreachable instructions in a basic block, as well as dead functions.
 
-Code in a basic block is deemed unreachable if it appears after a \verb|RET| (return) instruction. In this case, the instructions can be removed safely from the basic block. This transformation is carried out in a function called \verb|eliminateDeadCodeAfterReturn|.
+Instructions in a basic block are deemed unreachable if they appear after a \verb|RET| (return) instruction in the same basic block. In this case, the instructions can be removed safely. This transformation is carried out in a function called \verb|eliminateDeadCodeAfterReturn()|.
 
 It is important that this pass is performed before the code linearization described in Section~\ref{code-linearization}, as removing instructions from a basic block is likely to change PC relative offsets to the start of basic blocks following the modified block.
 
 The other transformation performed by dead code elimination is the removal of code for dead functions. A function is considered dead if it is unreachable from the main function.
 
-In order to remove dead functions, we first use an instance of the worklist algorithm\cite{nielson2004} to find reachable functions. Pseudo code for this algorithm is shown in Algorithm~\ref{alg:reachable-worklist}.
+In order to remove dead functions, we first use an instance of the worklist algorithm\cite{nielson2004} to find reachable functions. Pseudo code for this worklist algorithm is shown in Algorithm~\ref{alg:reachable-worklist}.
 
 \begin{algorithm}
    \caption{Pseudocode for the worklist algorithm used to find reachable functions.}~\label{alg:reachable-worklist}
@@ -924,11 +939,11 @@ In order to remove dead functions, we first use an instance of the worklist algo
     }
 \end{algorithm}
 
-Essentially, we keep a \verb|std::vector| of pointers to \verb|PixIRFunction| instances (our worklist) which starts out with just the main function. While our worklist is non empty, we find callees of each \verb|PixIRFunction| in our worklist, add the ones we have never processed before to the worklist, and remove the processed worklist item, placing it in an \verb|std::unordered_set| which will hold all reachable functions. The worklist algorithm is encapsulated in the \verb|findReachable()| method of a class called \verb|DeadFunctionEliminator|, whose constructor takes a reference to \verb|PixIRCode| to be transformed.
+Essentially, we keep a \verb|std::vector| of pointers to \verb|PixIRFunction| instances (our worklist) which starts out with just the main function. While our worklist is non empty, we find callees of each \verb|PixIRFunction| in our worklist, add the ones we have never encountered before to the worklist, and remove the processed worklist item, placing it in an \verb|std::unordered_set| which will hold all reachable functions. The worklist algorithm is encapsulated in the \verb|findReachable()| method of a class called \verb|DeadFunctionEliminator|, whose constructor takes a reference to \verb|PixIRCode| to be transformed.
 
 Callees of a function are found by looking for \verb|PUSH| instructions in the function body where the push operand starts with a ``\verb|.|'' character, and then extracting the function name from this operand.
 
-In order to add the corresponding \verb|PixIRFunction| to the worklist, we need a fast way of mapping function names to their \verb|PixIRFunction|. A \verb|std::unordered_map| field in \verb|DeadFunctionEliminator| is used for this purpose. During construction of an instance of this class, a single pass is performed over the \verb|PixIRCode| to be transformed, adding the mapping for each \verb|PixIRFunction| in the code to this map field.
+In order to add the corresponding \verb|PixIRFunction| to the worklist, we need a fast way of mapping function names to the corresponding \verb|PixIRFunction|. A \verb|std::unordered_map| field in \verb|DeadFunctionEliminator| is used for this purpose. During construction of an instance of this class, a single pass is performed over the \verb|PixIRCode| to be transformed, adding the mapping for each \verb|PixIRFunction| in the code to this field.
 
 The \verb|eliminate()| method of \verb|DeadFunctionEliminator| first calls \verb|findReachable()| to obtain a set of the names of all reachable functions. It then iterates over the code to be transformed, removing every \verb|PixIRFunction| whose name is not in this set.
 
@@ -942,11 +957,11 @@ However, there is no clean way\footnote{\verb|dynamic_cast| could be used to che
 
 The peephole optimizer implemented is not very powerful, and is based on detecting exact matches for small runs of instructions, and replacing them with another run.
 
-Small runs of instructions are represented by a type called \verb|CodePeephole|, which is an alias for a \verb|std::list| of \verb|PixIRInstruction|s.
+Small runs of instructions are represented by a type called \verb|CodePeephole|, which is a type alias for a \verb|std::list| of \verb|PixIRInstruction|s.
 
-A run of instructions intended to be matched is encapsulated in a class called \verb|PixIRPattern|. Aside from a \verb|CodePeephole| field containing the instructions to be matched, this class also has \verb|match| and \verb|match_and_replace| methods, which can check for matching runs of instructions and replace them with a given substitute.
+A run of instructions intended to be matched is encapsulated in a class called \verb|PixIRPattern|. Aside from a \verb|CodePeephole| field containing the instructions to be matched, this class also has \verb|match()| and \verb|match_and_replace()| methods, which can check for matching runs of instructions and replace them with a given substitute.
 
-The \verb|match()| method takes an iterator range, and checks whether the initial segment of this range matches the pattern field. A boolean is returned to indicate success or failure.
+The \verb|match()| method takes an iterator range, and checks whether the initial segment of this range matches the sequence of instructions. A boolean is returned to indicate success or failure.
 
 The \verb|match_and_replace()| method takes an iterator range, the \verb|std::list| this range is taken from (which will be the list of instructions in the basic block being optimized), as well as a \verb|CodePeephole| containing the run of instructions that will be substituted for a match. The \verb|match()| method is used to check whether the initial segment of the iterator range contains the required pattern. If this is the case, the \verb|erase()|/\verb|insert()| methods of \verb|std::list| are used to replace the matched run of instructions with the substitute.
 
@@ -954,7 +969,7 @@ A global, constant \verb|patterns| variable maps \verb|PixIRPattern|s to the cor
 
 The \verb|peepholeOptimize()| function puts everything together: it takes a \verb|PixIRCode| instance and iterates over each of its basic blocks' list of instructions, calling \verb|match_and_replace()| for every pattern in \verb|patterns| at each location in the list.
 
-This peephole optimizer has some obvious limitations. The largest shortcoming stems from the fact that it can only match exact runs of instructions. So for example any program of the form $e$\verb| + 1| where $e$ is an arbitrary expression will not be optimized to use \verb|INC|, because there is no way to match the instructions for the arbitrary expression in the generated code.
+This peephole optimizer has some obvious limitations. The largest shortcoming stems from the fact that it can only match exact runs of instructions. So for example any program of the form $e$\verb| + 1| where $e$ is an arbitrary integer expression will not be optimized to use \verb|INC|, because there is no way to match the instructions generated for every arbitrary $e$.
 
 \newpage
 
@@ -1034,7 +1049,7 @@ A program was also developed which is capable of rendering text. This can be fou
 
 The main function used to render text is \verb|render_letter|. This takes $x$, $y$ coordinates and a colour, as well as an integer representing an encoded letter. It then renders the letter in a $3 \times 5$ rectange with the top left corner specified by the $x$, $y$ coordinates, and the colour specified by the corresponding argument.
 
-Only capital alphabetic letters can be rendered, and these are encoded by mapping $A-Z$ directly to the numerical range $0-25$. ``$.$'' and ``$,$'' characters can be rendered as well, and are encoded as the numbers $26$ and $27$.
+Only uppercase alphabetic letters can be rendered, and these are encoded by mapping $A-Z$ directly to the numerical range $0-25$. ``$.$'' and ``$,$'' characters can be rendered as well, and are encoded as the numbers $26$ and $27$.
 
 If a number outside of the range $0-27$ is passed to \verb|render_letter|, nothing happens.
 
