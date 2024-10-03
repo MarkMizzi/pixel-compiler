@@ -15,3 +15,7 @@ Makefile
 .cache/**
 
 compile_commands.json
+
+# Binaries
+pixelc
+pixelc_tests
