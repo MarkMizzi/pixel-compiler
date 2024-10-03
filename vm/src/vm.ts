@@ -1,4 +1,4 @@
-import { PixIROperand, PixIROpcode, PixIRInstruction, PixIROperandType } from "./instructions"
+import { PixIROperand, PixIROpcode, PixIRInstruction, PixIROperandType, checkOperand } from "./instructions"
 
 type Frame = Array<any>
 
@@ -18,11 +18,6 @@ function safePop(state: PixVMState): PixIROperand {
     return x;
 }
 
-function checkOperandType(x: PixIROperand, expected: Array<PixIROperandType>) {
-    if (!(x.operandType in expected)) {
-        throw Error(`Invalid operand type given, expected one of ${expected}, got ${x.operandType}.`)
-    }
-}
 
 function executeInstr(state: PixVMState, instr: PixIRInstruction) {
     switch (instr.opcode) {
@@ -31,8 +26,8 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let x = safePop(state);
             let y = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
-            checkOperandType(y, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
+            checkOperand(y, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -45,8 +40,8 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let x = safePop(state);
             let y = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
-            checkOperandType(y, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
+            checkOperand(y, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -59,8 +54,8 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let x = safePop(state);
             let y = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
-            checkOperandType(y, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
+            checkOperand(y, [PixIROperandType.NUMBER]);
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
                 operandValue: (x.operandValue as number) * (y.operandValue as number)
@@ -72,8 +67,8 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let x = safePop(state);
             let y = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
-            checkOperandType(y, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
+            checkOperand(y, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -85,7 +80,7 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
         case PixIROpcode.INC: {
             let x = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -97,7 +92,7 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
         case PixIROpcode.DEC: {
             let x = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -111,8 +106,8 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let x = safePop(state);
             let y = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
-            checkOperandType(y, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
+            checkOperand(y, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -126,8 +121,8 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let x = safePop(state);
             let y = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
-            checkOperandType(y, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
+            checkOperand(y, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -140,7 +135,7 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
         case PixIROpcode.IRND: {
             let x = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -153,7 +148,7 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
         case PixIROpcode.NOT: {
             let x = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -166,8 +161,8 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let x = safePop(state);
             let y = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
-            checkOperandType(y, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
+            checkOperand(y, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -180,8 +175,8 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let x = safePop(state);
             let y = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
-            checkOperandType(y, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
+            checkOperand(y, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -194,7 +189,7 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let x = safePop(state);
             let y = safePop(state);
 
-            checkOperandType(x, [y.operandType]);
+            checkOperand(x, [y.operandType]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -207,7 +202,7 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let x = safePop(state);
             let y = safePop(state);
 
-            checkOperandType(x, [y.operandType]);
+            checkOperand(x, [y.operandType]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -220,8 +215,8 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let x = safePop(state);
             let y = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
-            checkOperandType(y, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
+            checkOperand(y, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -234,8 +229,8 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let x = safePop(state);
             let y = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.NUMBER]);
-            checkOperandType(y, [PixIROperandType.NUMBER]);
+            checkOperand(x, [PixIROperandType.NUMBER]);
+            checkOperand(y, [PixIROperandType.NUMBER]);
 
             state.workStack.push({
                 operandType: PixIROperandType.NUMBER, 
@@ -261,7 +256,7 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
         case PixIROpcode.JMP: {
             let x = safePop(state);
 
-            checkOperandType(x, [PixIROperandType.PCOFFSET]);
+            checkOperand(x, [PixIROperandType.PCOFFSET]);
             state.pc = x.operandValue as number;
             break;
         }
@@ -270,8 +265,8 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let offset = safePop(state);
             let cond = safePop(state);
 
-            checkOperandType(offset, [PixIROperandType.PCOFFSET]);
-            checkOperandType(cond, [PixIROperandType.NUMBER]);
+            checkOperand(offset, [PixIROperandType.PCOFFSET]);
+            checkOperand(cond, [PixIROperandType.NUMBER]);
 
             if (cond.operandValue as number != 0)
                 state.pc = offset.operandValue as number;
@@ -282,8 +277,8 @@ function executeInstr(state: PixVMState, instr: PixIRInstruction) {
             let offset = safePop(state);
             let cond = safePop(state);
 
-            checkOperandType(offset, [PixIROperandType.PCOFFSET]);
-            checkOperandType(cond, [PixIROperandType.NUMBER]);
+            checkOperand(offset, [PixIROperandType.PCOFFSET]);
+            checkOperand(cond, [PixIROperandType.NUMBER]);
 
             if (cond.operandValue as number == 0)
                 state.pc = offset.operandValue as number;

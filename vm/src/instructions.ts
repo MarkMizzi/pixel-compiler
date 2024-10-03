@@ -89,6 +89,12 @@ export function validateFuncName(funcName: string) {
     }
 }
 
+export function checkOperand(x: PixIROperand, expectedTypes: Array<PixIROperandType>) {
+    if (!(x.operandType in expectedTypes)) {
+        throw Error(`Invalid operand type given, expected one of ${expectedTypes}, got ${x.operandType}.`)
+    }
+}
+
 function readOperand(opStr: string): PixIROperand {
     // try checking if operand is a number
     let numValue = parseFloat(opStr);
