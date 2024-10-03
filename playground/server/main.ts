@@ -50,7 +50,7 @@ app.get('/compile', function (req: Request, res: Response) {
   }
 
   exec(
-    `/pixelc -o ${asmOutFile} -xml ${xmlOutFile} ${sourceFile}`,
+    `../pixelc -o ${asmOutFile} -xml ${xmlOutFile} ${sourceFile}`,
     (error: ExecException | null, stdout: string, stderr: string) => {
       if (error !== null) {
         res
