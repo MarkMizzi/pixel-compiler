@@ -12,3 +12,6 @@ tmp/
 _minted-report/**
 
 !Makefile
+
+!report.pdf
+!specification.pdf

@@ -1,0 +1,54 @@
+digraph G {
+    layout=circo;
+    scale=0.7;
+
+    ID [shape=doublecircle];
+    INT [shape=doublecircle];
+    FLOAT [shape=doublecircle];
+    COLOUR [shape=doublecircle];
+    COMMA [shape=doublecircle];
+    ASSIGN [shape=doublecircle];
+    EQ [shape=doublecircle];
+    GREATER [shape=doublecircle];
+    GE [shape=doublecircle];
+    LESS [shape=doublecircle];
+    LE [shape=doublecircle];
+    NEQ [shape=doublecircle];
+    ID [shape=doublecircle];
+    MINUS [shape=doublecircle];
+    ARROW [shape=doublecircle];
+
+    START -> ID [label="[a-zA-Z_]"];
+    ID -> ID [label="[a-zA-Z_0-9]"];
+
+    START -> INT [label="[0-9]"];
+    INT -> INT [label="[0-9]"];
+    INT -> DOT [label="\".\""];
+    DOT -> FLOAT [label="[0-9]"];
+    FLOAT -> FLOAT [label="[0-9]"];
+
+    START -> COLOUR1 [label="#"];
+    COLOUR1 -> COLOUR2 [label="[a-fA-F]"];
+    COLOUR2 -> COLOUR3 [label="[a-fA-F]"];
+    COLOUR3 -> COLOUR4 [label="[a-fA-F]"];
+    COLOUR4 -> COLOUR5 [label="[a-fA-F]"];
+    COLOUR5 -> COLOUR6 [label="[a-fA-F]"];
+    COLOUR6 -> COLOUR [label="[a-fA-F]"];
+
+    START -> COMMA [label="\",\""];
+
+    START -> ASSIGN [label="\"=\""];
+    ASSIGN -> EQ [label="\"=\""];
+
+    START -> GREATER [label="\">\""];
+    GREATER -> GE [label="\"=\""];
+
+    START -> LESS [label="\"<\""];
+    LESS -> LE [label="\"=\""];
+
+    START -> EX [label="\"!\""];
+    EX -> NEQ [label="\"=\""];
+
+    START -> MINUS [label="\"-\""];
+    MINUS -> ARROW [label="\">\""];
+}
