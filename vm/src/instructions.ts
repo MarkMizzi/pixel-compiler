@@ -54,7 +54,6 @@ export enum PixIROpcode {
 export enum PixIROperandType {
     COLOR = "color",
     NUMBER = "number",
-    BOOLEAN = "boolean",
     LABEL = "label",
     PCOFFSET = "pcoffset",
     FUNCTION = "function",
@@ -80,13 +79,17 @@ function isAlphaNum(c: string): boolean {
             (charCode > 64 && charCode < 91);
 }
 
-function readOperand(opStr: string): PixIROperand {
-    // try checking if operand is a boolean
-    if (opStr == "true")
-        return {operandType: PixIROperandType.BOOLEAN, operandValue: true};
-    if (opStr == "false")
-        return {operandType: PixIROperandType.BOOLEAN, operandValue: false};
+export function validateFuncName(funcName: string) {
+    // validate function name
+    if (funcName.length <= 1 || funcName.at(0) != ".")
+        throw Error(`Invalid function name ${funcName} found.`);
+    for (let i = 1; i < funcName.length; i++) {
+        if (!isAlphaNum(funcName.at(i) as string))
+            throw Error(`Invalid function name ${funcName} found.`);
+    }
+}
 
+function readOperand(opStr: string): PixIROperand {
     // try checking if operand is a number
     let numValue = parseFloat(opStr);
     if (!isNaN(numValue))
@@ -95,12 +98,7 @@ function readOperand(opStr: string): PixIROperand {
     // try checking if operand is a function name
     if (opStr[0] == ".") {
         // validate function name
-        if (opStr.length == 1)
-            throw Error(`Invalid function name ${opStr} given.`);
-        for (let i = 1; i < opStr.length; i++) {
-            if (!isAlphaNum(opStr.at(i) as string))
-                throw Error(`Invalid function name ${opStr} given.`);
-        }
+        validateFuncName(opStr[0]);
         return {operandType: PixIROperandType.FUNCTION, operandValue: opStr};
     }
 
@@ -137,27 +135,19 @@ function readOperand(opStr: string): PixIROperand {
     return {operandType: PixIROperandType.COLOR, operandValue: opStr};
 }
 
-export function* instructions(src: string): Generator<PixIRInstruction> {
-    while (src.length != 0) {
-        let splitSrc = src.split("\n", 1);
-        // update src to remainder
-        src = splitSrc[1];
-        
-        // get opcode within the next instruction
-        let instr = splitSrc[0];
-        let splitInstr = src.split(" ", 1);
-        if (!(splitInstr[0] in PixIROpcode))
-            throw Error(`${splitInstr[0]} is not a valid instruction.`);
-        let opcode = splitInstr[0] as PixIROpcode;
-        
-        // get opcode operand if the opcode is a push instruction
-        let operand = undefined;
-        if (opcode == PixIROpcode.PUSH) {
-            if (splitInstr.length == 1)
-                throw Error("Operand for push instruction was not specified.");
-            operand = readOperand(splitInstr[1]);
-        }
-
-        yield {opcode, operand}
+export function readInstr(line: string): PixIRInstruction {
+    let splitInstr = line.split(" ", 1);
+    if (!(splitInstr[0] in PixIROpcode))
+        throw Error(`${splitInstr[0]} is not a valid instruction.`);
+    let opcode = splitInstr[0] as PixIROpcode;
+    
+    // get opcode operand if the opcode is a push instruction
+    let operand = undefined;
+    if (opcode == PixIROpcode.PUSH) {
+        if (splitInstr.length == 1)
+            throw Error("Operand for push instruction was not specified.");
+        operand = readOperand(splitInstr[1]);
     }
+
+    return {opcode, operand}
 }
