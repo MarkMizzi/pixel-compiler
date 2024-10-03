@@ -1,6 +1,6 @@
 import { PixIRInstruction, PixIROpcode, PixIROperand, PixIROperandType, readInstr } from "./instructions";
 
-type Program = Map<string, Array<PixIRInstruction>>
+export type Program = Map<string, Array<PixIRInstruction>>
 
 function validateProgram(program: Program) {
     // check that each function referenced in push instruction is within the program.

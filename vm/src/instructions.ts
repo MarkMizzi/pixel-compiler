@@ -28,12 +28,12 @@ export enum PixIROpcode {
     CJMP2 = "cjmp2",
     CALL = "call",
     RET = "ret",
-    ST = "st",
     HALT = "halt",
     // allocate automatic vars, create stack frames.
     ALLOC = "alloc",
     OFRAME = "oframe",
     CFRAME = "cframe",
+    ST = "st",
     // delay operation
     DELAY = "delay",
     // screen related operations
@@ -61,10 +61,11 @@ export enum PixIROperandType {
 
 type Color = string
 type Label = [number, number]
+export type FunctionName = string
 
 export interface PixIROperand {
     operandType: PixIROperandType
-    operandValue: Color | number | boolean | Label
+    operandValue: Color | number | boolean | Label | FunctionName
 }
 
 export interface PixIRInstruction {
@@ -79,7 +80,7 @@ function isAlphaNum(c: string): boolean {
             (charCode > 64 && charCode < 91);
 }
 
-export function validateFuncName(funcName: string) {
+export function validateFuncName(funcName: FunctionName) {
     // validate function name
     if (funcName.length <= 1 || funcName.at(0) != ".")
         throw Error(`Invalid function name ${funcName} found.`);
