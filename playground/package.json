@@ -16,6 +16,7 @@
     "http-status-codes": "^2.3.0",
     "pinia": "^2.1.7",
     "pixel-vm": "file:../vm",
+    "tmp": "^0.2.3",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },
@@ -25,6 +26,7 @@
     "@tsconfig/node20": "^20.1.4",
     "@types/express": "^4.17.21",
     "@types/node": "^20.16.5",
+    "@types/tmp": "^0.2.6",
     "@vitejs/plugin-vue": "^5.0.5",
     "@vitejs/plugin-vue-jsx": "^4.0.0",
     "@vue/eslint-config-prettier": "^9.0.0",
