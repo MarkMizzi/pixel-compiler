@@ -12,15 +12,12 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "check-password-strength": "^2.0.10",
     "express": "^4.21.0",
     "http-status-codes": "^2.3.0",
-    "pg-promise": "^11.9.1",
     "pinia": "^2.1.7",
-    "smtp-client": "^0.4.0",
+    "pixel-vm": "file:../vm",
     "vue": "^3.4.29",
-    "vue-router": "^4.3.3",
-    "pixel-vm": "file:../vm"
+    "vue-router": "^4.3.3"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
