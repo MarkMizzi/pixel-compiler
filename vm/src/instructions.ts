@@ -55,22 +55,31 @@ export enum PixIROperandType {
     COLOR = "color",
     NUMBER = "number",
     LABEL = "label",
+    // relative offset from PC.
     PCOFFSET = "pcoffset",
+    // function address
     FUNCTION = "function",
+    ARRAY = "array"
 }
 
-type Color = string
+export type Color = string
 type Label = [number, number]
 export type FunctionName = string
 
 export interface PixIROperand {
     operandType: PixIROperandType
-    operandValue: Color | number | boolean | Label | FunctionName
+    operandValue: Color | number | boolean | Label | FunctionName | Array<PixIROperand | undefined>
 }
 
 export interface PixIRInstruction {
     opcode: PixIROpcode,
     operand: PixIROperand | undefined
+}
+
+export function rgbToHex(r: number, g: number, b: number): Color {
+    if (r > 255 || g > 255 || b > 255)
+        throw Error(`Invalid color component rgb(${r}, ${g}, ${b}).`);
+    return "#" + ((r << 16) | (g << 8) | b).toString(16);
 }
 
 function isAlphaNum(c: string): boolean {
