@@ -51,9 +51,21 @@ export enum PixIROpcode {
     LDA = "lda",
 }
 
-type Color = string
+enum PixIROperandType {
+    COLOR,
+    NUMBER,
+    BOOLEAN,
+    LABEL,
+    PCOFFSET,
+}
 
-type PixIROperand = Color | number | boolean
+type Color = string
+type Label = [number, number]
+
+interface PixIROperand {
+    operandType: PixIROperandType
+    operandValue: Color | number | boolean | Label
+}
 
 export interface PixIRInstruction {
     opcode: PixIROpcode,
@@ -63,14 +75,35 @@ export interface PixIRInstruction {
 function readOperand(opStr: string): PixIROperand {
     // try checking if operand is a boolean
     if (opStr == "true")
-        return true;
+        return {operandType: PixIROperandType.BOOLEAN, operandValue: true};
     if (opStr == "false")
-        return false;
+        return {operandType: PixIROperandType.BOOLEAN, operandValue: false};
 
     // try checking if operand is a number
     let numValue = parseFloat(opStr);
     if (!isNaN(numValue))
-        return numValue;
+        return {operandType: PixIROperandType.NUMBER, operandValue: numValue};
+
+    // try checking if operand is a label
+    if (opStr[0] == "[" && opStr[opStr.length - 1] == "]") {
+        let label = opStr.substring(1, opStr.length - 1);
+        let splitLabel = label.split(":", 1);
+        let offset = parseInt(splitLabel[0]);
+        let frame = 0;
+        if (splitLabel.length > 1)
+            frame = parseInt(splitLabel[1]);
+        if (isNaN(offset) || isNaN(frame))
+            throw Error(`Invalid label ${opStr} found.`);
+        return {operandType: PixIROperandType.LABEL, operandValue: [offset, frame]};
+    }
+
+    // try checking if operand is a PC offset
+    if (opStr.substring(0, 3) == "#PC") {
+        let offset = parseInt(opStr.substring(3));
+        if (isNaN(offset))
+            throw Error(`Invalid PC offset ${opStr} found.`);
+        return {operandType: PixIROperandType.PCOFFSET, operandValue: offset};
+    }
 
     // try checking if operand is a Colour
     let isColor = opStr.length == 7;
@@ -81,7 +114,7 @@ function readOperand(opStr: string): PixIROperand {
     }
     if (!isColor)
         throw Error(`Invalid operand ${opStr} found.`);
-    return opStr;
+    return {operandType: PixIROperandType.COLOR, operandValue: opStr};
 }
 
 export function* instructions(src: string): Generator<PixIRInstruction> {
