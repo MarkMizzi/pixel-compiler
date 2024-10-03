@@ -51,18 +51,19 @@ export enum PixIROpcode {
     LDA = "lda",
 }
 
-enum PixIROperandType {
-    COLOR,
-    NUMBER,
-    BOOLEAN,
-    LABEL,
-    PCOFFSET,
+export enum PixIROperandType {
+    COLOR = "color",
+    NUMBER = "number",
+    BOOLEAN = "boolean",
+    LABEL = "label",
+    PCOFFSET = "pcoffset",
+    FUNCTION = "function",
 }
 
 type Color = string
 type Label = [number, number]
 
-interface PixIROperand {
+export interface PixIROperand {
     operandType: PixIROperandType
     operandValue: Color | number | boolean | Label
 }
@@ -70,6 +71,13 @@ interface PixIROperand {
 export interface PixIRInstruction {
     opcode: PixIROpcode,
     operand: PixIROperand | undefined
+}
+
+function isAlphaNum(c: string): boolean {
+    let charCode = c.charCodeAt(0);
+    return (charCode > 47 && charCode < 58) ||
+            (charCode > 96 && charCode < 123) ||
+            (charCode > 64 && charCode < 91);
 }
 
 function readOperand(opStr: string): PixIROperand {
@@ -83,6 +91,18 @@ function readOperand(opStr: string): PixIROperand {
     let numValue = parseFloat(opStr);
     if (!isNaN(numValue))
         return {operandType: PixIROperandType.NUMBER, operandValue: numValue};
+
+    // try checking if operand is a function name
+    if (opStr[0] == ".") {
+        // validate function name
+        if (opStr.length == 1)
+            throw Error(`Invalid function name ${opStr} given.`);
+        for (let i = 1; i < opStr.length; i++) {
+            if (!isAlphaNum(opStr.at(i) as string))
+                throw Error(`Invalid function name ${opStr} given.`);
+        }
+        return {operandType: PixIROperandType.FUNCTION, operandValue: opStr};
+    }
 
     // try checking if operand is a label
     if (opStr[0] == "[" && opStr[opStr.length - 1] == "]") {
