@@ -40,13 +40,13 @@ set(SRC_FILES
   src/peephole.cc
 )
 
-add_executable(pixarc
+add_executable(pixelc
   ${SRC_FILES}
   src/main.cc)
 
-add_executable(pixarc_tests
+add_executable(pixelc_tests
   ${SRC_FILES}
   tests/lexer_tests.cc
   tests/semantic_visitor_tests.cc)
 
-target_link_libraries(pixarc_tests PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(pixelc_tests PRIVATE Catch2::Catch2WithMain)
