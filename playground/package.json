@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite build --watch & nodemon server/main.js",
+    "dev": "vue-tsc --build --force --watch & vite build --watch & nodemon server/main.js",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
