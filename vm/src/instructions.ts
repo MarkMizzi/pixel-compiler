@@ -91,26 +91,29 @@ export function rgbToHex(r: number, g: number, b: number): Color {
   return '#' + ((r << 16) | (g << 8) | b).toString(16)
 }
 
-function isAlphaNum(c: string): boolean {
-  let charCode = c.charCodeAt(0)
-  return (
-    (charCode > 47 && charCode < 58) ||
-    (charCode > 96 && charCode < 123) ||
-    (charCode > 64 && charCode < 91)
-  )
+/* Utility function that checks whether every character in input string is alpha-numeric */
+function isAlphaNum(s: string): boolean {
+  let isAlphaNum = true
+
+  for (let i = 0; i < s.length; i++) {
+    let charCode = s.charCodeAt(i)
+    isAlphaNum &&=
+      (charCode > 47 && charCode < 58) ||
+      (charCode > 96 && charCode < 123) ||
+      (charCode > 64 && charCode < 91)
+  }
+
+  return isAlphaNum
 }
 
-export function validateFuncName(funcName: FunctionName) {
+export function validateFunctionName(funcName: FunctionName) {
   // validate function name
   if (funcName.length <= 1 || funcName.at(0) != '.')
     throw Error(`Invalid function name ${funcName} found.`)
-  for (let i = 1; i < funcName.length; i++) {
-    if (!isAlphaNum(funcName.at(i) as string))
-      throw Error(`Invalid function name ${funcName} found.`)
-  }
+  if (!isAlphaNum(funcName.substring(1))) throw Error(`Invalid function name ${funcName} found.`)
 }
 
-export function checkOperand(x: PixIRData, expectedTypes: Array<PixIRDataType>) {
+export function checkDataType(x: PixIRData, expectedTypes: Array<PixIRDataType>) {
   if (!(x.dtype in expectedTypes)) {
     throw Error(`Invalid operand type given, expected one of ${expectedTypes}, got ${x.dtype}.`)
   }
@@ -124,7 +127,7 @@ function readOperand(opStr: string): PixIRData {
   // try checking if operand is a function name
   if (opStr[0] == '.') {
     // validate function name
-    validateFuncName(opStr[0])
+    validateFunctionName(opStr[0])
     return { dtype: PixIRDataType.FUNCTION, val: opStr }
   }
 

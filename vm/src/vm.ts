@@ -5,7 +5,7 @@ import {
   PixIROpcode,
   PixIRInstruction,
   PixIRDataType,
-  checkOperand,
+  checkDataType,
   rgbToHex
 } from './instructions'
 import { Program } from './assembler'
@@ -97,8 +97,8 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -114,8 +114,8 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -131,8 +131,8 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
           val: (x.val as number) * (y.val as number)
@@ -147,8 +147,8 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -163,7 +163,7 @@ export class PixelVM {
       case PixIROpcode.INC: {
         let x = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -178,7 +178,7 @@ export class PixelVM {
       case PixIROpcode.DEC: {
         let x = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -195,8 +195,8 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -213,8 +213,8 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -230,7 +230,7 @@ export class PixelVM {
       case PixIROpcode.IRND: {
         let x = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -246,7 +246,7 @@ export class PixelVM {
       case PixIROpcode.NOT: {
         let x = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -262,8 +262,8 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -279,8 +279,8 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -296,7 +296,7 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [y.dtype])
+        checkDataType(x, [y.dtype])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -312,7 +312,7 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [y.dtype])
+        checkDataType(x, [y.dtype])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -328,8 +328,8 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -345,8 +345,8 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
 
         this.state.workStack.push({
           dtype: PixIRDataType.NUMBER,
@@ -381,7 +381,7 @@ export class PixelVM {
       case PixIROpcode.JMP: {
         let x = this.safePop()
 
-        checkOperand(x, [PixIRDataType.PCOFFSET])
+        checkDataType(x, [PixIRDataType.PCOFFSET])
         this.state.callStack[this.state.callStack.length - 1].pc = x.val as number
         break
       }
@@ -390,8 +390,8 @@ export class PixelVM {
         let offset = this.safePop()
         let cond = this.safePop()
 
-        checkOperand(offset, [PixIRDataType.PCOFFSET])
-        checkOperand(cond, [PixIRDataType.NUMBER])
+        checkDataType(offset, [PixIRDataType.PCOFFSET])
+        checkDataType(cond, [PixIRDataType.NUMBER])
 
         // update pc
         if ((cond.val as number) != 0)
@@ -404,8 +404,8 @@ export class PixelVM {
         let offset = this.safePop()
         let cond = this.safePop()
 
-        checkOperand(offset, [PixIRDataType.PCOFFSET])
-        checkOperand(cond, [PixIRDataType.NUMBER])
+        checkDataType(offset, [PixIRDataType.PCOFFSET])
+        checkDataType(cond, [PixIRDataType.NUMBER])
 
         // update pc
         if ((cond.val as number) == 0)
@@ -418,8 +418,8 @@ export class PixelVM {
         let funcName = this.safePop()
         let argCount = this.safePop()
 
-        checkOperand(funcName, [PixIRDataType.FUNCTION])
-        checkOperand(argCount, [PixIRDataType.NUMBER])
+        checkDataType(funcName, [PixIRDataType.FUNCTION])
+        checkDataType(argCount, [PixIRDataType.NUMBER])
 
         let frame: Frame = []
         for (let i = 0; i < (argCount.val as number); i++) frame.push(this.safePop())
@@ -447,7 +447,7 @@ export class PixelVM {
       case PixIROpcode.ALLOC: {
         let size = this.safePop()
 
-        checkOperand(size, [PixIRDataType.NUMBER])
+        checkDataType(size, [PixIRDataType.NUMBER])
 
         for (let i = 0; i < (size.val as number); i++)
           this.state.frameStack[this.state.frameStack.length - 1].push(undefined)
@@ -459,7 +459,7 @@ export class PixelVM {
       case PixIROpcode.OFRAME: {
         let size = this.safePop()
 
-        checkOperand(size, [PixIRDataType.NUMBER])
+        checkDataType(size, [PixIRDataType.NUMBER])
 
         let frame: Frame = []
         for (let i = 0; i < (size.val as number); i++) frame.push(undefined)
@@ -482,8 +482,8 @@ export class PixelVM {
         let frame = this.safePop()
         let val = this.safePop()
 
-        checkOperand(location, [PixIRDataType.NUMBER])
-        checkOperand(frame, [PixIRDataType.NUMBER])
+        checkDataType(location, [PixIRDataType.NUMBER])
+        checkDataType(frame, [PixIRDataType.NUMBER])
 
         this.state.frameStack[frame.val as number][location.val as number] = val
 
@@ -499,7 +499,7 @@ export class PixelVM {
 
         let delay = this.safePop()
 
-        checkOperand(delay, [PixIRDataType.NUMBER])
+        checkDataType(delay, [PixIRDataType.NUMBER])
 
         await sleep(delay.val as number)
 
@@ -513,9 +513,9 @@ export class PixelVM {
         let y = this.safePop()
         let c = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
-        checkOperand(c, [PixIRDataType.COLOR])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
+        checkDataType(c, [PixIRDataType.COLOR])
 
         this.fillRect(x.val as number, y.val as number, 1, 1, c.val as Color)
 
@@ -530,11 +530,11 @@ export class PixelVM {
         let h = this.safePop()
         let c = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
-        checkOperand(w, [PixIRDataType.NUMBER])
-        checkOperand(h, [PixIRDataType.NUMBER])
-        checkOperand(c, [PixIRDataType.COLOR])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
+        checkDataType(w, [PixIRDataType.NUMBER])
+        checkDataType(h, [PixIRDataType.NUMBER])
+        checkDataType(c, [PixIRDataType.COLOR])
 
         this.fillRect(
           x.val as number,
@@ -551,7 +551,7 @@ export class PixelVM {
       case PixIROpcode.CLEAR: {
         let c = this.safePop()
 
-        checkOperand(c, [PixIRDataType.COLOR])
+        checkDataType(c, [PixIRDataType.COLOR])
 
         this.fillRect(0, 0, this.state.width, this.state.height, c.val as Color)
 
@@ -563,8 +563,8 @@ export class PixelVM {
         let x = this.safePop()
         let y = this.safePop()
 
-        checkOperand(x, [PixIRDataType.NUMBER])
-        checkOperand(y, [PixIRDataType.NUMBER])
+        checkDataType(x, [PixIRDataType.NUMBER])
+        checkDataType(y, [PixIRDataType.NUMBER])
 
         const canvasX = ((x.val as number) * this.state.screenHandle.width) / this.state.width
         const canvasY = ((y.val as number) * this.state.screenHandle.height) / this.state.height
@@ -604,7 +604,7 @@ export class PixelVM {
       case PixIROpcode.ALLOCA: {
         let size = this.safePop()
 
-        checkOperand(size, [PixIRDataType.NUMBER])
+        checkDataType(size, [PixIRDataType.NUMBER])
 
         let arr = []
         for (let i = 0; i < (size.val as number); i++) arr.push(undefined)
@@ -623,8 +623,8 @@ export class PixelVM {
         const idx = this.safePop()
         const val = this.safePop()
 
-        checkOperand(arr, [PixIRDataType.ARRAY])
-        checkOperand(idx, [PixIRDataType.NUMBER])
+        checkDataType(arr, [PixIRDataType.ARRAY])
+        checkDataType(idx, [PixIRDataType.NUMBER])
         ;(arr.val as Array<any>)[idx.val as number] = val
 
         this.state.callStack[this.state.callStack.length - 1].pc++
@@ -635,8 +635,8 @@ export class PixelVM {
         let arr = this.safePop()
         const idx = this.safePop()
 
-        checkOperand(arr, [PixIRDataType.ARRAY])
-        checkOperand(idx, [PixIRDataType.NUMBER])
+        checkDataType(arr, [PixIRDataType.ARRAY])
+        checkDataType(idx, [PixIRDataType.NUMBER])
 
         const val = (arr.val as Array<any>)[idx.val as number]
         if (val === undefined) throw Error('Loaded undefined element from array.')

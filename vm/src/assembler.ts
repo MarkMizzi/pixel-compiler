@@ -1,4 +1,11 @@
-import { PixIRInstruction, PixIROpcode, PixIRData, PixIRDataType, readInstr } from './instructions'
+import {
+  PixIRInstruction,
+  PixIROpcode,
+  PixIRData,
+  PixIRDataType,
+  readInstr,
+  validateFunctionName
+} from './instructions'
 
 export type Program = Map<string, Array<PixIRInstruction>>
 
@@ -44,6 +51,7 @@ export class Assembler {
       // check if this line starts a new function
       if (line[0] == '.') {
         currFuncName = line
+        validateFunctionName(currFuncName)
         program.set(currFuncName, [])
       }
 
