@@ -87,7 +87,8 @@ export interface PixIRInstruction {
 
 /* Utility function to convert rgb numbers into Color hex string. */
 export function rgbToHex(r: number, g: number, b: number): Color {
-  if (r > 255 || g > 255 || b > 255) throw Error(`Invalid color component rgb(${r}, ${g}, ${b}).`)
+  if (r > 255 || g > 255 || b > 255)
+    throw RangeError(`Invalid color component rgb(${r}, ${g}, ${b}).`)
   return '#' + ((r << 16) | (g << 8) | b).toString(16)
 }
 
@@ -109,13 +110,14 @@ function isAlphaNum(s: string): boolean {
 export function validateFunctionName(funcName: FunctionName) {
   // validate function name
   if (funcName.length <= 1 || funcName.at(0) != '.')
-    throw Error(`Invalid function name ${funcName} found.`)
-  if (!isAlphaNum(funcName.substring(1))) throw Error(`Invalid function name ${funcName} found.`)
+    throw SyntaxError(`Invalid function name ${funcName} found.`)
+  if (!isAlphaNum(funcName.substring(1)))
+    throw SyntaxError(`Invalid function name ${funcName} found.`)
 }
 
 export function checkDataType(x: PixIRData, expectedTypes: Array<PixIRDataType>) {
   if (!(x.dtype in expectedTypes)) {
-    throw Error(`Invalid operand type given, expected one of ${expectedTypes}, got ${x.dtype}.`)
+    throw TypeError(`Invalid operand type given, expected one of ${expectedTypes}, got ${x.dtype}.`)
   }
 }
 
@@ -138,14 +140,14 @@ function readOperand(opStr: string): PixIRData {
     let offset = parseInt(splitLabel[0])
     let frame = 0
     if (splitLabel.length > 1) frame = parseInt(splitLabel[1])
-    if (isNaN(offset) || isNaN(frame)) throw Error(`Invalid label ${opStr} found.`)
+    if (isNaN(offset) || isNaN(frame)) throw SyntaxError(`Invalid label ${opStr} found.`)
     return { dtype: PixIRDataType.LABEL, val: [offset, frame] }
   }
 
   // try checking if operand is a PC offset
   if (opStr.substring(0, 3) == '#PC') {
     let offset = parseInt(opStr.substring(3))
-    if (isNaN(offset)) throw Error(`Invalid PC offset ${opStr} found.`)
+    if (isNaN(offset)) throw SyntaxError(`Invalid PC offset ${opStr} found.`)
     return { dtype: PixIRDataType.PCOFFSET, val: offset }
   }
 
@@ -156,19 +158,20 @@ function readOperand(opStr: string): PixIRData {
     // check that rest of string after # is a hex literal.
     isColor &&= !isNaN(parseInt(opStr.substring(1), 16))
   }
-  if (!isColor) throw Error(`Invalid operand ${opStr} found.`)
+  if (!isColor) throw SyntaxError(`Invalid operand ${opStr} found.`)
   return { dtype: PixIRDataType.COLOR, val: opStr }
 }
 
 export function readInstr(line: string): PixIRInstruction {
   let splitInstr = line.split(' ', 1)
-  if (!(splitInstr[0] in PixIROpcode)) throw Error(`${splitInstr[0]} is not a valid instruction.`)
+  if (!(splitInstr[0] in PixIROpcode))
+    throw SyntaxError(`${splitInstr[0]} is not a valid instruction.`)
   let opcode = splitInstr[0] as PixIROpcode
 
   // get opcode operand if the opcode is a push instruction
   let operand = undefined
   if (opcode == PixIROpcode.PUSH) {
-    if (splitInstr.length == 1) throw Error('Operand for push instruction was not specified.')
+    if (splitInstr.length == 1) throw SyntaxError('Operand for push instruction was not specified.')
     operand = readOperand(splitInstr[1])
   }
 

@@ -51,13 +51,13 @@ export class PixelVM {
   /* Pop safely from the work stack. */
   private safePop(): PixIRData {
     let x = this.state.workStack.pop()
-    if (x === undefined) throw Error('Empty stack when operand is needed.')
+    if (x === undefined) throw ReferenceError('Empty stack when operand is needed.')
     return x
   }
 
   private fillRect(x: number, y: number, w: number, h: number, c: Color) {
     if (x < 0 || y < 0 || x + w >= this.state.width || y + h >= this.state.height)
-      throw Error(`Out of bounds fill <${x}, ${y}, ${w}, ${h}> requested.`)
+      throw RangeError(`Out of bounds fill <${x}, ${y}, ${w}, ${h}> requested.`)
 
     // scale given variables to the actual Javascript canvas
     const canvasX = (x * this.state.screenHandle.width) / this.state.width
@@ -88,7 +88,7 @@ export class PixelVM {
 
     const { funcName, pc } = this.state.callStack[this.state.callStack.length - 1]
     const func = this.program.get(funcName)
-    if (func === undefined) throw Error('Function at the top of the stack was not found.')
+    if (func === undefined) throw ReferenceError('Function at the top of the stack was not found.')
 
     const instr = func[pc]
     switch (instr.opcode) {
@@ -639,7 +639,7 @@ export class PixelVM {
         checkDataType(idx, [PixIRDataType.NUMBER])
 
         const val = (arr.val as Array<any>)[idx.val as number]
-        if (val === undefined) throw Error('Loaded undefined element from array.')
+        if (val === undefined) throw ReferenceError('Loaded undefined element from array.')
 
         this.state.workStack.push(val)
 
@@ -657,7 +657,7 @@ export class PixelVM {
 
   public setWidth(width: number) {
     if (this.state.screenHandle.width < width)
-      throw Error(
+      throw RangeError(
         `Cannot set width of Pixel VM screen larger than width of canvas ${this.state.screenHandle.width}`
       )
     this.state.width = width
@@ -665,7 +665,7 @@ export class PixelVM {
 
   public setHeight(height: number) {
     if (this.state.screenHandle.height < height)
-      throw Error(
+      throw RangeError(
         `Cannot set height of Pixel VM screen larger than height of canvas ${this.state.screenHandle.width}`
       )
     this.state.height = height

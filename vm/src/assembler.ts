@@ -23,13 +23,13 @@ export class Assembler {
         if (instr.opcode == PixIROpcode.PUSH) {
           let operand = instr.operand as PixIRData
           if (operand.dtype == PixIRDataType.FUNCTION && !((operand.val as string) in program)) {
-            throw Error(`Function ${operand!.val} not found.`)
+            throw SyntaxError(`Function ${operand!.val} not found.`)
           }
         }
       }
     }
 
-    if (!('.main' in program)) throw Error('Program does not have a .main function.')
+    if (!('.main' in program)) throw SyntaxError('Program does not have a .main function.')
   }
 
   /* Assemble an input source string into an actual Program object that
@@ -56,7 +56,7 @@ export class Assembler {
       }
 
       if (currFuncName === undefined)
-        throw Error('Invalid program; instructions encountered outside of a function.')
+        throw SyntaxError('Invalid program; instructions encountered outside of a function.')
 
       // line must be a new instruction; read it and add it to current function.
       program.get(currFuncName).push(readInstr(line))
