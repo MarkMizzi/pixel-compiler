@@ -46,5 +46,4 @@ RUN apt-get autoremove -y
 
 # Command to run the playground app, appropriate port is also exposed.
 WORKDIR /playground
-EXPOSE 8080
 CMD ["node", "server/main.js"]
