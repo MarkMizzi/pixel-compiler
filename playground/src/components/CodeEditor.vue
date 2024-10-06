@@ -1,7 +1,12 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, type Component } from 'vue'
+import { Codemirror } from 'vue-codemirror'
 
+// eslint-disable-next-line
 export default defineComponent({
+  components: {
+    Codemirror
+  },
   props: {
     readonly: { type: [String, Boolean], required: true }
   },
@@ -19,7 +24,7 @@ export default defineComponent({
       this.extensions.push(extension)
     }
   }
-})
+}) as Component
 </script>
 
 <template>
