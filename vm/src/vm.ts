@@ -94,8 +94,8 @@ export class PixelVM {
     switch (instr.opcode) {
       // mathematical operations
       case PixIROpcode.ADD: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -111,8 +111,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.SUB: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -128,8 +128,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.MUL: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -144,8 +144,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.DIV: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -161,7 +161,7 @@ export class PixelVM {
       }
 
       case PixIROpcode.INC: {
-        let x = this.safePop()
+        const x = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
 
@@ -176,7 +176,7 @@ export class PixelVM {
       }
 
       case PixIROpcode.DEC: {
-        let x = this.safePop()
+        const x = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
 
@@ -192,8 +192,8 @@ export class PixelVM {
 
       case PixIROpcode.OR:
       case PixIROpcode.MAX: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -210,8 +210,8 @@ export class PixelVM {
 
       case PixIROpcode.AND:
       case PixIROpcode.MIN: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -228,7 +228,7 @@ export class PixelVM {
 
       // get random number
       case PixIROpcode.IRND: {
-        let x = this.safePop()
+        const x = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
 
@@ -244,7 +244,7 @@ export class PixelVM {
 
       // logical operations
       case PixIROpcode.NOT: {
-        let x = this.safePop()
+        const x = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
 
@@ -259,8 +259,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.LT: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -276,8 +276,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.LE: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -293,8 +293,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.EQ: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [y.dtype])
 
@@ -309,8 +309,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.NEQ: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [y.dtype])
 
@@ -325,8 +325,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.GT: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -342,8 +342,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.GE: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -360,7 +360,7 @@ export class PixelVM {
 
       // stack and control operations
       case PixIROpcode.DUP: {
-        let x = this.safePop()
+        const x = this.safePop()
 
         this.state.workStack.push(x)
         this.state.workStack.push(x)
@@ -379,7 +379,7 @@ export class PixelVM {
       }
 
       case PixIROpcode.JMP: {
-        let x = this.safePop()
+        const x = this.safePop()
 
         checkDataType(x, [PixIRDataType.PCOFFSET])
         this.state.callStack[this.state.callStack.length - 1].pc = x.val as number
@@ -387,8 +387,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.CJMP: {
-        let offset = this.safePop()
-        let cond = this.safePop()
+        const offset = this.safePop()
+        const cond = this.safePop()
 
         checkDataType(offset, [PixIRDataType.PCOFFSET])
         checkDataType(cond, [PixIRDataType.NUMBER])
@@ -401,8 +401,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.CJMP2: {
-        let offset = this.safePop()
-        let cond = this.safePop()
+        const offset = this.safePop()
+        const cond = this.safePop()
 
         checkDataType(offset, [PixIRDataType.PCOFFSET])
         checkDataType(cond, [PixIRDataType.NUMBER])
@@ -415,8 +415,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.CALL: {
-        let funcName = this.safePop()
-        let argCount = this.safePop()
+        const funcName = this.safePop()
+        const argCount = this.safePop()
 
         checkDataType(funcName, [PixIRDataType.FUNCTION])
         checkDataType(argCount, [PixIRDataType.NUMBER])
@@ -445,7 +445,7 @@ export class PixelVM {
 
       // allocate automatic vars, create stack frames.
       case PixIROpcode.ALLOC: {
-        let size = this.safePop()
+        const size = this.safePop()
 
         checkDataType(size, [PixIRDataType.NUMBER])
 
@@ -457,7 +457,7 @@ export class PixelVM {
       }
 
       case PixIROpcode.OFRAME: {
-        let size = this.safePop()
+        const size = this.safePop()
 
         checkDataType(size, [PixIRDataType.NUMBER])
 
@@ -478,9 +478,9 @@ export class PixelVM {
       }
 
       case PixIROpcode.ST: {
-        let location = this.safePop()
-        let frame = this.safePop()
-        let val = this.safePop()
+        const location = this.safePop()
+        const frame = this.safePop()
+        const val = this.safePop()
 
         checkDataType(location, [PixIRDataType.NUMBER])
         checkDataType(frame, [PixIRDataType.NUMBER])
@@ -497,7 +497,7 @@ export class PixelVM {
         // sleep in Javascript; delay given in milliseconds
         const sleep = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay))
 
-        let delay = this.safePop()
+        const delay = this.safePop()
 
         checkDataType(delay, [PixIRDataType.NUMBER])
 
@@ -509,9 +509,9 @@ export class PixelVM {
 
       // screen related operations
       case PixIROpcode.PIXEL: {
-        let x = this.safePop()
-        let y = this.safePop()
-        let c = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
+        const c = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -524,11 +524,11 @@ export class PixelVM {
       }
 
       case PixIROpcode.PIXELR: {
-        let x = this.safePop()
-        let y = this.safePop()
-        let w = this.safePop()
-        let h = this.safePop()
-        let c = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
+        const w = this.safePop()
+        const h = this.safePop()
+        const c = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -549,7 +549,7 @@ export class PixelVM {
       }
 
       case PixIROpcode.CLEAR: {
-        let c = this.safePop()
+        const c = this.safePop()
 
         checkDataType(c, [PixIRDataType.COLOR])
 
@@ -560,8 +560,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.READ: {
-        let x = this.safePop()
-        let y = this.safePop()
+        const x = this.safePop()
+        const y = this.safePop()
 
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
@@ -602,7 +602,7 @@ export class PixelVM {
 
       // array operations
       case PixIROpcode.ALLOCA: {
-        let size = this.safePop()
+        const size = this.safePop()
 
         checkDataType(size, [PixIRDataType.NUMBER])
 
