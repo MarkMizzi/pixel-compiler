@@ -9,7 +9,8 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "vite-dev": "vite dev"
   },
   "dependencies": {
     "@codemirror/lang-xml": "^6.1.0",
