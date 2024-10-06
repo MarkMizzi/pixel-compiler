@@ -19,6 +19,7 @@
     "pixel-vm": "file:../vm",
     "tmp": "^0.2.3",
     "vue": "^3.4.29",
+    "vue-codemirror": "^5.1.0",
     "vue-router": "^4.3.3",
     "vue-toast-notification": "^3.1.3"
   },
