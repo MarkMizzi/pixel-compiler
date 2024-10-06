@@ -7,10 +7,10 @@ import { RouterLink, RouterView } from 'vue-router'
     class="flex flex-wrap md:justify-start md:flex-nowrap sticky top-0 z-50 w-full justify-self-start"
   >
     <nav
-      class="relative w-full mx-auto px-4 md:flex md:items-center md:justify-between md:px-6 lg:px-8"
+      class="relative w-full mx-auto px-4 md:flex md:items-center md:justify-between md:px-6 lg:px-8 py-2"
     >
       <div class="flex flex-row">
-        <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+        <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="50" height="50" />
       </div>
       <div class="flex flex-row">
         <RouterLink to="/">Home</RouterLink>
