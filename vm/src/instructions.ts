@@ -123,7 +123,7 @@ export function checkDataType(x: PixIRData, expectedTypes: Array<PixIRDataType>)
 
 function readOperand(opStr: string): PixIRData {
   // try checking if operand is a number
-  let numValue = parseFloat(opStr)
+  const numValue = parseFloat(opStr)
   if (!isNaN(numValue)) return { dtype: PixIRDataType.NUMBER, val: numValue }
 
   // try checking if operand is a function name
@@ -135,9 +135,9 @@ function readOperand(opStr: string): PixIRData {
 
   // try checking if operand is a label
   if (opStr[0] == '[' && opStr[opStr.length - 1] == ']') {
-    let label = opStr.substring(1, opStr.length - 1)
-    let splitLabel = label.split(':', 1)
-    let offset = parseInt(splitLabel[0])
+    const label = opStr.substring(1, opStr.length - 1)
+    const splitLabel = label.split(':', 1)
+    const offset = parseInt(splitLabel[0])
     let frame = 0
     if (splitLabel.length > 1) frame = parseInt(splitLabel[1])
     if (isNaN(offset) || isNaN(frame)) throw SyntaxError(`Invalid label ${opStr} found.`)
@@ -146,7 +146,7 @@ function readOperand(opStr: string): PixIRData {
 
   // try checking if operand is a PC offset
   if (opStr.substring(0, 3) == '#PC') {
-    let offset = parseInt(opStr.substring(3))
+    const offset = parseInt(opStr.substring(3))
     if (isNaN(offset)) throw SyntaxError(`Invalid PC offset ${opStr} found.`)
     return { dtype: PixIRDataType.PCOFFSET, val: offset }
   }
@@ -163,10 +163,10 @@ function readOperand(opStr: string): PixIRData {
 }
 
 export function readInstr(line: string): PixIRInstruction {
-  let splitInstr = line.split(' ', 1)
+  const splitInstr = line.split(' ', 1)
   if (!(splitInstr[0] in PixIROpcode))
     throw SyntaxError(`${splitInstr[0]} is not a valid instruction.`)
-  let opcode = splitInstr[0] as PixIROpcode
+  const opcode = splitInstr[0] as PixIROpcode
 
   // get opcode operand if the opcode is a push instruction
   let operand = undefined
