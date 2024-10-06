@@ -625,6 +625,9 @@ export class PixelVM {
 
         checkDataType(size, [PixIRDataType.NUMBER])
 
+        if ((size.val as number) < 0)
+          throw RangeError(`Cannot allocate array with negative size ${size.val}`)
+
         let arr = []
         for (let i = 0; i < (size.val as number); i++) arr.push(undefined)
 
