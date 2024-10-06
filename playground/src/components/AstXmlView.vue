@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useAstXmlStore } from '@/stores/compilerOutput'
 import CodeEditor from './CodeEditor.vue'
-import { useAstXmlStore } from '@/stores/ast'
 
 const astXmlStore = useAstXmlStore()
 </script>
@@ -11,7 +12,7 @@ const astXmlStore = useAstXmlStore()
     class="border-2 border-slate-700"
     readonly="nocursor"
     mode="xml"
-    :content="astXmlStore.astXml"
+    :content="computed(() => astXmlStore.astXml)"
   ></CodeEditor>
 </template>
 
