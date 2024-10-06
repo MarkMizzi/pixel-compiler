@@ -644,6 +644,13 @@ export class PixelVM {
 
         checkDataType(arr, [PixIRDataType.ARRAY])
         checkDataType(idx, [PixIRDataType.NUMBER])
+
+        // array bounds checking
+        const arrsize = (arr.val as Array<any>).length
+        if ((idx.val as number) < 0 || (idx.val as number) >= arrsize)
+          throw RangeError(
+            `Out of bounds access ${idx.val} to array ${arr.val} of size ${arrsize}.`
+          )
         ;(arr.val as Array<any>)[idx.val as number] = val
 
         this.state.callStack[this.state.callStack.length - 1].pc++
@@ -657,8 +664,18 @@ export class PixelVM {
         checkDataType(arr, [PixIRDataType.ARRAY])
         checkDataType(idx, [PixIRDataType.NUMBER])
 
+        // array bounds checking
+        const arrsize = (arr.val as Array<any>).length
+        if ((idx.val as number) < 0 || (idx.val as number) >= arrsize)
+          throw RangeError(
+            `Out of bounds access ${idx.val} to array ${arr.val} of size ${arrsize}.`
+          )
+
         const val = (arr.val as Array<any>)[idx.val as number]
-        if (val === undefined) throw ReferenceError('Loaded undefined element from array.')
+        if (val === undefined)
+          throw ReferenceError(
+            `Loaded undefined element from location ${idx.val} of array ${arr.val}.`
+          )
 
         this.state.workStack.push(val)
 
