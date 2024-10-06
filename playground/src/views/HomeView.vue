@@ -34,10 +34,16 @@ export default defineComponent({
       </div>
       <div class="w-full grid grid-cols-1">
         <div class="flex flex-row justify-start p-2 gap-x-4">
-          <button class="w-32 p-2 rounded bg-teal-700 text-white" @click="selected = 'assembly'">
+          <button
+            class="w-32 p-2 rounded-t-lg bg-slate-800 text-white"
+            @click="selected = 'assembly'"
+          >
             View Assembly
           </button>
-          <button class="w-32 p-2 rounded bg-teal-700 text-white" @click="selected = 'astxml'">
+          <button
+            class="w-32 p-2 rounded-t-lg bg-slate-800 text-white"
+            @click="selected = 'astxml'"
+          >
             View AST XML
           </button>
         </div>

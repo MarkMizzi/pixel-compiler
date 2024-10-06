@@ -3,7 +3,9 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <header class="flex flex-wrap md:justify-start md:flex-nowrap sticky top-0 z-50 w-full">
+  <header
+    class="flex flex-wrap md:justify-start md:flex-nowrap sticky top-0 z-50 w-full justify-self-start"
+  >
     <nav
       class="relative w-full mx-auto px-4 md:flex md:items-center md:justify-between md:px-6 lg:px-8"
     >
