@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, type Component } from 'vue'
+import { defineComponent, type DefineComponent } from 'vue'
 import { Codemirror } from 'vue-codemirror'
 
 // eslint-disable-next-line
@@ -24,7 +24,13 @@ export default defineComponent({
       this.extensions.push(extension)
     }
   }
-}) as Component
+}) as DefineComponent<
+  { readonly: boolean | string },
+  {},
+  { code: string; extensions: Array<any> },
+  {},
+  { addExtension: (code: string) => void; setCode: (code: string) => void }
+>
 </script>
 
 <template>
