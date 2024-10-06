@@ -48,19 +48,17 @@ app.post('/compile', function (req: Request, res: Response) {
   exec(
     `../pixelc -o ${asmOutFile.name} -xml ${xmlOutFile.name} ${sourceFile.name}`,
     (error: ExecException | null, stdout: string, stderr: string) => {
-      if (error !== null) {
-        console.log(error)
-        res
-          .status(StatusCodes.INTERNAL_SERVER_ERROR)
-          .send('Internal Server Error. Try again later.')
-        return
-      }
-
       const output: CompilerOutput = {
         asmOutput: fs.readFileSync(asmOutFile.name, { encoding: 'ascii' }),
         xmlOutput: fs.readFileSync(xmlOutFile.name, { encoding: 'ascii' }),
         compilerStdOut: stdout,
         compilerStdErr: stderr
+      }
+
+      if (error !== null) {
+        // make sure we don't output any assembly or XML if compiler didn't exit successfully
+        output.asmOutput = ''
+        output.xmlOutput = ''
       }
 
       res.status(StatusCodes.OK).send(output)
