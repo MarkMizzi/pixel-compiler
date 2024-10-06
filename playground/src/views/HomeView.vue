@@ -5,6 +5,11 @@ import SourceCodeView from '@/components/SourceCodeView.vue'
 import { defineComponent, useTemplateRef } from 'vue'
 
 export default defineComponent({
+  components: {
+    SourceCodeView,
+    AstXmlView,
+    AsmView
+  },
   methods: {
     setAstXml(astXml: string) {
       const astXmlView = useTemplateRef('astXmlView')

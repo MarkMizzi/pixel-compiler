@@ -7,8 +7,8 @@ import { useToast } from 'vue-toast-notification'
 const $toast = useToast()
 
 const props = defineProps<{
-  setAstXml: (s: string) => undefined
-  setAssembly: (s: string) => undefined
+  setAstXml: (s: string) => void
+  setAssembly: (s: string) => void
 }>()
 
 // once the component is mounted this will automatically be set to
