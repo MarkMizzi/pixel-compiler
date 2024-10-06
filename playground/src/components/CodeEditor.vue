@@ -13,6 +13,13 @@ CodeMirror.fromTextArea(editorTextAreaRef.value as HTMLTextAreaElement, {
   mode: props.mode,
   readOnly: props.readonly
 })
+
+const getContent = (): string => {
+  let textArea = editorTextAreaRef.value as HTMLTextAreaElement
+  return textArea.value
+}
+// make the getContent method public
+defineExpose({ getContent })
 </script>
 
 <template>
