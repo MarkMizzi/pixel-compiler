@@ -3,16 +3,17 @@ import { StatusCodes } from 'http-status-codes'
 import CodeEditor from './CodeEditor.vue'
 import { ref, type Component, type Ref } from 'vue'
 import { useToast } from 'vue-toast-notification'
-import { useAssemblyStore, useAstXmlStore } from '@/stores/compilerOutput'
 
 const $toast = useToast()
+
+const props = defineProps<{
+  setAstXml: (s: string) => undefined
+  setAssembly: (s: string) => undefined
+}>()
 
 // once the component is mounted this will automatically be set to
 // point to child component with ref="srcCodeEditor"
 const srcCodeEditor: Ref<Component | null> = ref(null)
-
-const asmStore = useAssemblyStore()
-const astXmlStore = useAstXmlStore()
 
 interface CompilerOutput {
   xmlOutput: string
@@ -41,12 +42,12 @@ const compile = () => {
         if (output.asmOutput == '') {
           // an error occurred, indicate to user and set asm and ast views to combined stderr and stdout streams.
           $toast.error('Compilation error occurred. Check your source program.')
-          asmStore.setAssembly(output.compilerStdErr + output.compilerStdOut)
-          astXmlStore.setAstXml(output.compilerStdErr + output.compilerStdOut)
+          props.setAssembly(output.compilerStdErr + output.compilerStdOut)
+          props.setAstXml(output.compilerStdErr + output.compilerStdOut)
         } else {
           // set store variables accordingly
-          asmStore.setAssembly(output.asmOutput)
-          astXmlStore.setAstXml(output.xmlOutput)
+          props.setAssembly(output.asmOutput)
+          props.setAstXml(output.xmlOutput)
         }
       }
     })
