@@ -20,6 +20,9 @@ export default defineComponent({
     setCode(code: string) {
       this.code = code
     },
+    getCode(): string {
+      return this.code
+    },
     addExtension(extension: any) {
       this.extensions.push(extension)
     }
