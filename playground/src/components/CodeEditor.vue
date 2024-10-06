@@ -8,7 +8,15 @@ export default defineComponent({
   data() {
     return {
       code: '',
-      extensions: []
+      extensions: new Array<any>()
+    }
+  },
+  methods: {
+    setCode(code: string) {
+      this.code = code
+    },
+    addExtension(extension: any) {
+      this.extensions.push(extension)
     }
   }
 })
@@ -22,6 +30,7 @@ export default defineComponent({
     :indent-with-tab="true"
     :tab-size="2"
     :extensions="extensions"
+    :readonly="readonly"
   />
 </template>
 
