@@ -1,6 +1,6 @@
 <script lang="ts">
 import CodeEditor from './CodeEditor.vue'
-import { defineComponent, useTemplateRef } from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   components: {
@@ -8,8 +8,8 @@ export default defineComponent({
   },
   methods: {
     setAssembly(assembly: string) {
-      const assemblyEditor = useTemplateRef('assemblyEditor')
-      ;(assemblyEditor.value as typeof CodeEditor).setCode(assembly)
+      const assemblyCodeEditor = this.$refs.assemblyEditor
+      ;(assemblyCodeEditor as typeof CodeEditor).setCode(assembly)
     }
   }
 })

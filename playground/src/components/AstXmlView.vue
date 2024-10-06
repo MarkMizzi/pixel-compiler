@@ -1,6 +1,6 @@
 <script lang="ts">
 import CodeEditor from './CodeEditor.vue'
-import { defineComponent, useTemplateRef } from 'vue'
+import { defineComponent } from 'vue'
 import { xml } from '@codemirror/lang-xml'
 
 export default defineComponent({
@@ -9,13 +9,13 @@ export default defineComponent({
   },
   mounted() {
     // add XML extension to the code editor.
-    const astXmlCodeEditor = useTemplateRef('astXmlCodeEditor')
-    ;(astXmlCodeEditor.value as typeof CodeEditor).addExtension(xml)
+    const astXmlCodeEditor = this.$refs.astXmlCodeEditor
+    ;(astXmlCodeEditor as typeof CodeEditor).addExtension(xml())
   },
   methods: {
     setAstXml(astXml: string) {
-      const astXmlCodeEditor = useTemplateRef('astXmlCodeEditor')
-      ;(astXmlCodeEditor.value as typeof CodeEditor).setCode(astXml)
+      const astXmlCodeEditor = this.$refs.astXmlCodeEditor
+      ;(astXmlCodeEditor as typeof CodeEditor).setCode(astXml)
     }
   }
 })
