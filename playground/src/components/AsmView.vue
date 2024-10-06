@@ -19,7 +19,7 @@ export default defineComponent({
   <CodeEditor
     ref="assemblyEditor"
     class="border-2 border-slate-700"
-    readonly="nocursor"
+    :readonly="true"
     mode="null"
   ></CodeEditor>
 </template>

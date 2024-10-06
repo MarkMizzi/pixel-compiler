@@ -25,7 +25,7 @@ export default defineComponent({
   <CodeEditor
     ref="astXmlCodeEditor"
     class="border-2 border-slate-700"
-    readonly="nocursor"
+    :readonly="true"
     mode="xml"
   ></CodeEditor>
 </template>

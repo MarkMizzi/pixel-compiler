@@ -8,7 +8,7 @@ export default defineComponent({
     Codemirror
   },
   props: {
-    readonly: { type: [String, Boolean], required: true }
+    readonly: { type: Boolean, required: true }
   },
   data() {
     return {
@@ -25,7 +25,7 @@ export default defineComponent({
     }
   }
 }) as DefineComponent<
-  { readonly: boolean | string },
+  { readonly: boolean },
   {},
   { code: string; extensions: Array<any> },
   {},
@@ -35,13 +35,14 @@ export default defineComponent({
 
 <template>
   <codemirror
+    ref="codemirror"
     v-model="code"
     placeholder=""
     :style="{ height: '400px' }"
     :indent-with-tab="true"
     :tab-size="2"
     :extensions="extensions"
-    :readonly="readonly"
+    :disabled="readonly"
   />
 </template>
 
