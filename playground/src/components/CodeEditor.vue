@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import CodeMirror from 'codemirror'
-import { useTemplateRef } from 'vue'
+import { useTemplateRef, ref, type Ref } from 'vue'
 
-const props = defineProps<{
+const { content = ref(''), ...props } = defineProps<{
   readonly: boolean | 'nocursor'
   mode: string
+  content?: Ref<string>
 }>()
 
 const editorTextAreaRef = useTemplateRef('editor')
 CodeMirror.fromTextArea(editorTextAreaRef.value as HTMLTextAreaElement, {
-  value: '',
   mode: props.mode,
   readOnly: props.readonly
 })
@@ -23,7 +23,7 @@ defineExpose({ getContent })
 </script>
 
 <template>
-  <textarea ref="editor"></textarea>
+  <textarea ref="editor" :value="content"></textarea>
 </template>
 
 <style scoped></style>
