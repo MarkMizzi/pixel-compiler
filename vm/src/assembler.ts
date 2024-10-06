@@ -18,10 +18,10 @@ export class Assembler {
    */
   private validate(program: Program) {
     // check that each function referenced in push instruction is within the program.
-    for (let [_, instrs] of program) {
-      for (let instr of instrs) {
+    for (const [_, instrs] of program) {
+      for (const instr of instrs) {
         if (instr.opcode == PixIROpcode.PUSH) {
-          let operand = instr.operand as PixIRData
+          const operand = instr.operand as PixIRData
           if (operand.dtype == PixIRDataType.FUNCTION && !((operand.val as string) in program)) {
             throw SyntaxError(`Function ${operand!.val} not found.`)
           }
