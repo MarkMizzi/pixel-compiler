@@ -3,8 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import CodeEditor from './CodeEditor.vue'
 import { ref, type Component, type Ref } from 'vue'
 import { useToast } from 'vue-toast-notification'
-import { useAstXmlStore } from '@/stores/ast'
-import { useAssemblyStore } from '@/stores/asm'
+import { useAssemblyStore, useAstXmlStore } from '@/stores/compilerOutput'
 
 const $toast = useToast()
 
