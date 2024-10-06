@@ -55,15 +55,21 @@ export class PixelVM {
     return x
   }
 
+  /* Utility function to scale (x, y) on PixelVM screen by canvas dimensions. */
+  private scaleCanvas(x: number, y: number): [number, number] {
+    return [
+      (x * this.state.screenHandle.width) / this.state.width,
+      (y * this.state.screenHandle.height) / this.state.height
+    ]
+  }
+
   private fillRect(x: number, y: number, w: number, h: number, c: Color) {
     if (x < 0 || y < 0 || x + w >= this.state.width || y + h >= this.state.height)
       throw RangeError(`Out of bounds fill <${x}, ${y}, ${w}, ${h}> requested.`)
 
     // scale given variables to the actual Javascript canvas
-    const canvasX = (x * this.state.screenHandle.width) / this.state.width
-    const canvasY = (y * this.state.screenHandle.height) / this.state.height
-    const canvasW = (w * this.state.screenHandle.width) / this.state.width
-    const canvasH = (h * this.state.screenHandle.height) / this.state.height
+    const [canvasX, canvasY] = this.scaleCanvas(x, y)
+    const [canvasW, canvasH] = this.scaleCanvas(w, h)
 
     // fill in the rectangle.
     let context = this.state.screenHandle.getContext('2d')
@@ -566,8 +572,12 @@ export class PixelVM {
         checkDataType(x, [PixIRDataType.NUMBER])
         checkDataType(y, [PixIRDataType.NUMBER])
 
-        const canvasX = ((x.val as number) * this.state.screenHandle.width) / this.state.width
-        const canvasY = ((y.val as number) * this.state.screenHandle.height) / this.state.height
+        let [canvasX, canvasY] = this.scaleCanvas(x.val as number, y.val as number)
+        const [canvasX_, canvasY_] = this.scaleCanvas((x.val as number) + 1, (y.val as number) + 1)
+        // find center of canvas rectangle representing pixel (x, y) of PixelVM screen,
+        // this ensures we read from the right region of the canvas despite any floating point rounding errors.
+        canvasX = (canvasX + canvasX_) / 2
+        canvasY = (canvasY + canvasY_) / 2
 
         const context = this.state.screenHandle.getContext('2d')
         const imageData = context!.getImageData(canvasX, canvasY, 1, 1).data
@@ -666,7 +676,7 @@ export class PixelVM {
   public setHeight(height: number) {
     if (this.state.screenHandle.height < height)
       throw RangeError(
-        `Cannot set height of Pixel VM screen larger than height of canvas ${this.state.screenHandle.width}`
+        `Cannot set height of Pixel VM screen larger than height of canvas ${this.state.screenHandle.height}`
       )
     this.state.height = height
   }
