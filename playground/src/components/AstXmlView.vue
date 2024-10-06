@@ -4,6 +4,9 @@ import { defineComponent, useTemplateRef } from 'vue'
 import { xml } from '@codemirror/lang-xml'
 
 export default defineComponent({
+  components: {
+    CodeEditor
+  },
   mounted() {
     // add XML extension to the code editor.
     const astXmlCodeEditor = useTemplateRef('astXmlCodeEditor')

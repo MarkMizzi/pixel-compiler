@@ -3,6 +3,9 @@ import CodeEditor from './CodeEditor.vue'
 import { defineComponent, useTemplateRef } from 'vue'
 
 export default defineComponent({
+  components: {
+    CodeEditor
+  },
   methods: {
     setAssembly(assembly: string) {
       const assemblyEditor = useTemplateRef('assemblyEditor')
