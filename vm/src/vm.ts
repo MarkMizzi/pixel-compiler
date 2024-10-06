@@ -610,6 +610,15 @@ export class PixelVM {
         break
       }
 
+      // log output
+      case PixIROpcode.PRINT: {
+        const x = this.safePop()
+        this.state.loggerHandle.value += `${x}\n`
+
+        this.state.callStack[this.state.callStack.length - 1].pc++
+        break
+      }
+
       // array operations
       case PixIROpcode.ALLOCA: {
         const size = this.safePop()
