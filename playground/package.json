@@ -12,6 +12,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@codemirror/lang-xml": "^6.1.0",
     "codemirror": "^5.65.18",
     "express": "^4.21.0",
     "http-status-codes": "^2.3.0",
