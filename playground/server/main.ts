@@ -30,7 +30,7 @@ const port = 8080
 // setup so that accesses to the root url serve the frontend of the application (which is built under dist/)
 app.use(express.static('dist'))
 
-app.get('/compile', function (req: Request, res: Response) {
+app.post('/compile', function (req: Request, res: Response) {
   const input = validateCompilerInput(req.body)
 
   if (input === undefined) {
