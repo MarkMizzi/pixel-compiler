@@ -7,7 +7,7 @@ import fs from 'node:fs'
 import { StatusCodes } from 'http-status-codes'
 
 interface CompilerInput {
-  srcCode: string
+  srcCode: string | undefined
 }
 
 interface CompilerOutput {
@@ -17,12 +17,8 @@ interface CompilerOutput {
   compilerStdErr: string
 }
 
-function validateCompilerInput(x: any): CompilerInput | undefined {
-  if (!x || !x.srcCode || typeof x.srcCode != 'string') return undefined
-  return x as CompilerInput
-}
-
 const app: Express = express()
+app.use(express.json())
 
 // port which the web server will listen to
 const port = 8080
@@ -31,9 +27,8 @@ const port = 8080
 app.use(express.static('dist'))
 
 app.post('/compile', function (req: Request, res: Response) {
-  const input = validateCompilerInput(req.body)
-
-  if (input === undefined) {
+  const input = req.body as CompilerInput
+  if (input.srcCode === undefined) {
     res.status(StatusCodes.BAD_REQUEST).send('Invalid compilation request.')
     return
   }
@@ -45,14 +40,16 @@ app.post('/compile', function (req: Request, res: Response) {
   try {
     fs.writeFileSync(sourceFile.name, input!.srcCode, { encoding: 'ascii' })
   } catch (err) {
+    console.log(err)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send('Internal Server Error. Try again later.')
     return
   }
 
   exec(
-    `../pixelc -o ${asmOutFile} -xml ${xmlOutFile} ${sourceFile}`,
+    `../pixelc -o ${asmOutFile.name} -xml ${xmlOutFile.name} ${sourceFile.name}`,
     (error: ExecException | null, stdout: string, stderr: string) => {
       if (error !== null) {
+        console.log(error)
         res
           .status(StatusCodes.INTERNAL_SERVER_ERROR)
           .send('Internal Server Error. Try again later.')
