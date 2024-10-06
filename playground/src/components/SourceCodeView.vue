@@ -24,42 +24,47 @@ interface CompilerOutput {
 
 const compile = () => {
   fetch('/compile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      srcCode: (srcCodeEditor.value as typeof CodeEditor).getContent()
+      srcCode: (srcCodeEditor.value as typeof CodeEditor).getCode()
     })
   })
     .then(async (response) => {
       // check error status
       if (response.status == StatusCodes.SERVICE_UNAVAILABLE) {
         // this error comes from NGINX, give our own error message
-        $toast.error('Rate limit exceeded. Try again later.')
+        throw Error('Rate limit exceeded. Try again later.')
       } else if (response.status != 200) {
-        $toast.error(`${response.status} Error: ${response.body}`)
+        throw Error(`${response.status} ${await response.text()}`)
       } else {
-        // parse body
-        let output = (await response.json()) as CompilerOutput
-        // check for compiler error
-        if (output.asmOutput == '') {
-          // an error occurred, indicate to user and set asm and ast views to combined stderr and stdout streams.
-          $toast.error('Compilation error occurred. Check your source program.')
-          props.setAssembly(output.compilerStdErr + output.compilerStdOut)
-          props.setAstXml(output.compilerStdErr + output.compilerStdOut)
-        } else {
-          // set store variables accordingly
-          props.setAssembly(output.asmOutput)
-          props.setAstXml(output.xmlOutput)
-        }
+        return response.json()
+      }
+    })
+    .then((data) => {
+      // parse body
+      let output = data as CompilerOutput
+      // check for compiler error
+      if (output.asmOutput == '') {
+        props.setAssembly(output.compilerStdErr + output.compilerStdOut)
+        props.setAstXml(output.compilerStdErr + output.compilerStdOut)
+        // an error occurred, indicate to user and set asm and ast views to combined stderr and stdout streams.
+        throw Error('Compilation error occurred. Check your source program.')
+      } else {
+        // set store variables accordingly
+        props.setAssembly(output.asmOutput)
+        props.setAstXml(output.xmlOutput)
       }
     })
     .catch((error) => {
-      $toast.error(`Error occurred while attempting connection to compilation server: ${error}`)
+      $toast.error(`${error}`)
     })
 }
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <div class="flex flex-row justify-start">
+  <div class="grid grid-cols-1">
+    <div class="flex flex-row justify-start p-2">
       <button class="w-32 p-2 rounded bg-teal-700 text-white" @click="compile()">Compile</button>
     </div>
     <CodeEditor
