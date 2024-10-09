@@ -1,6 +1,7 @@
 <script lang="ts">
 import AsmView from '@/components/AsmView.vue'
 import AstXmlView from '@/components/AstXmlView.vue'
+import PixelVMView from '@/components/PixelVMView.vue'
 import SourceCodeView from '@/components/SourceCodeView.vue'
 import { defineComponent } from 'vue'
 
@@ -8,7 +9,8 @@ export default defineComponent({
   components: {
     SourceCodeView,
     AstXmlView,
-    AsmView
+    AsmView,
+    PixelVMView
   },
   data() {
     return { selected: 'assembly' }
@@ -21,6 +23,9 @@ export default defineComponent({
     setAssembly(assembly: string) {
       const asmView = this.$refs.asmView
       ;(asmView as typeof AsmView).setAssembly(assembly)
+
+      const pixelVMView = this.$refs.pixelVMView
+      ;(pixelVMView as typeof PixelVMView).setProgram(assembly)
     }
   }
 })
@@ -46,9 +51,13 @@ export default defineComponent({
           >
             View AST XML
           </button>
+          <button class="w-32 p-2 rounded-t-lg bg-slate-800 text-white" @click="selected = 'run'">
+            Run Program
+          </button>
         </div>
         <AsmView v-show="selected == 'assembly'" ref="asmView"></AsmView>
         <AstXmlView v-show="selected == 'astxml'" ref="astXmlView"></AstXmlView>
+        <PixelVMView v-show="selected == 'run'" ref="pixelVMView"></PixelVMView>
       </div>
     </div>
   </main>
