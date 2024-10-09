@@ -1,14 +1,13 @@
 import {
-  Color,
-  FunctionName,
-  PixIRData,
+  type Color,
+  type FunctionName,
+  type PixIRData,
   PixIROpcode,
-  PixIRInstruction,
   PixIRDataType,
   checkDataType,
   rgbToHex
 } from './instructions'
-import { Program } from './assembler'
+import { type Program } from './assembler'
 
 type Frame = Array<PixIRData | undefined>
 

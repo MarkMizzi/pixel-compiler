@@ -109,7 +109,7 @@ function isAlphaNum(s: string): boolean {
 
 export function validateFunctionName(funcName: FunctionName) {
   // validate function name
-  if (funcName.length <= 1 || funcName.at(0) != '.')
+  if (funcName.length <= 1 || funcName[0] != '.')
     throw SyntaxError(`Invalid function name ${funcName} found.`)
   if (!isAlphaNum(funcName.substring(1)))
     throw SyntaxError(`Invalid function name ${funcName} found.`)

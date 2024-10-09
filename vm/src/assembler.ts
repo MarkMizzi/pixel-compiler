@@ -1,7 +1,7 @@
 import {
-  PixIRInstruction,
+  type PixIRInstruction,
   PixIROpcode,
-  PixIRData,
+  type PixIRData,
   PixIRDataType,
   readInstr,
   validateFunctionName

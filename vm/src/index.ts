@@ -1,2 +1,2 @@
 export { PixelVM } from './vm'
-export { Assembler, Program } from './assembler'
+export { Assembler, type Program } from './assembler'
