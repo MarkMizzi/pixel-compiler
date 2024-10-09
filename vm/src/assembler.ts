@@ -39,9 +39,9 @@ export class Assembler {
     let program = new Map()
     let currFuncName = undefined
 
-    while (src.length != 0) {
-      let line: string
-      ;[line, src] = src.split('\n', 1)
+    const srcLines = src.split('\n')
+
+    for (let line of srcLines) {
       // remove extra whitespace
       line = line.trim()
 
@@ -53,6 +53,7 @@ export class Assembler {
         currFuncName = line
         validateFunctionName(currFuncName)
         program.set(currFuncName, [])
+        continue
       }
 
       if (currFuncName === undefined)

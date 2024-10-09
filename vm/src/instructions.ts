@@ -99,9 +99,9 @@ function isAlphaNum(s: string): boolean {
   for (let i = 0; i < s.length; i++) {
     let charCode = s.charCodeAt(i)
     isAlphaNum &&=
-      (charCode > 47 && charCode < 58) ||
-      (charCode > 96 && charCode < 123) ||
-      (charCode > 64 && charCode < 91)
+      (charCode >= '0'.charCodeAt(0) && charCode <= '9'.charCodeAt(0)) ||
+      (charCode >= 'a'.charCodeAt(0) && charCode <= 'z'.charCodeAt(0)) ||
+      (charCode > 'A'.charCodeAt(0) && charCode <= 'Z'.charCodeAt(0))
   }
 
   return isAlphaNum
@@ -163,8 +163,10 @@ function readOperand(opStr: string): PixIRData {
 }
 
 export function readInstr(line: string): PixIRInstruction {
-  const splitInstr = line.split(' ', 1)
-  if (!(splitInstr[0] in PixIROpcode))
+  const splitInstr = line.split(' ')
+  let opcodeStr = splitInstr[0]
+  opcodeStr = opcodeStr.toLowerCase()
+  if (!Object.values(PixIROpcode).includes(opcodeStr as PixIROpcode))
     throw SyntaxError(`${splitInstr[0]} is not a valid instruction.`)
   const opcode = splitInstr[0] as PixIROpcode
 
@@ -172,6 +174,8 @@ export function readInstr(line: string): PixIRInstruction {
   let operand = undefined
   if (opcode == PixIROpcode.PUSH) {
     if (splitInstr.length == 1) throw SyntaxError('Operand for push instruction was not specified.')
+    if (splitInstr.length != 2)
+      throw SyntaxError('Extra operands specified for push instruction; can only specify one.')
     operand = readOperand(splitInstr[1])
   }
 
