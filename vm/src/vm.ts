@@ -696,6 +696,7 @@ export class PixelVM {
   }
 
   public setWidth(width: number) {
+    if (!this.state.halted) throw Error('Cannot set width of Pixel VM screen while it is running.')
     if (this.state.screenHandle.width < width)
       throw RangeError(
         `Cannot set width of Pixel VM screen larger than width of canvas ${this.state.screenHandle.width}`
@@ -704,6 +705,7 @@ export class PixelVM {
   }
 
   public setHeight(height: number) {
+    if (!this.state.halted) throw Error('Cannot set height of Pixel VM screen while it is running.')
     if (this.state.screenHandle.height < height)
       throw RangeError(
         `Cannot set height of Pixel VM screen larger than height of canvas ${this.state.screenHandle.height}`
