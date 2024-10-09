@@ -23,5 +23,3 @@ export default defineComponent({
     mode="null"
   ></CodeEditor>
 </template>
-
-<style scoped></style>

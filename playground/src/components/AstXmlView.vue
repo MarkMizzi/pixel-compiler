@@ -29,5 +29,3 @@ export default defineComponent({
     mode="xml"
   ></CodeEditor>
 </template>
-
-<style scoped></style>
