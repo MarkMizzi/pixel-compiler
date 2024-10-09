@@ -42,7 +42,7 @@ export class PixelVM {
       callStack: [{ funcName: '.main', pc: 0 }],
       height: 100,
       width: 100,
-      halted: false
+      halted: true
     }
     // initialize program to the program that does nothing and halts immediately.
     this.program = new Map([['.main', [{ opcode: PixIROpcode.HALT, operand: undefined }]]])
@@ -689,6 +689,7 @@ export class PixelVM {
   }
 
   public async run() {
+    this.reset()
     while (!this.state.halted) {
       await this.step()
     }
