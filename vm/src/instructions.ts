@@ -137,7 +137,7 @@ function readOperand(opStr: string): PixIRData {
   // try checking if operand is a label
   if (opStr[0] == '[' && opStr[opStr.length - 1] == ']') {
     const label = opStr.substring(1, opStr.length - 1)
-    const splitLabel = label.split(':', 1)
+    const splitLabel = label.split(':', 2)
     const offset = parseInt(splitLabel[0])
     let frame = 0
     if (splitLabel.length > 1) frame = parseInt(splitLabel[1])
