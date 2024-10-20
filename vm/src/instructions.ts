@@ -117,7 +117,7 @@ export function validateFunctionName(funcName: FunctionName) {
 }
 
 export function checkDataType(x: PixIRData, expectedTypes: Array<PixIRDataType>) {
-  if (!(x.dtype in expectedTypes)) {
+  if (expectedTypes.indexOf(x.dtype) == -1) {
     throw TypeError(`Invalid operand type given, expected one of ${expectedTypes}, got ${x.dtype}.`)
   }
 }
