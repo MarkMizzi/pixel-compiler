@@ -129,7 +129,7 @@ function readOperand(opStr: string): PixIRData {
   // try checking if operand is a function name
   if (opStr[0] == '.') {
     // validate function name
-    validateFunctionName(opStr[0])
+    validateFunctionName(opStr)
     return { dtype: PixIRDataType.FUNCTION, val: opStr }
   }
 
