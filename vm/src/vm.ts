@@ -2,11 +2,11 @@ import {
   type Color,
   type FunctionName,
   type PixIRData,
+  type Label,
   PixIROpcode,
   PixIRDataType,
   checkDataType,
-  rgbToHex,
-  Label
+  rgbToHex
 } from './instructions'
 import { type Program } from './assembler'
 
