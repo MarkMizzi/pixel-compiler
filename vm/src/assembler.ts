@@ -22,14 +22,14 @@ export class Assembler {
       for (const instr of instrs) {
         if (instr.opcode == PixIROpcode.PUSH) {
           const operand = instr.operand as PixIRData
-          if (operand.dtype == PixIRDataType.FUNCTION && !((operand.val as string) in program)) {
+          if (operand.dtype == PixIRDataType.FUNCTION && !program.has(operand.val as string)) {
             throw SyntaxError(`Function ${operand!.val} not found.`)
           }
         }
       }
     }
 
-    if (!('.main' in program)) throw SyntaxError('Program does not have a .main function.')
+    if (!program.has('.main')) throw SyntaxError('Program does not have a .main function.')
   }
 
   /* Assemble an input source string into an actual Program object that
