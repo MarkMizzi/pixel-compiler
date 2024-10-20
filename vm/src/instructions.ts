@@ -69,7 +69,7 @@ export type Color = string
 /* A Label is a location in VM memory, consisting of an [offset, frame] pair.
  * Data pointed to by the label will be in the offset^th position of frame.
  */
-type Label = [number, number]
+export type Label = [number, number]
 /* Data type for function labels. */
 export type FunctionName = string
 
