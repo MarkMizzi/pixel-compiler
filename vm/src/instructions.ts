@@ -101,7 +101,8 @@ function isAlphaNum(s: string): boolean {
     isAlphaNum &&=
       (charCode >= '0'.charCodeAt(0) && charCode <= '9'.charCodeAt(0)) ||
       (charCode >= 'a'.charCodeAt(0) && charCode <= 'z'.charCodeAt(0)) ||
-      (charCode > 'A'.charCodeAt(0) && charCode <= 'Z'.charCodeAt(0))
+      (charCode > 'A'.charCodeAt(0) && charCode <= 'Z'.charCodeAt(0)) ||
+      charCode == '_'.charCodeAt(0)
   }
 
   return isAlphaNum
