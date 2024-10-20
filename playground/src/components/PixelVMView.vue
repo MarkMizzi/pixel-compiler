@@ -1,5 +1,5 @@
-<script lang="ts">
-import { defineComponent, useTemplateRef } from 'vue'
+<script setup lang="ts">
+import { onMounted, useTemplateRef, defineExpose } from 'vue'
 import { type Program, Assembler, PixelVM } from 'pixel-vm'
 import { useToast } from 'vue-toast-notification'
 
@@ -11,35 +11,28 @@ export interface PixelVMViewData {
   vm: PixelVM | undefined
 }
 
-export default defineComponent({
-  data() {
-    return {
-      program: {},
-      assembler: new Assembler(),
-      vm: undefined
-    } as PixelVMViewData
-  },
-  mounted() {
-    let screenRef = useTemplateRef('pixel-vm-screen')
-    let loggerRef = useTemplateRef('pixel-vm-logger')
+let assembler = new Assembler()
+let vm: PixelVM | undefined = undefined
 
-    this.vm = new PixelVM(
-      screenRef.value as HTMLCanvasElement,
-      loggerRef.value as HTMLTextAreaElement
-    )
-  },
-  methods: {
-    setProgram(asm: string) {
-      this.program = this.assembler.assemble(asm)
-    },
-    run() {
-      if (this.vm !== undefined) {
-        this.vm.run().catch((error) => {
-          $toast.error(`${error}`)
-        })
-      }
-    }
-  }
+const screenRef = useTemplateRef('pixel-vm-screen')
+const loggerRef = useTemplateRef('pixel-vm-logger')
+
+onMounted(() => {
+  vm = new PixelVM(screenRef.value as HTMLCanvasElement, loggerRef.value as HTMLTextAreaElement)
+})
+
+function setProgram(asm: string) {
+  vm?.load(assembler.assemble(asm))
+}
+
+function run() {
+  vm?.run().catch((error) => {
+    $toast.error(`${error}`)
+  })
+}
+
+defineExpose({
+  setProgram
 })
 </script>
 
