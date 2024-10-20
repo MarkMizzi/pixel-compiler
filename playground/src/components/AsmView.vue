@@ -6,10 +6,12 @@ export default defineComponent({
   components: {
     CodeEditor
   },
+  data() {
+    return { content: '' }
+  },
   methods: {
-    setAssembly(assembly: string) {
-      const assemblyCodeEditor = this.$refs.assemblyEditor
-      ;(assemblyCodeEditor as typeof CodeEditor).setCode(assembly)
+    setContent(assembly: string) {
+      this.content = assembly
     }
   }
 })
@@ -18,6 +20,7 @@ export default defineComponent({
 <template>
   <CodeEditor
     ref="assemblyEditor"
+    v-model="content"
     class="border-2 border-slate-700"
     :readonly="true"
     mode="null"

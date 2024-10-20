@@ -72,14 +72,14 @@ const compile = () => {
       let output = data as CompilerOutput
       // check for compiler error
       if (output.asmOutput == '') {
-        props.setAssembly(output.compilerStdErr + output.compilerStdOut)
         props.setAstXml(output.compilerStdErr + output.compilerStdOut)
+        props.setAssembly(output.compilerStdErr + output.compilerStdOut)
         // an error occurred, indicate to user and set asm and ast views to combined stderr and stdout streams.
         throw Error('Compilation error occurred. Check your source program.')
       } else {
         // set store variables accordingly
-        props.setAssembly(output.asmOutput)
         props.setAstXml(output.xmlOutput)
+        props.setAssembly(output.asmOutput)
       }
     })
     .catch((error) => {
