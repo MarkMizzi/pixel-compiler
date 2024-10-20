@@ -5,7 +5,8 @@ import {
   PixIROpcode,
   PixIRDataType,
   checkDataType,
-  rgbToHex
+  rgbToHex,
+  Label
 } from './instructions'
 import { type Program } from './assembler'
 
@@ -63,7 +64,7 @@ export class PixelVM {
   }
 
   private fillRect(x: number, y: number, w: number, h: number, c: Color) {
-    if (x < 0 || y < 0 || x + w >= this.state.width || y + h >= this.state.height)
+    if (x < 0 || y < 0 || x + w > this.state.width || y + h > this.state.height)
       throw RangeError(`Out of bounds fill <${x}, ${y}, ${w}, ${h}> requested.`)
 
     // scale given variables to the actual Javascript canvas
@@ -376,7 +377,16 @@ export class PixelVM {
       }
 
       case PixIROpcode.PUSH: {
-        this.state.workStack.push(instr.operand as PixIRData)
+        if (instr.operand?.dtype == PixIRDataType.LABEL) {
+          const [offset, frame] = instr.operand?.val as Label
+          const data = this.state.frameStack[frame][offset]
+          if (data == undefined) {
+            throw RangeError(`Memory access to undefined location [${offset}:${frame}]`)
+          }
+          this.state.workStack.push(data)
+        } else {
+          this.state.workStack.push(instr.operand as PixIRData)
+        }
 
         // update pc
         this.state.callStack[this.state.callStack.length - 1].pc++
@@ -429,7 +439,7 @@ export class PixelVM {
         let frame: Frame = []
         for (let i = 0; i < (argCount.val as number); i++) frame.push(this.safePop())
 
-        this.state.frameStack.push(frame)
+        this.state.frameStack.unshift(frame)
         this.state.callStack.push({
           funcName: funcName.val as FunctionName,
           pc: 0
@@ -454,8 +464,7 @@ export class PixelVM {
 
         checkDataType(size, [PixIRDataType.NUMBER])
 
-        for (let i = 0; i < (size.val as number); i++)
-          this.state.frameStack[this.state.frameStack.length - 1].push(undefined)
+        for (let i = 0; i < (size.val as number); i++) this.state.frameStack[0].push(undefined)
 
         this.state.callStack[this.state.callStack.length - 1].pc++
         break
@@ -469,14 +478,14 @@ export class PixelVM {
         let frame: Frame = []
         for (let i = 0; i < (size.val as number); i++) frame.push(undefined)
 
-        this.state.frameStack.push(frame)
+        this.state.frameStack.unshift(frame)
 
         this.state.callStack[this.state.callStack.length - 1].pc++
         break
       }
 
       case PixIROpcode.CFRAME: {
-        this.state.frameStack.pop()
+        this.state.frameStack.shift()
 
         this.state.callStack[this.state.callStack.length - 1].pc++
         break
