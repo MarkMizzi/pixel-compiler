@@ -97,6 +97,7 @@ export class PixelVM {
     if (func === undefined) throw ReferenceError('Function at the top of the stack was not found.')
 
     const instr = func[pc]
+    console.log(instr)
     switch (instr.opcode) {
       // mathematical operations
       case PixIROpcode.ADD: {
@@ -384,6 +385,13 @@ export class PixelVM {
             throw RangeError(`Memory access to undefined location [${offset}:${frame}]`)
           }
           this.state.workStack.push(data)
+        } else if (instr.operand?.dtype == PixIRDataType.PCOFFSET) {
+          const pcoffset = instr.operand?.val as number
+          // push ptr to instruction to work stack, as when we use the pc offset, pc will have changed.
+          this.state.workStack.push({
+            dtype: PixIRDataType.INSTRPTR,
+            val: this.state.callStack[this.state.callStack.length - 1].pc + pcoffset
+          })
         } else {
           this.state.workStack.push(instr.operand as PixIRData)
         }
@@ -396,35 +404,35 @@ export class PixelVM {
       case PixIROpcode.JMP: {
         const x = this.safePop()
 
-        checkDataType(x, [PixIRDataType.PCOFFSET])
+        checkDataType(x, [PixIRDataType.INSTRPTR])
         this.state.callStack[this.state.callStack.length - 1].pc = x.val as number
         break
       }
 
       case PixIROpcode.CJMP: {
-        const offset = this.safePop()
+        const instrptr = this.safePop()
         const cond = this.safePop()
 
-        checkDataType(offset, [PixIRDataType.PCOFFSET])
+        checkDataType(instrptr, [PixIRDataType.INSTRPTR])
         checkDataType(cond, [PixIRDataType.NUMBER])
 
         // update pc
         if ((cond.val as number) != 0)
-          this.state.callStack[this.state.callStack.length - 1].pc = offset.val as number
+          this.state.callStack[this.state.callStack.length - 1].pc = instrptr.val as number
         else this.state.callStack[this.state.callStack.length - 1].pc++
         break
       }
 
       case PixIROpcode.CJMP2: {
-        const offset = this.safePop()
+        const instrptr = this.safePop()
         const cond = this.safePop()
 
-        checkDataType(offset, [PixIRDataType.PCOFFSET])
+        checkDataType(instrptr, [PixIRDataType.INSTRPTR])
         checkDataType(cond, [PixIRDataType.NUMBER])
 
         // update pc
         if ((cond.val as number) == 0)
-          this.state.callStack[this.state.callStack.length - 1].pc = offset.val as number
+          this.state.callStack[this.state.callStack.length - 1].pc = instrptr.val as number
         else this.state.callStack[this.state.callStack.length - 1].pc++
         break
       }

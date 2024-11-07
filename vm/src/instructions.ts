@@ -59,6 +59,8 @@ export enum PixIRDataType {
   LABEL = 'label',
   // relative offset from PC.
   PCOFFSET = 'pcoffset',
+  // location in a function
+  INSTRPTR = 'instrptr',
   // function address
   FUNCTION = 'function',
   ARRAY = 'array'
