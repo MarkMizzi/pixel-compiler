@@ -97,7 +97,6 @@ export class PixelVM {
     if (func === undefined) throw ReferenceError('Function at the top of the stack was not found.')
 
     const instr = func[pc]
-    console.log(instr)
     switch (instr.opcode) {
       // mathematical operations
       case PixIROpcode.ADD: {
@@ -500,8 +499,8 @@ export class PixelVM {
       }
 
       case PixIROpcode.ST: {
-        const location = this.safePop()
         const frame = this.safePop()
+        const location = this.safePop()
         const val = this.safePop()
 
         checkDataType(location, [PixIRDataType.NUMBER])
