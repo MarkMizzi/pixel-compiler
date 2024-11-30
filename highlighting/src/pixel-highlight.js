@@ -8,6 +8,7 @@ export const highlighting = styleTags({
 
   "let __print __delay __pixelr __pixel return if else for while fun __randi __width __height __read __newarr":
     tags.keyword,
+  "and or not": tags.operator,
 
   Identifier: tags.name,
 
