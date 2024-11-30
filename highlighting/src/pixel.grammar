@@ -1,5 +1,7 @@
 @external propSource highlighting from "./pixel-highlight.js"
 
+kw<term> { @specialize[@name={term}]<Identifier, term> }
+
 @top PixelProgram { 
   (Statement)*
 }
@@ -23,32 +25,32 @@ Statement {
 }
 
 VariableDecl {
-  LetKeyword Identifier Colon Typename Equals Expr
+  kw<"let"> Identifier Colon Typename Equals Expr
 }
 
-PrintStatement { PrintKeyword Expr }
+PrintStatement { kw<"__print"> Expr }
 
-DelayStatement { DelayKeyword Expr }
+DelayStatement { kw<"__delay"> Expr }
 
 PixelStatement {
-  PixelRKeyword Expr Comma Expr Comma Expr Comma Expr Comma Expr
-  PixelKeyword Expr Comma Expr Comma Expr
+  kw<"__pixelr"> Expr Comma Expr Comma Expr Comma Expr Comma Expr
+  kw<"__pixel"> Expr Comma Expr Comma Expr
 }
 
 RtrnStatement {
-  RtrnKeyword Expr
+  kw<"return"> Expr
 }
 
 IfStatement {
-  IfKeyword LeftBracket Expr RightBracket Block (ElseKeyword Block)?
+  kw<"if"> LeftBracket Expr RightBracket Block (kw<"else"> Block)?
 }
 
 ForStatement {
-  ForKeyword LeftBracket (VariableDecl)? Semicolon Expr Semicolon (Assignment)? RightBracket Block
+  kw<"for"> LeftBracket (VariableDecl)? Semicolon Expr Semicolon (Assignment)? RightBracket Block
 }
 
 WhileStatement {
-  WhileKeyword LeftBracket Expr RightBracket Block
+  kw<"while"> LeftBracket Expr RightBracket Block
 }
 
 FormalParam {
@@ -60,7 +62,7 @@ FormalParams {
 }
 
 FunctionDecl {
-  FunKeyword Identifier RightBracket (FormalParams)? LeftBracket Arrow Typename Block
+  kw<"fun"> Identifier RightBracket (FormalParams)? LeftBracket Arrow Typename Block
 }
 
 Assignment { LValue Equals Expr }
@@ -87,10 +89,10 @@ Factor {
   FunctionCall |
   SubExpr |
   UnaryOp Factor |
-  RandIKeyword Factor |
-  WidthKeyword |
-  HeightKeyword |
-  ReadKeyword Factor |
+  kw<"__randi"> Factor |
+  kw<"__width"> |
+  kw<"__height"> |
+  kw<"__read"> Factor |
   LValue
   NewArrExpr
 }
@@ -101,7 +103,7 @@ LValue {
 }
 
 NewArrExpr {
-  NewArrKeyword Typename Comma Factor
+  kw<"__newarr"> Typename Comma Factor
 }
 
 ActualParams {
@@ -130,22 +132,6 @@ Typename {
     Arrow,
     SimpleTypename,
     BoolLiteral,
-    LetKeyword,
-    PrintKeyword,
-    DelayKeyword,
-    PixelRKeyword,
-    PixelKeyword,
-    RtrnKeyword,
-    IfKeyword,
-    ElseKeyword,
-    ForKeyword, 
-    WhileKeyword, 
-    FunKeyword,
-    RandIKeyword,
-    HeightKeyword,
-    WidthKeyword,
-    ReadKeyword,
-    NewArrKeyword,
     MultiplicativeOp,
     AdditiveOp,
     UnaryOp,
@@ -163,24 +149,7 @@ Typename {
     "colour"
   }
 
-  LetKeyword { "let" }
-  PrintKeyword { "__print" }
-  DelayKeyword { "__delay" }
-  PixelRKeyword { "__pixelr" }
-  PixelKeyword { "__pixel" }
-  RtrnKeyword { "return" }
-  IfKeyword { "if" }
-  ElseKeyword { "else" }
-  ForKeyword { "for" }
-  WhileKeyword { "while" }
-  FunKeyword { "fun" }
-  RandIKeyword { "__randi" }
-  HeightKeyword { "__height" }
-  WidthKeyword { "__width" }
-  ReadKeyword { "__read" }
-  NewArrKeyword { "__newarr" }
-
-  Identifier { $[A-Za-z] $[A-Za-z_0-9]+ | "_" $[A-Za-z0-9] $[A-Za-z_0-9]+ }
+  Identifier { $[A-Za-z_] $[A-Za-z_0-9]+ }
   
   BoolLiteral { "true" | "false" }
   Colour { '#' $[0-9a-fA-F]+ }

@@ -6,22 +6,8 @@ export const highlighting = styleTags({
 
   SimpleTypename: tags.typeName,
 
-  "VariableDecl/LetKeyword": tags.keyword,
-  PrintKeyword: tags.keyword,
-  DelayKeyword: tags.keyword,
-  PixelRKeyword: tags.keyword,
-  PixelKeyword: tags.keyword,
-  "RtrnStatement/RtrnKeyword": tags.keyword,
-  "IfStatement/IfKeyword": tags.keyword,
-  "IfStatement/ElseKeyword": tags.keyword,
-  "ForStatement/ForKeyword": tags.keyword,
-  "WhileStatement/WhileKeyword": tags.keyword,
-  "FunctionDecl/FunKeyword": tags.keyword,
-  RandIKeyword: tags.keyword,
-  HeightKeyword: tags.keyword,
-  WidthKeyword: tags.keyword,
-  ReadKeyword: tags.keyword,
-  NewArrKeyword: tags.keyword,
+  "let __print __delay __pixelr __pixel return if else for while fun __randi __width __height __read __newarr":
+    tags.keyword,
 
   Identifier: tags.name,
 
