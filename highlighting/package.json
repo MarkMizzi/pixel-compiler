@@ -1,18 +1,19 @@
 {
   "name": "pixel-highlighting",
   "version": "1.0.0",
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
+  "main": "src/index.ts",
   "devDependencies": {
     "@lezer/generator": "^1.0.0",
     "eslint": "^9.11.1",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.6.2"
   },
   "dependencies": {
     "@lezer/highlight": "^1.0.0",
     "@lezer/lr": "^1.0.0"
   },
   "scripts": {
-    "prepare": "lezer-generator src/pixel.grammar -o src/index.js"
+    "prepare": "lezer-generator src/pixel.grammar -o src/pixel.ts && lezer-generator src/pixel-asm.grammar -o src/pixel-asm.ts"
   }
 }

@@ -1,6 +1,6 @@
-@external propSource highlighting from "./highlight.js"
+@external propSource highlighting from "./pixel-highlight.js"
 
-@top File { 
+@top PixelProgram { 
   (Statement)*
 }
 
@@ -184,7 +184,7 @@ Typename {
   
   BoolLiteral { "true" | "false" }
   Colour { '#' $[0-9a-fA-F]+ }
-  Number { $[0-9]+ }
+  Number { $[0-9]* "."? $[0-9]+ }
 
   LeftBrace { "{" }
   RightBrace { "}" }

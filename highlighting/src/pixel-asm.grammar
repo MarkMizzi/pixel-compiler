@@ -1,0 +1,82 @@
+@external propSource highlighting from "./pixel-asm-highlight.js"
+
+@top PixelAsmProgram { 
+  (
+    FunctionLabel ":" "\n" |
+    Instruction "\n"
+  )*
+}
+
+Instruction {
+    Opcode (Data)?
+}
+
+Data {
+    Number |
+    PCOffset |
+    FunctionLabel |
+    Colour
+}
+
+@skip { space | LineComment }
+
+@tokens {
+  @precedence {
+    PCOffset,
+    Colour,
+    LineComment
+  }
+
+  space { $[ \r\t\v]+ }
+  LineComment { "#" ![\n]* }
+
+  Identifier { $[a-zA-Z_]$[a-zA-Z0-9_] }
+
+  Opcode {
+    "add" |
+    "sub" |
+    "mul" |
+    "div" |
+    "inc" |
+    "dec" |
+    "max" |
+    "min" |
+    "irnd" |
+    "and" |
+    "or" |
+    "not" |
+    "lt" |
+    "le" |
+    "eq" |
+    "neq" |
+    "gt" |
+    "ge" |
+    "dup" |
+    "push" |
+    "jmp" |
+    "cjmp" |
+    "cjmp2" |
+    "call" |
+    "halt" |
+    "alloc" |
+    "oframe" |
+    "cframe" |
+    "st" |
+    "delay" |
+    "pixel" |
+    "pixelr" |
+    "clear" |
+    "read" |
+    "width" |
+    "height" |
+    "print" |
+    "alloca" |
+    "sta" |
+    "lda"
+  }
+
+  Number { $[0-9]* "."? $[0-9]+ }
+  PCOffset { "#PC" $[+-] Number }
+  FunctionLabel { "." Identifier }
+  Colour { '#' $[0-9a-fA-F]+ }
+}
