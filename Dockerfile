@@ -34,6 +34,7 @@ COPY highlighting highlighting
 # build Pixel lexer, parser and highlighting
 WORKDIR /highlighting
 RUN npm install
+RUN npm run prepare
 
 WORKDIR /playground
 
