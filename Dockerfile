@@ -29,6 +29,7 @@ RUN apt-get autoremove -y
 # Copy playground src to container
 COPY playground playground
 COPY vm vm
+COPY highlighting highlighting
 
 WORKDIR /playground
 

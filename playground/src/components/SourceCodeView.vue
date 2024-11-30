@@ -25,8 +25,9 @@
 </template>
 
 <script setup lang="ts">
+import pixel from '@/pixel'
 import CodeEditor from './CodeEditor.vue'
-import { ref, type Component, type Ref } from 'vue'
+import { onMounted, ref, type Component, type Ref } from 'vue'
 
 const props = defineProps<{
   compile: (s: string) => void
@@ -40,6 +41,13 @@ const onPressCompile = () => {
   props.compile((srcCodeEditor.value as typeof CodeEditor).getCode())
 }
 
+// once the component is mounted, we add highlighting for Pixel language
+onMounted(() => {
+  // add Pixel extension to the code editor.
+  ;(srcCodeEditor.value as typeof CodeEditor).addExtension(pixel())
+})
+
+// store example Pixel programs by name
 const srcCodeExamples: Record<string, string> = {
   // empty example
   '': '',

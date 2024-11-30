@@ -19,6 +19,7 @@
     "http-status-codes": "^2.3.0",
     "pinia": "^2.1.7",
     "pixel-vm": "file:../vm",
+    "pixel-highlighting": "file:../highlighting",
     "tmp": "^0.2.3",
     "vue": "^3.4.29",
     "vue-codemirror": "^5.1.0",

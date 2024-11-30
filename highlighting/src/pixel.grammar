@@ -1,0 +1,188 @@
+@external propSource highlighting from "./highlight.js"
+
+@top File { 
+  (Statement)*
+}
+
+Block {
+  LeftBrace (Statement)* RightBrace
+}
+
+Statement {
+  VariableDecl Semicolon |
+  Assignment Semicolon |
+  PrintStatement Semicolon | 
+  DelayStatement Semicolon |
+  PixelStatement Semicolon |
+  IfStatement |
+  ForStatement |
+  WhileStatement |
+  RtrnStatement Semicolon | 
+  FunctionDecl |
+  Block
+}
+
+VariableDecl {
+  LetKeyword Identifier Colon Typename Equals Expr
+}
+
+PrintStatement { PrintKeyword Expr }
+
+DelayStatement { DelayKeyword Expr }
+
+PixelStatement {
+  PixelRKeyword Expr Comma Expr Comma Expr Comma Expr Comma Expr
+  PixelKeyword Expr Comma Expr Comma Expr
+}
+
+RtrnStatement {
+  RtrnKeyword Expr
+}
+
+IfStatement {
+  IfKeyword LeftBracket Expr RightBracket Block (ElseKeyword Block)?
+}
+
+ForStatement {
+  ForKeyword LeftBracket (VariableDecl)? Semicolon Expr Semicolon (Assignment)? RightBracket Block
+}
+
+WhileStatement {
+  WhileKeyword LeftBracket Expr RightBracket Block
+}
+
+FormalParam {
+  Identifier Colon Typename
+}
+
+FormalParams {
+  FormalParam (Comma FormalParam)*
+}
+
+FunctionDecl {
+  FunKeyword Identifier RightBracket (FormalParams)? LeftBracket Arrow Typename Block
+}
+
+Assignment { Identifier Equals Expr }
+
+Expr {
+  SimpleExpr |
+  SimpleExpr RelationalOp Expr
+}
+
+SimpleExpr {
+  Term | 
+  Term AdditiveOp SimpleExpr
+}
+
+Term {
+  Factor |
+  Factor MultiplicativeOp Term
+}
+
+Factor {
+  BoolLiteral |
+  Number |
+  Colour |
+  Identifier |
+  FunctionCall |
+  SubExpr |
+  UnaryOp Factor |
+  RandIKeyword Factor |
+  WidthKeyword |
+  HeightKeyword |
+  ReadKeyword Factor
+}
+
+ActualParams {
+  Expr (Comma Expr)*
+}
+
+FunctionCall {
+  Identifier LeftBracket (ActualParams)? RightBracket
+}
+
+SubExpr {
+  LeftBracket Expr RightBracket
+}
+
+@skip { space | LineComment | BlockComment }
+
+@tokens {
+  @precedence {
+    LineComment,
+    BlockComment,
+    Typename,
+    BoolLiteral,
+    LetKeyword,
+    PrintKeyword,
+    DelayKeyword,
+    PixelRKeyword,
+    PixelKeyword,
+    RtrnKeyword,
+    IfKeyword,
+    ElseKeyword,
+    ForKeyword, 
+    WhileKeyword, 
+    FunKeyword,
+    RandIKeyword,
+    HeightKeyword,
+    WidthKeyword,
+    ReadKeyword,
+    MultiplicativeOp,
+    AdditiveOp,
+    UnaryOp,
+    Identifier
+  }
+
+  space { @whitespace+ }
+  LineComment { "//" ![\n]* }
+  BlockComment { "/*" ( (![*]) | ("*" ![/]) )+ "*/" }
+  
+  Typename {
+    "float" |
+    "int" |
+    "bool" |
+    "colour"
+  }
+
+  LetKeyword { "let" }
+  PrintKeyword { "__print" }
+  DelayKeyword { "__delay" }
+  PixelRKeyword { "__pixelr" }
+  PixelKeyword { "__pixel" }
+  RtrnKeyword { "return" }
+  IfKeyword { "if" }
+  ElseKeyword { "else" }
+  ForKeyword { "for" }
+  WhileKeyword { "while" }
+  FunKeyword { "fun" }
+  RandIKeyword { "__randi" }
+  HeightKeyword { "__height" }
+  WidthKeyword { "__width" }
+  ReadKeyword { "__read" }
+
+  Identifier { $[A-Za-z] $[A-Za-z_0-9]+ | "_" $[A-Za-z0-9] $[A-Za-z_0-9]+ }
+  
+  BoolLiteral { "true" | "false" }
+  Colour { '#' $[0-9a-fA-F]+ }
+  Number { $[0-9]+ }
+
+  LeftBrace { "{" }
+  RightBrace { "}" }
+  Semicolon { ";" }
+  Colon { ":" }
+  Equals { "=" }
+  Comma { "," }
+  LeftBracket { "(" }
+  RightBracket { ")" }
+  Arrow { "->" }
+  MultiplicativeOp { "*" | "/" | "and" }
+  AdditiveOp { "+" | "-" | "or" }
+  RelationalOp { 
+    "<" | ">" | "==" | "!=" | "<=" | ">="
+  }
+  UnaryOp {
+    "-" | "not"
+  }
+}
