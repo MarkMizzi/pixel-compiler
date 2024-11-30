@@ -8,16 +8,15 @@
     "types": "./src/types.d.ts"
   },
   "devDependencies": {
-    "eslint": "^9.11.1",
-    "prettier": "^3.3.3",
     "@lezer/generator": "^1.0.0",
-    "rollup": "^3.0.0"
+    "eslint": "^9.11.1",
+    "prettier": "^3.3.3"
   },
   "dependencies": {
     "@lezer/highlight": "^1.0.0",
     "@lezer/lr": "^1.0.0"
   },
   "scripts": {
-    "prepare": "rollup -c"
+    "prepare": "lezer-generator src/pixel.grammar -o src/index.js"
   }
 }
