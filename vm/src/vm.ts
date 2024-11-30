@@ -416,7 +416,7 @@ export class PixelVM {
         checkDataType(cond, [PixIRDataType.NUMBER])
 
         // update pc
-        if ((cond.val as number) != 0)
+        if ((cond.val as number) == 0)
           this.state.callStack[this.state.callStack.length - 1].pc = instrptr.val as number
         else this.state.callStack[this.state.callStack.length - 1].pc++
         break
@@ -430,7 +430,7 @@ export class PixelVM {
         checkDataType(cond, [PixIRDataType.NUMBER])
 
         // update pc
-        if ((cond.val as number) == 0)
+        if ((cond.val as number) != 0)
           this.state.callStack[this.state.callStack.length - 1].pc = instrptr.val as number
         else this.state.callStack[this.state.callStack.length - 1].pc++
         break
@@ -455,6 +455,7 @@ export class PixelVM {
       }
 
       case PixIROpcode.RET: {
+        this.state.frameStack.shift()
         this.state.callStack.pop()
         this.state.callStack[this.state.callStack.length - 1].pc++
         break
