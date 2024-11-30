@@ -5,7 +5,7 @@
         <SourceCodeView :compile="compile"></SourceCodeView>
       </div>
       <div class="w-full grid grid-cols-1">
-        <div class="flex flex-row justify-start p-2 gap-x-0">
+        <div class="flex flex-row h-12 justify-start p-2 gap-x-0">
           <button class="w-32 p-2 bg-slate-900 link-green" @click="selected = 'assembly'">
             assembly
           </button>
