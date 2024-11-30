@@ -7,10 +7,6 @@ export default {
       format: "es",
       file: "./dist/index.js",
     },
-    {
-      format: "cjs",
-      file: "./dist/index.cjs",
-    },
   ],
   external: ["@lezer/lr", "@lezer/highlight"],
   plugins: [lezer()],
