@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import pixel from '@/pixel'
+import { pixel } from '@/pixel-extensions'
 import CodeEditor from './CodeEditor.vue'
 import { onMounted, ref, type Component, type Ref } from 'vue'
 

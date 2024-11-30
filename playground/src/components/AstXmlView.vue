@@ -30,6 +30,5 @@ export default defineComponent({
     v-model="content"
     class="border-2 border-slate-700"
     :readonly="true"
-    mode="xml"
   ></CodeEditor>
 </template>
