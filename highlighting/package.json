@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "exports": {
-    "import": "./dist/index.js"
+    "import": "./dist/index.js",
+    "types": "./src/types.d.ts",
+    "module": "./dist/index.js"
   },
   "devDependencies": {
     "eslint": "^9.11.1",

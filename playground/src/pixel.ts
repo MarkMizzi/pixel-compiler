@@ -15,6 +15,6 @@ const pixelLanguage = /*@__PURE__*/ LRLanguage.define({
 /**
 Pixel language support.
 */
-export default function pixel(conf = {}) {
+export default function pixel() {
   return new LanguageSupport(pixelLanguage, [])
 }
