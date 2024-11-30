@@ -1,6 +1,8 @@
 <script lang="ts">
 import { defineComponent, type DefineComponent } from 'vue'
 import { Codemirror } from 'vue-codemirror'
+import { birdsOfParadise } from 'thememirror'
+import { type Extension } from '@codemirror/state'
 
 // eslint-disable-next-line
 export default defineComponent({
@@ -13,7 +15,7 @@ export default defineComponent({
   data() {
     return {
       code: '',
-      extensions: new Array<any>()
+      extensions: [birdsOfParadise]
     }
   },
   methods: {
@@ -23,16 +25,16 @@ export default defineComponent({
     getCode(): string {
       return this.code
     },
-    addExtension(extension: any) {
+    addExtension(extension: Extension) {
       this.extensions.push(extension)
     }
   }
 }) as DefineComponent<
   { readonly: boolean },
   {},
-  { code: string; extensions: Array<any> },
+  { code: string; extensions: Extension[] },
   {},
-  { addExtension: (code: string) => void; setCode: (code: string) => void }
+  { addExtension: (extension: Extension) => void; setCode: (code: string) => void }
 >
 </script>
 
