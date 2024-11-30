@@ -1,3 +1,6 @@
+/* Import icons */
+@import 'material-icons/iconfont/material-icons.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

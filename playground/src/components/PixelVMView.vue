@@ -39,11 +39,18 @@ defineExpose({
 <template>
   <div class="grid grid-cols-1">
     <div class="flex flex-row justify-start p-2 gap-x-2">
-      <button class="w-32 p-2 rounded bg-teal-700 text-white" @click="run()">Run</button>
-    </div>
-    <div>
-      <canvas ref="pixel-vm-screen" width="800" height="800"> </canvas>
-      <textarea ref="pixel-vm-logger" readonly> </textarea>
+      <div>
+        <canvas ref="pixel-vm-screen" class="overflow-auto" width="800" height="800"> </canvas>
+        <textarea ref="pixel-vm-logger" class="overflow-auto" readonly> </textarea>
+      </div>
+      <div class="flex flex-col gap-x-0">
+        <button class="h-8 w-8 p-2 link-green" @click="run()">
+          <span class="material-icons"> play_arrow </span>
+        </button>
+        <button class="h-8 w-8 p-2 link-green">
+          <span class="material-icons"> stop </span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
