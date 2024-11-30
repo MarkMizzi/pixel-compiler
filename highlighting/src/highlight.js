@@ -4,7 +4,7 @@ export const highlighting = styleTags({
   LineComment: tags.comment,
   BlockComment: tags.comment,
 
-  Typename: tags.typeName,
+  SimpleTypename: tags.typeName,
 
   "VariableDecl/LetKeyword": tags.keyword,
   PrintKeyword: tags.keyword,
@@ -21,6 +21,7 @@ export const highlighting = styleTags({
   HeightKeyword: tags.keyword,
   WidthKeyword: tags.keyword,
   ReadKeyword: tags.keyword,
+  NewArrKeyword: tags.keyword,
 
   Identifier: tags.name,
 
@@ -41,4 +42,6 @@ export const highlighting = styleTags({
   AdditiveOp: tags.operator,
   RelationalOp: tags.operator,
   UnaryOp: tags.operator,
+  LeftSqBracket: tags.punctuation,
+  RightSqBracket: tags.punctuation,
 });

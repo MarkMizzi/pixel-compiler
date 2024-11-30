@@ -63,7 +63,7 @@ FunctionDecl {
   FunKeyword Identifier RightBracket (FormalParams)? LeftBracket Arrow Typename Block
 }
 
-Assignment { Identifier Equals Expr }
+Assignment { LValue Equals Expr }
 
 Expr {
   SimpleExpr |
@@ -84,14 +84,24 @@ Factor {
   BoolLiteral |
   Number |
   Colour |
-  Identifier |
   FunctionCall |
   SubExpr |
   UnaryOp Factor |
   RandIKeyword Factor |
   WidthKeyword |
   HeightKeyword |
-  ReadKeyword Factor
+  ReadKeyword Factor |
+  LValue
+  NewArrExpr
+}
+
+LValue {
+  Identifier |
+  LValue LeftSqBracket Expr RightSqBracket
+}
+
+NewArrExpr {
+  NewArrKeyword Typename Comma Factor
 }
 
 ActualParams {
@@ -106,13 +116,18 @@ SubExpr {
   LeftBracket Expr RightBracket
 }
 
+Typename {
+  SimpleTypename
+  LeftSqBracket RightSqBracket Typename
+}
+
 @skip { space | LineComment | BlockComment }
 
 @tokens {
   @precedence {
     LineComment,
     BlockComment,
-    Typename,
+    SimpleTypename,
     BoolLiteral,
     LetKeyword,
     PrintKeyword,
@@ -129,6 +144,7 @@ SubExpr {
     HeightKeyword,
     WidthKeyword,
     ReadKeyword,
+    NewArrKeyword,
     MultiplicativeOp,
     AdditiveOp,
     UnaryOp,
@@ -138,8 +154,8 @@ SubExpr {
   space { @whitespace+ }
   LineComment { "//" ![\n]* }
   BlockComment { "/*" ( (![*]) | ("*" ![/]) )+ "*/" }
-  
-  Typename {
+
+  SimpleTypename {
     "float" |
     "int" |
     "bool" |
@@ -161,6 +177,7 @@ SubExpr {
   HeightKeyword { "__height" }
   WidthKeyword { "__width" }
   ReadKeyword { "__read" }
+  NewArrKeyword { "__newarr" }
 
   Identifier { $[A-Za-z] $[A-Za-z_0-9]+ | "_" $[A-Za-z0-9] $[A-Za-z_0-9]+ }
   
@@ -185,4 +202,6 @@ SubExpr {
   UnaryOp {
     "-" | "not"
   }
+  LeftSqBracket { "[" }
+  RightSqBracket { "]" }
 }
