@@ -1,12 +1,8 @@
 {
   "name": "pixel-highlighting",
   "version": "1.0.0",
-  "type": "module",
-  "module": "./dist/index.js",
-  "exports": {
-    "import": "./dist/index.js",
-    "types": "./src/types.d.ts"
-  },
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "devDependencies": {
     "@lezer/generator": "^1.0.0",
     "eslint": "^9.11.1",
