@@ -43,7 +43,7 @@ export default defineComponent({
     ref="codemirror"
     v-model="code"
     placeholder=""
-    :style="{ height: '400px' }"
+    :style="{ height: '80vh' }"
     :indent-with-tab="true"
     :tab-size="2"
     :extensions="extensions"
