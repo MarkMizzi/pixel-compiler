@@ -25,6 +25,10 @@ function setProgram(asm: string) {
   vm?.load(assembler.assemble(asm))
 }
 
+function stop() {
+  vm?.stop()
+}
+
 function run() {
   vm?.run().catch((error) => {
     $toast.error(`${error}`)
@@ -60,7 +64,7 @@ defineExpose({
           <span class="material-icons"> play_arrow </span>
         </button>
         <button class="h-8 w-8 p-2 link-green">
-          <span class="material-icons"> stop </span>
+          <span class="material-icons" @click="stop()"> stop </span>
         </button>
       </div>
     </div>
