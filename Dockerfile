@@ -31,6 +31,7 @@ COPY playground playground
 COPY vm vm
 COPY highlighting highlighting
 
+# build Pixel lexer, parser and highlighting
 WORKDIR /highlighting
 RUN npm install
 
