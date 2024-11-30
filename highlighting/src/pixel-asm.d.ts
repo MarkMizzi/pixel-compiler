@@ -1,3 +1,3 @@
 import { LRParser } from "@lezer/lr";
 
-declare const parse: LRParser;
+declare const parser: LRParser;
