@@ -14,6 +14,6 @@
     "@lezer/lr": "^1.0.0"
   },
   "scripts": {
-    "prepare": "lezer-generator src/pixel.grammar -o src/pixel.ts && lezer-generator src/pixel-asm.grammar -o src/pixel-asm.ts"
+    "prepare": "lezer-generator src/pixel.grammar -o src/pixel.js && lezer-generator src/pixel-asm.grammar -o src/pixel-asm.js"
   }
 }
