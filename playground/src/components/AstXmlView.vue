@@ -14,6 +14,7 @@ export default defineComponent({
     // add XML extension to the code editor.
     const astXmlCodeEditor = this.$refs.astXmlCodeEditor
     ;(astXmlCodeEditor as typeof CodeEditor).addExtension(xml())
+    this.setContent('<!-- Compile a program -->')
   },
   methods: {
     setContent(astXml: string) {

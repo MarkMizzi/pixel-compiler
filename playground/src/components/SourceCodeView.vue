@@ -1,28 +1,25 @@
 <template>
   <div class="grid grid-cols-1">
-    <div class="flex flex-row justify-start p-2 gap-x-2">
-      <button class="w-32 p-2 rounded bg-teal-700 text-white" @click="onPressCompile()">
-        Compile
-      </button>
+    <div class="flex flex-row justify-start p-2 gap-x-0">
+      <button class="w-32 p-2 bg-slate-900 link-green" @click="onPressCompile()">compile</button>
       <select
         id="select-example-src-code"
-        class="bg-slate-700 text-white"
+        class="w-48 p-2 bg-slate-900 link-green"
         @input="setCodeToExample(($event.target as any).value)"
       >
-        <option value="">Choose an example...</option>
-        <option value="Fibonacci">Fibonacci</option>
-        <option value="Race">Race</option>
-        <option value="Rule 110">Rule 110</option>
-        <option value="Typography">Typography</option>
-        <option value="Game of Life">Game of Life</option>
-        <option value="Wall Clock">Wall Clock</option>
+        <option class="bg-slate-900 link-green" value="">choose an example...</option>
+        <option class="bg-slate-900 link-green" value="fibonacci">fibonacci</option>
+        <option class="bg-slate-900 link-green" value="race">race</option>
+        <option class="bg-slate-900 link-green" value="rule 110">rule 110</option>
+        <option class="bg-slate-900 link-green" value="typography">typography</option>
+        <option class="bg-slate-900 link-green" value="game of life">game of life</option>
+        <option class="bg-slate-900 link-green" value="wall clock">wall clock</option>
       </select>
     </div>
     <CodeEditor
       ref="srcCodeEditor"
       class="border-2 border-slate-700"
       :readonly="false"
-      mode="null"
     ></CodeEditor>
   </div>
 </template>
@@ -47,7 +44,7 @@ const srcCodeExamples: Record<string, string> = {
   // empty example
   '': '',
 
-  Fibonacci: `fun fibr(x: int) -> int {
+  fibonacci: `fun fibr(x: int) -> int {
     if (x <= 1) {
         return x;
     }
@@ -76,7 +73,7 @@ __pixelr 5, 0, 1, fibr(6), #00ff00;
 __pixelr 6, 0, 1, fibr(7), #00ff00;
 __pixelr 7, 0, 1, fibr(8), #00ff00;`,
 
-  Race: `/* This function takes two colours (players) and a max score
+  race: `/* This function takes two colours (players) and a max score
  * A while loop is used to iteratively draw random numbers for the two
  * players and advance (along the y-axis) the player that gets the
  * highest score. Returns the winner (either 1 or 2) when max score is
@@ -120,7 +117,7 @@ let m : int = __height;
 let w : int = Race(c1, c2, m);
 __print w;`,
 
-  'Rule 110': `fun update(row: []bool, n: int) -> []bool {
+  'rule 110': `fun update(row: []bool, n: int) -> []bool {
      let updated: []bool = __newarr bool, n;
 
      for (let i: int = 1; i < n-1; i = i + 1) {
@@ -196,7 +193,7 @@ for (let i: int = 0; i < __height; i = i + 1) {
     __delay 500;
 }`,
 
-  Typography: `fun render_letter(x: int, y: int, c: colour, letter: int) -> int {
+  typography: `fun render_letter(x: int, y: int, c: colour, letter: int) -> int {
 
   // A
   if (letter == 0) {
@@ -875,7 +872,7 @@ letters[137] = 26;
 
 res = render_text(x, y, #0070ff, letters, len);`,
 
-  'Game of Life': `let ALIVE: colour = #000000;
+  'game of life': `let ALIVE: colour = #000000;
 let DEAD: colour = #ffffff;
 
 fun min(x: int, y: int) -> int {
@@ -979,7 +976,7 @@ for (let step: int = 0; step < steps; step = step + 1) {
     __delay delay;
 }`,
 
-  'Wall Clock': `// perform integer division using Euclids algorithm.
+  'wall clock': `// perform integer division using Euclids algorithm.
 fun idiv(n: int, d: int) -> int {
     // hack to handle division when n is negative.
     let negative: bool = n < 0;

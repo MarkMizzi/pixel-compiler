@@ -1,10 +1,6 @@
 @import './base.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-a,
-.green {
+.link-green {
   text-decoration: none;
   color: hsla(160, 100%, 37%, 1);
   transition: 0.4s;
@@ -12,14 +8,7 @@ a,
 }
 
 @media (hover: hover) {
-  a:hover {
+  .link-green:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
   }
 }

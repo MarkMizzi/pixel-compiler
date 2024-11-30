@@ -9,6 +9,9 @@ export default defineComponent({
   data() {
     return { content: '' }
   },
+  mounted() {
+    this.setContent('# Compile a program')
+  },
   methods: {
     setContent(assembly: string) {
       this.content = assembly

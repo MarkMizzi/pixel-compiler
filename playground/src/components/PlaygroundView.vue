@@ -1,25 +1,19 @@
 <template>
   <main>
-    <div class="flex flex-flow-row">
+    <div class="flex flex-col md:flex-row h-full">
       <div class="w-full">
         <SourceCodeView :compile="compile"></SourceCodeView>
       </div>
       <div class="w-full grid grid-cols-1">
-        <div class="flex flex-row justify-start p-2 gap-x-4">
-          <button
-            class="w-32 p-2 rounded-t-lg bg-slate-800 text-white"
-            @click="selected = 'assembly'"
-          >
-            View Assembly
+        <div class="flex flex-row justify-start p-2 gap-x-0">
+          <button class="w-32 p-2 bg-slate-900 link-green" @click="selected = 'assembly'">
+            assembly
           </button>
-          <button
-            class="w-32 p-2 rounded-t-lg bg-slate-800 text-white"
-            @click="selected = 'astxml'"
-          >
-            View AST XML
+          <button class="w-32 p-2 bg-slate-900 link-green" @click="selected = 'astxml'">
+            ast xml
           </button>
-          <button class="w-32 p-2 rounded-t-lg bg-slate-800 text-white" @click="selected = 'run'">
-            Run Program
+          <button class="w-32 p-2 bg-slate-900 link-green" @click="selected = 'run'">
+            execute
           </button>
         </div>
         <AsmView v-show="selected == 'assembly'" ref="asmView"></AsmView>
@@ -39,7 +33,7 @@ import { StatusCodes } from 'http-status-codes'
 import { defineComponent } from 'vue'
 import { useToast } from 'vue-toast-notification'
 
-const $toast = useToast()
+const $toast = useToast({ position: 'top' })
 
 interface CompilerOutput {
   xmlOutput: string

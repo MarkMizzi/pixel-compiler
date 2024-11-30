@@ -6,16 +6,9 @@ import { RouterLink, RouterView } from 'vue-router'
   <header
     class="flex flex-wrap md:justify-start md:flex-nowrap sticky top-0 z-50 w-full justify-self-start"
   >
-    <nav
-      class="relative w-full mx-auto px-4 md:flex md:items-center md:justify-between md:px-6 lg:px-8 py-2"
-    >
-      <div class="flex flex-row">
-        <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="50" height="50" />
-      </div>
-      <div class="flex flex-row">
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </div>
+    <nav class="static w-screen bg-slate-900 px-4 py-2 flex flex-row justify-end gap-x-4">
+      <RouterLink class="link-green" to="/">home</RouterLink>
+      <RouterLink class="link-green" to="/about">about</RouterLink>
     </nav>
   </header>
 
