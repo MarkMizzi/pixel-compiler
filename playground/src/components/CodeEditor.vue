@@ -48,5 +48,3 @@ export default defineComponent({
     :disabled="readonly"
   />
 </template>
-
-<style scoped></style>
