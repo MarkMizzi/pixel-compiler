@@ -127,6 +127,7 @@ Typename {
   @precedence {
     LineComment,
     BlockComment,
+    Arrow,
     SimpleTypename,
     BoolLiteral,
     LetKeyword,
