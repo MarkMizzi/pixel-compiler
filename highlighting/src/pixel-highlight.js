@@ -6,9 +6,26 @@ export const highlighting = styleTags({
 
   SimpleTypename: tags.typeName,
 
-  "let __print __delay __pixelr __pixel return if else for while fun __randi __width __height __read __newarr":
-    tags.keyword,
-  "and or not": tags.operator,
+  let: tags.keyword,
+  __print: tags.keyword,
+  __delay: tags.keyword,
+  __pixelr: tags.keyword,
+  __pixel: tags.keyword,
+  return: tags.keyword,
+  if: tags.keyword,
+  else: tags.keyword,
+  for: tags.keyword,
+  while: tags.keyword,
+  fun: tags.keyword,
+  __randi: tags.keyword,
+  __width: tags.keyword,
+  __height: tags.keyword,
+  __read: tags.keyword,
+  __newarr: tags.keyword,
+
+  and: tags.operator,
+  or: tags.operator,
+  not: tags.operator,
 
   Identifier: tags.name,
 
