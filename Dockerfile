@@ -31,6 +31,9 @@ COPY playground playground
 COPY vm vm
 COPY highlighting highlighting
 
+WORKDIR /highlighting
+RUN npm install
+
 WORKDIR /playground
 
 # Install deps and build playground app
