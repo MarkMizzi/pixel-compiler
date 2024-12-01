@@ -1,5 +1,6 @@
 /* Import icons */
 @import 'material-icons/iconfont/material-icons.css';
+@import 'material-symbols/outlined.css';
 
 @tailwind base;
 @tailwind components;
