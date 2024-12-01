@@ -167,11 +167,10 @@ defineExpose({
         </canvas>
         <textarea
           ref="pixel-vm-logger"
-          placeholder="Logs go here"
+          placeholder="Logs will be printed here..."
           class="w-full h-96 overflow-y-scroll border-0 bg-slate-900 text-slate-100 resize-none"
           readonly
-        >
-        </textarea>
+        ></textarea>
       </div>
       <div class="flex flex-col gap-x-0">
         <button v-if="!isRunning" class="h-8 w-8 p-2 link-green" @click="runOrContinue()">
