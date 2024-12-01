@@ -6,7 +6,8 @@ import {
   PixIROpcode,
   PixIRDataType,
   checkDataType,
-  rgbToHex
+  rgbToHex,
+  dataToString
 } from './instructions'
 import { type Program } from './assembler'
 
@@ -67,7 +68,7 @@ export class PixelVM {
 
   private fillRect(x: number, y: number, w: number, h: number, c: Color) {
     if (x < 0 || y < 0 || x + w > this.state.width || y + h > this.state.height)
-      throw RangeError(`Out of bounds fill <${x}, ${y}, ${w}, ${h}> requested.`)
+      throw RangeError(`Out of bounds fill x=${x}, y=${y}, w=${w}, h=${h} requested.`)
 
     // scale given variables to the actual Javascript canvas
     const [canvasX, canvasY] = this.scaleCanvas(x, this.state.height - y - h)
@@ -632,7 +633,7 @@ export class PixelVM {
       // log output
       case PixIROpcode.PRINT: {
         const x = this.safePop()
-        this.state.loggerHandle.value += `${x.val}\n`
+        this.state.loggerHandle.value += `${dataToString(x)}\n`
 
         this.state.callStack[this.state.callStack.length - 1].pc++
         break
@@ -645,7 +646,7 @@ export class PixelVM {
         checkDataType(size, [PixIRDataType.NUMBER])
 
         if ((size.val as number) < 0)
-          throw RangeError(`Cannot allocate array with negative size ${size.val}`)
+          throw RangeError(`Cannot allocate array with negative size ${dataToString(size)}`)
 
         let arr = []
         for (let i = 0; i < (size.val as number); i++) arr.push(undefined)
@@ -671,7 +672,7 @@ export class PixelVM {
         const arrsize = (arr.val as Array<any>).length
         if ((idx.val as number) < 0 || (idx.val as number) >= arrsize)
           throw RangeError(
-            `Out of bounds access ${idx.val} to array ${arr.val} of size ${arrsize}.`
+            `Out of bounds access ${dataToString(idx)} to array ${dataToString(arr)} of size ${arrsize}.`
           )
         ;(arr.val as Array<any>)[idx.val as number] = val
 
@@ -690,13 +691,13 @@ export class PixelVM {
         const arrsize = (arr.val as Array<any>).length
         if ((idx.val as number) < 0 || (idx.val as number) >= arrsize)
           throw RangeError(
-            `Out of bounds access ${idx.val} to array ${arr.val} of size ${arrsize}.`
+            `Out of bounds access ${dataToString(idx)} to array ${dataToString(arr)} of size ${arrsize}.`
           )
 
         const val = (arr.val as Array<any>)[idx.val as number]
         if (val === undefined)
           throw ReferenceError(
-            `Loaded undefined element from location ${idx.val} of array ${arr.val}.`
+            `Loaded undefined element from location ${dataToString(idx)} of array ${dataToString(arr)}.`
           )
 
         this.state.workStack.push(val)

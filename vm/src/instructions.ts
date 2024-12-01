@@ -78,13 +78,45 @@ export type FunctionName = string
 /* Represents data type used by the VM (e.g. in work stack and frames). */
 export interface PixIRData {
   dtype: PixIRDataType
-  val: Color | number | boolean | Label | FunctionName | Array<PixIRData | undefined>
+  val: Color | number | boolean | Label | FunctionName | (PixIRData | undefined)[]
 }
 
-/* Represents a VM instruction (opcode + any operand data) */
+/* Convert Pixel VM data to a human-readable string */
+export function dataToString(d: PixIRData): string {
+  switch (d.dtype) {
+    case PixIRDataType.COLOR:
+      return (d.val as Color).toString()
+    case PixIRDataType.NUMBER:
+      return (d.val as number).toString()
+    case PixIRDataType.LABEL:
+      const [offset, frame] = d.val as Label
+      return `[${offset}:${frame}]`
+    case PixIRDataType.PCOFFSET:
+      return `#PC+${d.val as number}`
+    case PixIRDataType.INSTRPTR:
+      return `&${d.val as number}`
+    case PixIRDataType.FUNCTION:
+      return d.val as FunctionName
+    case PixIRDataType.ARRAY:
+      return (
+        '[' +
+        (d.val as (PixIRData | undefined)[])
+          .map((x) => {
+            if (x !== undefined) {
+              return x.val.toString()
+            } else {
+              return 'undefined'
+            }
+          })
+          .join(',') +
+        ']'
+      )
+  }
+}
+
 export interface PixIRInstruction {
   opcode: PixIROpcode
-  operand: PixIRData | undefined
+  operand?: PixIRData
 }
 
 /* Utility function to convert rgb numbers into Color hex string. */
