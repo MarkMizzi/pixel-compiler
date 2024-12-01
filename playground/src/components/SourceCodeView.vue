@@ -14,6 +14,7 @@
         <option class="bg-slate-900 link-green" value="typography">typography</option>
         <option class="bg-slate-900 link-green" value="game of life">game of life</option>
         <option class="bg-slate-900 link-green" value="wall clock">wall clock</option>
+        <option class="bg-slate-900 link-green" value="clear">clear</option>
       </select>
     </div>
     <CodeEditor
@@ -1243,7 +1244,10 @@ for (let i: int = 0; i < ticks; i = i + 1) {
     }
 
     clock_pos = imod(clock_pos + 1, 60);
-}`
+}`,
+
+  clear: `// clear screen to a specific colour
+__pixelr 0, 0, __width, __height, #000000;`
 }
 
 const setCodeToExample = (exampleName: string) => {
