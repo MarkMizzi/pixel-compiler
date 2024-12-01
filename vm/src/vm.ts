@@ -27,6 +27,7 @@ interface PixVMState {
   height: number
   width: number
   halted: boolean
+  paused: boolean
 }
 
 export class PixelVM {
@@ -42,7 +43,8 @@ export class PixelVM {
       callStack: [{ funcName: '.main', pc: 0 }],
       height: 100,
       width: 100,
-      halted: true
+      halted: true,
+      paused: false
     }
     // initialize program to the program that does nothing and halts immediately.
     this.program = new Map([['.main', [{ opcode: PixIROpcode.HALT, operand: undefined }]]])
@@ -87,7 +89,7 @@ export class PixelVM {
     this.state.frameStack = [[]]
     this.state.workStack = []
     this.state.callStack = [{ funcName: '.main', pc: 0 }]
-    this.state.halted = false
+    this.state.paused = false
   }
 
   public async step() {
@@ -707,13 +709,35 @@ export class PixelVM {
 
   public async run() {
     this.reset()
-    while (!this.state.halted) {
+    this.state.halted = false
+    await this.continue()
+  }
+
+  public async continue() {
+    this.state.paused = false
+    while (!this.state.halted && !this.state.paused) {
       await this.step()
     }
   }
 
+  public pause() {
+    this.state.paused = true
+  }
+
   public stop() {
     this.state.halted = true
+  }
+
+  public async safeStep() {
+    if (this.state.halted) {
+      this.reset()
+      this.state.halted = false
+      this.state.paused = true
+    } else if (!this.state.paused) {
+      throw Error('Cannot step while the Pixel VM is running.')
+    }
+
+    await this.step()
   }
 
   public setWidth(width: number) {

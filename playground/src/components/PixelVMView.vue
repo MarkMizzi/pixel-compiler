@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, useTemplateRef, defineExpose } from 'vue'
+import { onMounted, useTemplateRef, defineExpose, ref } from 'vue'
 import { type Program, Assembler, PixelVM } from 'pixel-vm'
 import $toast from '@/toast'
 
@@ -15,6 +15,9 @@ let vm: PixelVM | undefined = undefined
 const screenRef = useTemplateRef('pixel-vm-screen')
 const loggerRef = useTemplateRef('pixel-vm-logger')
 
+const isRunning = ref(false)
+const isPaused = ref(false)
+
 onMounted(() => {
   vm = new PixelVM(screenRef.value as HTMLCanvasElement, loggerRef.value as HTMLTextAreaElement)
 })
@@ -27,10 +30,43 @@ function stop() {
   vm?.stop()
 }
 
-function run() {
-  vm?.run().catch((error) => {
+function pause() {
+  isPaused.value = true
+  vm?.pause()
+}
+
+function step() {
+  vm?.safeStep().catch((error) => {
     $toast.error(`${error}`)
   })
+}
+
+function runOrContinue() {
+  if (isRunning.value) {
+    $toast.error('VM is already running!')
+  }
+  isRunning.value = true
+
+  if (isPaused.value) {
+    isPaused.value = false
+    vm
+      ?.continue()
+      .catch((error) => {
+        $toast.error(`${error}`)
+      })
+      .finally(() => {
+        isRunning.value = false
+      })
+  } else {
+    vm
+      ?.run()
+      .catch((error) => {
+        $toast.error(`${error}`)
+      })
+      .finally(() => {
+        isRunning.value = false
+      })
+  }
 }
 
 defineExpose({
@@ -58,10 +94,16 @@ defineExpose({
         </textarea>
       </div>
       <div class="flex flex-col gap-x-0">
-        <button class="h-8 w-8 p-2 link-green" @click="run()">
+        <button v-if="!isRunning" class="h-8 w-8 p-2 link-green" @click="runOrContinue()">
           <span class="material-icons"> play_arrow </span>
         </button>
-        <button class="h-8 w-8 p-2 link-green">
+        <button v-if="!isRunning" class="h-8 w-8 p-2 link-green" @click="step()">
+          <span class="material-symbols-outlined"> step </span>
+        </button>
+        <button v-if="isRunning" class="h-8 w-8 p-2 link-green" @click="pause()">
+          <span class="material-icons"> pause </span>
+        </button>
+        <button v-if="isRunning" class="h-8 w-8 p-2 link-green">
           <span class="material-icons" @click="stop()"> stop </span>
         </button>
       </div>
