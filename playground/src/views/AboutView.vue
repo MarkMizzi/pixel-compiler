@@ -276,6 +276,13 @@
       </tbody>
     </table>
 
+    <p>
+      While the compiler does allow closures (functions which use variables from an outer scope),
+      the code generated for them will almost certainly be buggy, as the variable will be stored in
+      a frame whose depth relative to the outermost frame of the function will vary depending on
+      where the function is called.
+    </p>
+
     <h1>Pixel VM Specification</h1>
 
     <h2>Pixel VM State</h2>
