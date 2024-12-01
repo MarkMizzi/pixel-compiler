@@ -660,6 +660,12 @@
           <td>Pops one frame off the frame stack, and pops one item off the call stack.</td>
         </tr>
         <tr>
+          <td><span class="code">halt</span></td>
+          <td><span class="code">..</span></td>
+          <td><span class="code">..</span></td>
+          <td>Halts the Pixel VM.</td>
+        </tr>
+        <tr>
           <td><span class="code">alloc</span></td>
           <td><span class="code">a ..</span></td>
           <td><span class="code">..</span></td>
