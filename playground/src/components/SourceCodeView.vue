@@ -134,6 +134,10 @@ __print w;`,
   'rule 110': `fun update(row: []bool, n: int) -> []bool {
      let updated: []bool = __newarr bool, n;
 
+     // all array elements must be initialized
+     updated[0] = false;
+     updated[n-1] = false;
+     
      for (let i: int = 1; i < n-1; i = i + 1) {
          let count: int = 0;
          if (row[i-1]) {
