@@ -757,4 +757,12 @@ export class PixelVM {
       )
     this.state.height = height
   }
+
+  public getWidth(): number {
+    return this.state.width
+  }
+
+  public getHeight(): number {
+    return this.state.height
+  }
 }
