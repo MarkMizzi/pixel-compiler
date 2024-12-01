@@ -88,7 +88,7 @@ defineExpose({
         <textarea
           ref="pixel-vm-logger"
           placeholder="Logs go here"
-          class="w-full h-96 overflow-y-scroll border-0 bg-slate-900 text-slate-100"
+          class="w-full h-96 overflow-y-scroll border-0 bg-slate-900 text-slate-100 resize-none"
           readonly
         >
         </textarea>
