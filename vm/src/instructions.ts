@@ -103,7 +103,7 @@ export function dataToString(d: PixIRData): string {
         (d.val as (PixIRData | undefined)[])
           .map((x) => {
             if (x !== undefined) {
-              return x.val.toString()
+              return dataToString(x)
             } else {
               return 'undefined'
             }
