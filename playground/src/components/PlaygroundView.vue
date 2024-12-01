@@ -82,9 +82,11 @@ export default defineComponent({
           // check for compiler error
           if (output.asmOutput == '') {
             astXmlView.setContent(
-              (output.compilerStdErr + output.compilerStdOut).replace('\n', '\n# ')
+              '<!--\n' + output.compilerStdErr + output.compilerStdOut + '\n-->'
             )
-            asmView.setContent('<!--\n' + output.compilerStdErr + output.compilerStdOut + '\n-->')
+            asmView.setContent(
+              ('# ' + output.compilerStdErr + output.compilerStdOut).replace('\n', '\n# ')
+            )
             // an error occurred, indicate to user and set asm and ast views to combined stderr and stdout streams.
             throw Error('Compilation error occurred. Check your source program.')
           } else {
