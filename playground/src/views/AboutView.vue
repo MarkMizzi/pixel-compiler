@@ -31,14 +31,127 @@
 
     <h2>Syntax</h2>
 
+    <p>
+      The syntax of the Pixel language is specified entirely by the following extended BNF grammar:
+    </p>
+
+    <code class="font-mono">
+      &lt; Letter &gt; ::= [A-Za-z] <br />
+      &lt; Digit &gt; ::= [0-9] <br />
+      &lt; Hex &gt; ::= [A-Fa-f] | &lt; Digit &gt; <br /><br />
+
+      &lt; Type &gt; ::= &quot;float&quot; | &quot;int&quot; | &quot;bool&quot; | &quot;colour&quot;
+      | &quot;[&quot; &quot;]&quot; &lt; Type &gt; <br /><br />
+
+      &lt; BooleanLiteral&gt; ::= &quot;true&quot; | &quot;false&quot; <br />
+      &lt; IntegerLiteral&gt;::= &lt; Digit &gt; { &lt; Digit &gt; } <br />
+      &lt; FloatLiteral&gt; ::= &lt; Digit &gt; { &lt; Digit &gt; } &quot;.&quot; &lt; Digit &gt; {
+      &lt; Digit &gt; } <br />
+      &lt; ColourLiteral&gt; ::= &quot;#&quot; &lt; Hex &gt; &lt; Hex &gt; &lt; Hex &gt; &lt; Hex
+      &gt; &lt; Hex &gt; &lt; Hex &gt; <br />
+
+      &lt;Literal&gt; ::= <br />
+      &emsp;&lt; BooleanLiteral &gt; | <br />
+      &emsp;&lt; IntegerLiteral &gt; | <br />
+      &emsp;&lt; FloatLiteral &gt; | <br />
+      &emsp;&lt; ColourLiteral &gt; <br /><br />
+
+      &lt;Identifier &gt; ::= ( &lt; Letter &gt; ) { &quot;_&quot; | &lt;Letter &gt; | &lt;Digit&gt;
+      } <br /><br />
+
+      &lt;MultiplicativeOp&gt; ::= &quot;*&quot; | &quot;/&quot; | &quot;and&quot; <br />
+      &lt;AdditiveOp&gt; ::= &quot;+&quot; | &quot;-&quot; | &quot;or&quot; <br />
+      &lt;RelationalOp&gt; ::= &quot;&lt;&quot; | &quot;&gt;&quot; | &quot;==&quot; | &quot;!=&quot;
+      | &quot;&lt;=&quot; | &quot;&gt;=&quot; <br /><br />
+
+      &lt; ActualParams &gt; ::= &lt; Expr &gt; { &quot;,&quot; &lt; Expr &gt; } <br />
+      &lt; FunctionCall &gt; ::= &lt; Identifier &gt; &quot;(&quot; [ &lt; ActualParams &gt; ]
+      &quot;)&quot; <br /><br />
+
+      &lt; ArrayAccessExpr &gt; ::= ( &lt; Identifier &gt; | &lt; ArrayAccessExpr &gt; )
+      &quot;[&quot; &lt; Expr &gt; &quot;]&quot; <br />
+      &lt; NewArrExpr &gt; ::= &quot;__newarr&quot; &lt; Type &gt; &quot;,&quot; &lt; Expr &gt;
+      <br />
+      &lt; SubExpr &gt; ::= &quot;(&quot; &lt; Expr &gt; &quot;)&quot; <br />
+      &lt; Unary &gt; ::= ( &quot;-&quot; | &quot;not&quot; ) &lt; Expr &gt; <br />
+      &lt; Factor &gt; ::= <br />
+      &emsp;&lt; Literal &gt; | <br />
+      &emsp;&lt; Identifier &gt; | <br />
+      &emsp;&lt; FunctionCall &gt; | <br />
+      &emsp;&lt; SubExpr &gt; | <br />
+      &emsp;&lt; Unary &gt; | <br />
+      &emsp;&quot;__randi&quot; &lt; Expr &gt; | <br />
+      &emsp;&quot;__width&quot; | <br />
+      &emsp;&quot;__height&quot; | <br />
+      &emsp;&quot;__read&quot; &lt; Expr &gt; &quot;,&quot; &lt; Expr &gt; | <br />
+      &emsp;&lt; ArrayAccessExpr &gt; | <br />
+      &emsp;&lt; NewArrExpr &gt; <br /><br />
+
+      &lt; Term &gt; ::= &lt; Factor &gt; { &lt; MultiplicativeOp &gt; &lt; Factor &gt; } <br />
+      &lt; SimpleExpr &gt; ::= &lt; Term &gt; { &lt; AdditiveOp &gt; &lt; Term &gt; } <br />
+      &lt; Expr &gt; ::= &lt; SimpleExpr &gt; { &lt; RelationalOp &gt; &lt; SimpleExpr &gt; }
+      <br /><br />
+
+      &lt; LValue &gt; ::= &lt; ArrayAccessExpr &gt; | &lt; Identifier &gt; <br />
+      &lt; Assignment &gt; ::= &lt; LValue &gt; &quot;=&quot; &lt; Expr &gt; <br /><br />
+
+      &lt; VariableDecl &gt; ::= &quot;let&quot; &lt; Identifier &gt; &quot;:&quot; &lt; Type &gt;
+      &quot;=&quot; &lt; Expr &gt; <br /><br />
+
+      &lt; PrintStatement &gt; ::= &quot;__print&quot; &lt; Expr &gt; <br />
+      &lt; DelayStatement &gt; ::= &quot;__delay&quot; &lt; Expr &gt; <br />
+      &lt; PixelStatement &gt; ::= <br />
+      &emsp;&quot;__pixelr&quot; &lt; Expr &gt; &quot;,&quot; &lt; Expr &gt; &quot;,&quot; &lt; Expr
+      &gt; &quot;,&quot;&lt; Expr &gt; &quot;,&quot; &lt;Expr &gt; | <br />
+      &emsp;&quot;__pixel&quot; &lt; Expr &gt; &quot;,&quot; &lt; Expr &gt; &quot;,&quot; &lt; Expr
+      &gt; <br />
+      &lt; RtrnStatement &gt; ::= &quot;return&quot; &lt; Expr &gt; <br /><br />
+
+      &lt; IfStatement &gt; ::= <br />
+      &emsp;&quot;if&quot; &quot;(&quot; &lt; Expr &gt; &quot;)&quot; &lt; Block &gt; <br />
+      &emsp;&emsp;[ &quot;else&quot; &lt; Block &gt; ] <br /><br />
+
+      &lt; ForStatement &gt; ::= <br />
+      &emsp;&quot;for&quot; &quot;(&quot; [ &lt; VariableDecl &gt; ] &quot;;&quot; &lt; Expr &gt;
+      &quot;;&quot; [ &lt; Assignment &gt; ] &quot;)&quot; <br />
+      &emsp;&emsp;&lt; Block &gt; <br /><br />
+
+      &lt; WhileStatement &gt; ::= &quot;while&quot; &quot;(&quot; &lt;Expr &gt; &quot;)&quot; &lt;
+      Block &gt; <br /><br />
+
+      &lt; FormalParam &gt; ::= &lt; Identifier &gt; &quot;:&quot; &lt; Type &gt; <br />
+      &lt; FormalParams&gt; ::= &lt; FormalParam &gt; { &quot;,&quot; &lt; FormalParam &gt; } <br />
+      &lt; FunctionDecl &gt; ::= <br />
+      &emsp;&quot;fun&quot; &lt; Identifier &gt; &quot;(&quot; [ &lt;FormalParams&gt; ]
+      &quot;)&quot; <br />
+      &emsp;&emsp;&quot;->&quot; &lt; Type &gt; &lt; Block &gt; <br /><br />
+
+      &lt; Statement &gt; ::= <br />
+      &emsp;&lt; VariableDecl &gt; &quot;;&quot; | <br />
+      &emsp;&lt; Assignment &gt; &quot;;&quot; | <br />
+      &emsp;&lt; PrintStatement &gt; &quot;;&quot; | <br />
+      &emsp;&lt; DelayStatement &gt; &quot;;&quot; | <br />
+      &emsp;&lt; PixelStatement &gt; &quot;;&quot; | <br />
+      &emsp;&lt; IfStatement &gt; | <br />
+      &emsp;&lt; ForStatement &gt; | <br />
+      &emsp;&lt; WhileStatement &gt; | <br />
+      &emsp;&lt; RtrnStatement &gt; &quot;;&quot; | <br />
+      &emsp;&lt; FunctionDecl &gt; | <br />
+      &emsp;&lt; Block &gt; <br /><br />
+
+      &lt; Block &gt; ::= &quot;{&quot; { &lt; Statement &gt; } &quot;}&quot; <br />
+      &lt; Program &gt; ::= { &lt; Statement &gt; } <br /><br />
+    </code>
     <!-- BNF -->
 
     <h2>Semantics</h2>
 
-    Many constructs in Pixel are similar to C or other imperative languages, and their semantics can
-    therefore be inferred readily. This section is therefore not an attempt to accurately and
-    completely describe all the semantics of Pixel, but instead focuses on an informal description
-    of the more idiosyncratic of Pixel's semantics.
+    <p>
+      Many constructs in Pixel are similar to C or other imperative languages, and their semantics
+      can therefore be inferred readily. This section is therefore not an attempt to accurately and
+      completely describe all the semantics of Pixel, but instead focuses on an informal description
+      of the more idiosyncratic of Pixel's semantics.
+    </p>
 
     <!-- Display features, delay, print -->
     <!-- Main function -->
@@ -160,6 +273,14 @@
     <p>
       Booleans can be encoded as numbers. The logical opcodes treat any non-zero number as true and
       zero as false.
+    </p>
+
+    <h2>Initial State</h2>
+
+    <p>
+      The VM is initialized with an empty work stack and a frame stack containing a single empty
+      frame. The call stack initially holds a single item referencing a special function called
+      <span class="code">.main</span> which is the designated entry point for a program.
     </p>
 
     <h2>Opcodes</h2>
@@ -557,8 +678,7 @@
 
 <style lang="css" scoped>
 .about {
-  max-width: 1024px;
-  @apply p-4 mx-auto;
+  @apply p-4 max-w-prose md:max-w-screen-md lg:max-w-screen-lg mx-auto;
 }
 
 h1 {
