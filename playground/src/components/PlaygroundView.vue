@@ -94,6 +94,9 @@ export default defineComponent({
             pixelVMView.setProgram(output.asmOutput)
           }
         })
+        .then(() => {
+          $toast.success('Compiled and loaded program.')
+        })
         .catch((error) => {
           $toast.error(`${error}`)
         })
