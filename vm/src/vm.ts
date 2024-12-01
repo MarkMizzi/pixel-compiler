@@ -78,6 +78,7 @@ export class PixelVM {
   }
 
   public load(program: Program) {
+    this.stop()
     this.program = program
     this.reset()
   }

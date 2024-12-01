@@ -81,8 +81,10 @@ export default defineComponent({
           let output = data as CompilerOutput
           // check for compiler error
           if (output.asmOutput == '') {
-            astXmlView.setContent(output.compilerStdErr + output.compilerStdOut)
-            asmView.setContent(output.compilerStdErr + output.compilerStdOut)
+            astXmlView.setContent(
+              (output.compilerStdErr + output.compilerStdOut).replace('\n', '\n# ')
+            )
+            asmView.setContent('<!--\n' + output.compilerStdErr + output.compilerStdOut + '\n-->')
             // an error occurred, indicate to user and set asm and ast views to combined stderr and stdout streams.
             throw Error('Compilation error occurred. Check your source program.')
           } else {
