@@ -58,6 +58,7 @@ Data {
     "cjmp" |
     "cjmp2" |
     "call" |
+    "ret" |
     "halt" |
     "alloc" |
     "oframe" |
