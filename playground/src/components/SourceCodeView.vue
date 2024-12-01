@@ -80,7 +80,10 @@ __pixelr 3, 0, 1, fibr(4), #00ff00;
 __pixelr 4, 0, 1, fibr(5), #00ff00;
 __pixelr 5, 0, 1, fibr(6), #00ff00;
 __pixelr 6, 0, 1, fibr(7), #00ff00;
-__pixelr 7, 0, 1, fibr(8), #00ff00;`,
+__pixelr 7, 0, 1, fibr(8), #00ff00;
+__pixelr 8, 0, 1, fibr(9), #00ff00;
+__pixelr 9, 0, 1, fibr(10), #00ff00;
+__pixelr 10, 0, 1, fibr(11), #00ff00;`,
 
   race: `/* This function takes two colours (players) and a max score
  * A while loop is used to iteratively draw random numbers for the two
@@ -94,8 +97,8 @@ fun Race(p1_c: colour, p2_c : colour, score_max  : int) -> int {
 
     while ((p1_score < score_max) and (p2_score < score_max))
     {
-        let p1_toss: int = __randi 1000;
-        let p2_toss: int = __randi 1000;
+        let p1_toss: int = __randi 10;
+        let p2_toss: int = __randi 10;
 
         if (p1_toss > p2_toss) {
            p1_score = p1_score + 1;
@@ -105,6 +108,8 @@ fun Race(p1_c: colour, p2_c : colour, score_max  : int) -> int {
 
         __pixel 1, p1_score, p1_c;
         __pixel 2, p2_score,  p2_c;
+
+        __delay 60;
     }
 
     let winner: int = 1;
@@ -122,7 +127,7 @@ __pixelr 0, 0, __width, __height, #ffffff;
 
 let c1 : colour = #00ff00; // green
 let c2: colour = #0000ff; // blue
-let m : int = __height;
+let m : int = __height - 1;
 let w : int = Race(c1, c2, m);
 __print w;`,
 

@@ -70,7 +70,7 @@ export class PixelVM {
       throw RangeError(`Out of bounds fill <${x}, ${y}, ${w}, ${h}> requested.`)
 
     // scale given variables to the actual Javascript canvas
-    const [canvasX, canvasY] = this.scaleCanvas(x, this.state.height - y - 1)
+    const [canvasX, canvasY] = this.scaleCanvas(x, this.state.height - y - h)
     const [canvasW, canvasH] = this.scaleCanvas(w, h)
 
     // fill in the rectangle.
@@ -632,7 +632,7 @@ export class PixelVM {
       // log output
       case PixIROpcode.PRINT: {
         const x = this.safePop()
-        this.state.loggerHandle.value += `${x}\n`
+        this.state.loggerHandle.value += `${x.val}\n`
 
         this.state.callStack[this.state.callStack.length - 1].pc++
         break
