@@ -31,9 +31,7 @@ import PixelVMView from '@/components/PixelVMView.vue'
 import SourceCodeView from '@/components/SourceCodeView.vue'
 import { StatusCodes } from 'http-status-codes'
 import { defineComponent } from 'vue'
-import { useToast } from 'vue-toast-notification'
-
-const $toast = useToast({ position: 'top' })
+import $toast from '@/toast'
 
 interface CompilerOutput {
   xmlOutput: string

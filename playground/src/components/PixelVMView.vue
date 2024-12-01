@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { onMounted, useTemplateRef, defineExpose } from 'vue'
 import { type Program, Assembler, PixelVM } from 'pixel-vm'
-import { useToast } from 'vue-toast-notification'
-
-const $toast = useToast()
+import $toast from '@/toast'
 
 export interface PixelVMViewData {
   program: Program
