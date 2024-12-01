@@ -4,7 +4,8 @@
 #include <fstream>
 #include <iostream>
 
-void print_usage() {
+void print_usage()
+{
 
   const std::string helpMessage =
       "./pixelc [-o <outfile>] [-xml <outfile>] {<options>} [src]\n"
@@ -23,41 +24,60 @@ void print_usage() {
   exit(0);
 }
 
-CompilerOptions parseArgs(int argc, char *argv[]) {
+CompilerOptions parseArgs(int argc, char *argv[])
+{
   CompilerOptions options;
 
   // arg processing
   bool gotSource = false;
-  for (int i = 1; i < argc; i++) {
+  for (int i = 1; i < argc; i++)
+  {
     std::string arg{std::move(argv[i])};
-    if (arg == "-h") {
+    if (arg == "-h")
+    {
       print_usage();
-    } else if (arg == "-o") {
+    }
+    else if (arg == "-o")
+    {
       i++;
-      if (i >= argc) {
+      if (i >= argc)
+      {
         std::cerr << "Expected filename for output." << std::endl;
         exit(-1);
       }
       options.outfile = std::string(std::move(argv[i]));
-    } else if (arg == "-xml") {
+    }
+    else if (arg == "-xml")
+    {
       options.generateXml = true;
       i++;
-      if (i >= argc) {
+      if (i >= argc)
+      {
         std::cerr << "Expected filename for XML output." << std::endl;
         exit(-1);
       }
       options.xmlOutfile = std::string(std::move(argv[i]));
-    } else if (arg == "-frotate-loops") {
+    }
+    else if (arg == "-frotate-loops")
+    {
       options.rotateLoops = true;
-    } else if (arg == "-felim-dead-code") {
+    }
+    else if (arg == "-felim-dead-code")
+    {
       options.eliminateDeadCode = true;
-    } else if (arg == "-fpeephole-optimize") {
+    }
+    else if (arg == "-fpeephole-optimize")
+    {
       options.peepholeOptimize = true;
-    } else if (gotSource) {
+    }
+    else if (gotSource)
+    {
       std::cerr << "Cannot process more than one source file at a time."
                 << std::endl;
       exit(-1);
-    } else {
+    }
+    else
+    {
       options.infile = arg;
       gotSource = true;
     }
@@ -66,14 +86,18 @@ CompilerOptions parseArgs(int argc, char *argv[]) {
   return options;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
   CompilerOptions options = parseArgs(argc, argv);
 
-  try {
+  try
+  {
     Compiler compiler{options};
     compiler.compile();
-  } catch (CompilationError &e) {
+  }
+  catch (CompilationError &e)
+  {
     std::cerr << e.what() << std::endl;
     exit(-1);
   }

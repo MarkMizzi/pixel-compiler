@@ -18,7 +18,8 @@
 #include <optional>
 #include <string>
 
-struct CompilerOptions {
+struct CompilerOptions
+{
   std::optional<std::string> outfile = std::nullopt;
   std::optional<std::string> infile = std::nullopt;
 
@@ -31,7 +32,8 @@ struct CompilerOptions {
   bool peepholeOptimize = false;
 };
 
-class Compiler {
+class Compiler
+{
 private:
   // an ugly hack that allows us to use both fstreams and iostreams for
   // stdout/stdin as needed. We use the references in, out, xmlOut in the
@@ -71,18 +73,22 @@ public:
                        : std::fstream()),
         xmlOut(opts.xmlOutfile ? xmlOutfile : std::cout), lexer(in),
         parser(lexer), semanticChecker(symbolTable),
-        codeGenerator(symbolTable, {.rotateLoops = opts.rotateLoops}) {
-    if (opts.infile && !std::filesystem::exists(opts.infile.value())) {
+        codeGenerator(symbolTable, {.rotateLoops = opts.rotateLoops})
+  {
+    if (opts.infile && !std::filesystem::exists(opts.infile.value()))
+    {
       throw CompilationError("Input file " + opts.infile.value() +
                              " does not exist.");
     }
   }
 
-  void compile() {
+  void compile()
+  {
     std::unique_ptr<ast::TranslationUnit> tu{parser.parse()};
     semanticChecker.visit(*tu);
 
-    if (opts.generateXml) {
+    if (opts.generateXml)
+    {
       xmlVisitor.visit(*tu);
       xmlOut << xmlVisitor.xml();
     }
@@ -91,13 +97,15 @@ public:
     codegen::PixIRCode &code(codeGenerator.code());
 
     // optimizations
-    if (opts.eliminateDeadCode) {
+    if (opts.eliminateDeadCode)
+    {
       codegen::DeadFunctionEliminator eliminator(code);
       eliminator.eliminate();
       codegen::eliminateDeadCodeAfterReturn(code);
     }
 
-    if (opts.peepholeOptimize) {
+    if (opts.peepholeOptimize)
+    {
       peepholeOptimize(code);
     }
 
