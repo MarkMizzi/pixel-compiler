@@ -153,10 +153,128 @@
       of the more idiosyncratic of Pixel's semantics.
     </p>
 
-    <!-- Display features, delay, print -->
-    <!-- Main function -->
-    <!-- Nested functions, functions are not first class -->
-    <!-- Numerical semantics -->
+    <p>
+      Code can be written outside of any function. Such code will be placed inside a special
+      <span class="code">main</span> function by the compiler which is the designated entry point of
+      a Pixel program. No function defined by the programmer can be called
+      <span class="code">main</span>.
+    </p>
+
+    <p>
+      Function definitions can be nested. This is mainly an organizational tool, as functions are
+      not treated as first class objects in Pixel, and cannot be passed as arguments or returned
+      from a function.
+    </p>
+
+    <p>
+      Pixel contains four simple types: <span class="code">float</span>,
+      <span class="code">int</span>, <span class="code">bool</span> and
+      <span class="code">colour</span>. <span class="code">colour</span> can be used in various
+      graphical operations on the display that is part of the Pixel programming environment. Pixel
+      also supports arrays of any type (including arrays of arrays).
+    </p>
+
+    <p>There is no type casting in Pixel.</p>
+
+    <p>
+      Arithmetic and logical operators have the expected input and output types, with the exception
+      of division when applied to two integers, which returns a float rather than another integer.
+    </p>
+
+    <p>
+      Pixel comes with a number of &quot;builtins&quot; which are invoked like functions (except
+      there are no parantheses around the arguments). These are listed in the following table:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Builtin</th>
+          <th>Expected Input Types</th>
+          <th>Output Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="code">__width</span></td>
+          <td>N/A</td>
+          <td><span class="code">int</span></td>
+          <td>Returns the width of the Pixel display.</td>
+        </tr>
+        <tr>
+          <td><span class="code">__height</span></td>
+          <td>N/A</td>
+          <td><span class="code">int</span></td>
+          <td>Returns the height of the Pixel display.</td>
+        </tr>
+        <tr>
+          <td><span class="code">__read x, y</span></td>
+          <td><span class="code">int, int</span></td>
+          <td><span class="code">colour</span></td>
+          <td>
+            Returns the colour of the pixel at
+            <span class="code">x, y</span>
+            on the Pixel display.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="code">__randi x</span></td>
+          <td><span class="code">int</span></td>
+          <td><span class="code">int</span></td>
+          <td>
+            Returns a random integer in the range
+            <span class="code">[0, x)</span>.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="code">__print x</span></td>
+          <td>Any type</td>
+          <td>N/A</td>
+          <td>
+            Prints
+            <span class="code">x</span>
+            to Pixel's output log.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="code">__delay x</span></td>
+          <td><span class="code">int</span></td>
+          <td>N/A</td>
+          <td>
+            Delay execution of the next program statement by
+            <span class="code">x</span>
+            milliseconds.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="code">__pixelr x, y, w, h, c</span></td>
+          <td><span class="code">int, int, int, int, colour</span></td>
+          <td>N/A</td>
+          <td>
+            Set the pixels within the rectange of width
+            <span class="code">w</span>
+            and height
+            <span class="code">h</span>
+            with top-left corner at
+            <span class="code">x, y</span>
+            to the colour
+            <span class="code">c</span>.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="code">__pixel x, y, c</span></td>
+          <td><span class="code">int, int, colour</span></td>
+          <td>N/A</td>
+          <td>
+            Set the pixel at
+            <span class="code">x, y</span>
+            to the colour
+            <span class="code">c</span>.
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
     <h1>Pixel VM Specification</h1>
 
