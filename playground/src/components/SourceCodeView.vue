@@ -890,10 +890,7 @@ letters[137] = 26;
 
 res = render_text(x, y, #0070ff, letters, len);`,
 
-  'game of life': `let ALIVE: colour = #000000;
-let DEAD: colour = #ffffff;
-
-fun min(x: int, y: int) -> int {
+  'game of life': `fun min(x: int, y: int) -> int {
     if (x < y) {
        return x;
     }
@@ -913,7 +910,7 @@ fun allocGrid(w: int, h: int) -> [][]colour {
     for (let x: int = 0; x < w; x = x + 1) {
         grid[x] = __newarr colour, h;
         for (let y: int = 0; y < h; y = y + 1) {
-            grid[x][y] = DEAD;
+            grid[x][y] = #ffffff;
         }
     }
 
@@ -921,7 +918,7 @@ fun allocGrid(w: int, h: int) -> [][]colour {
 }
 
 fun alive(grid: [][]colour, x: int, y: int) -> bool {
-    return grid[x][y] == ALIVE;
+    return grid[x][y] == #000000;
 }
 
 fun countNeighbours(grid: [][]colour, x: int, y: int, w: int, h: int) -> int {
@@ -949,11 +946,11 @@ fun gameOfLifeIter(grid: [][]colour, w: int, h: int) -> [][]colour {
 
             if (alive(grid, x, y)) {
                if ((neighbours < 2) or (neighbours > 3)) {
-                  updated[x][y] = DEAD;
+                  updated[x][y] = #ffffff;
                }
             } else {
               if (neighbours == 3) {
-                 updated[x][y] = ALIVE;
+                 updated[x][y] = #000000;
               }
             }
         }
@@ -970,11 +967,11 @@ let steps: int = 2000;
 let delay: int = 500;
 
 // initial setup for glider
-grid[1][0] = ALIVE;
-grid[2][1] = ALIVE;
-grid[0][2] = ALIVE;
-grid[1][2] = ALIVE;
-grid[2][2] = ALIVE;
+grid[1][0] = #000000;
+grid[2][1] = #000000;
+grid[0][2] = #000000;
+grid[1][2] = #000000;
+grid[2][2] = #000000;
 
 for (let x: int = 0; x < width; x = x + 1) {
     for (let y: int = 0; y < height; y = y + 1) {
@@ -984,7 +981,7 @@ for (let x: int = 0; x < width; x = x + 1) {
 
 for (let step: int = 0; step < steps; step = step + 1) {
     grid = gameOfLifeIter(grid, width, height);
-    __print grid;
+
     for (let x: int = 0; x < width; x = x + 1) {
         for (let y: int = 0; y < height; y = y + 1) {
             __pixel x, y, grid[x][y];
