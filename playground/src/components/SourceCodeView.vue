@@ -890,7 +890,11 @@ letters[137] = 26; // .
 
 res = render_text(x, y, #0070ff, letters, len);`,
 
-  'game of life': `fun min(x: int, y: int) -> int {
+  'game of life': `/* Demonstration of Gosper glider gun.
+ * SET SCREEN DIMENSIONS TO 40 x 30 FOR BEST RESULTS.
+ * Larger screen dimensions will lag a lot.
+ */
+fun min(x: int, y: int) -> int {
     if (x < y) {
        return x;
     }
@@ -917,6 +921,16 @@ fun allocGrid(w: int, h: int) -> [][]colour {
     return grid;
 }
 
+fun drawGrid(grid: [][]colour, w: int, h: int) -> int {
+   for (let x: int = 0; x < w; x = x + 1) {
+      for (let y: int = 0; y < h; y = y + 1) {
+         __pixel x, y, grid[x][y];
+      }
+   }
+
+   return 0;
+}
+
 fun alive(grid: [][]colour, x: int, y: int) -> bool {
     return grid[x][y] == #000000;
 }
@@ -926,7 +940,7 @@ fun countNeighbours(grid: [][]colour, x: int, y: int, w: int, h: int) -> int {
 
     for (let i: int = max(x-1, 0); i <= min(x+1, w-1); i = i + 1) {
         for (let j: int = max(y-1, 0); j <= min(y+1, h-1); j = j + 1) {
-            if (alive(grid, i, j)) {
+            if (alive(grid, i, j) and ((i != x) or (j != y))) {
                sum = sum + 1;
             }
         }
@@ -935,58 +949,103 @@ fun countNeighbours(grid: [][]colour, x: int, y: int, w: int, h: int) -> int {
     return sum;
 }
 
-fun gameOfLifeIter(grid: [][]colour, w: int, h: int) -> [][]colour {
-    let updated: [][]colour = allocGrid(w, h);
-
+fun gameOfLifeIter(grid: [][]colour, swapbuf: [][]colour, w: int, h: int) -> int {
     for (let x: int = 0; x < w; x = x + 1) {
         for (let y: int = 0; y < h; y = y + 1) {
             let neighbours: int = countNeighbours(grid, x, y, w, h);
 
-            updated[x][y] = grid[x][y];
+            swapbuf[x][y] = grid[x][y];
 
             if (alive(grid, x, y)) {
                if ((neighbours < 2) or (neighbours > 3)) {
-                  updated[x][y] = #ffffff;
+                  swapbuf[x][y] = #ffffff;
                }
             } else {
               if (neighbours == 3) {
-                 updated[x][y] = #000000;
+                 swapbuf[x][y] = #000000;
               }
             }
         }
     }
 
-    return updated;
+    return 0;
 }
 
 let width: int = __width;
 let height: int = __height;
 let grid: [][]colour = allocGrid(width, height);
+let swapbuf: [][]colour = allocGrid(width, height);
 
 let steps: int = 2000;
-let delay: int = 500;
+let delay: int = 100;
 
-// initial setup for glider
-grid[1][0] = #000000;
-grid[2][1] = #000000;
-grid[0][2] = #000000;
-grid[1][2] = #000000;
-grid[2][2] = #000000;
+// initial setup for Gosper glider gun
+grid[1][14] = #000000;
+grid[1][15] = #000000;
+grid[2][14] = #000000;
+grid[2][15] = #000000;
 
-for (let x: int = 0; x < width; x = x + 1) {
-    for (let y: int = 0; y < height; y = y + 1) {
-        __pixel x, y, grid[x][y];
-    }
-}
+grid[11][13] = #000000;
+grid[11][14] = #000000;
+grid[11][15] = #000000;
+
+grid[12][12] = #000000;
+grid[12][16] = #000000;
+
+grid[13][11] = #000000;
+grid[13][17] = #000000;
+
+grid[14][11] = #000000;
+grid[14][17] = #000000;
+
+grid[15][14] = #000000;
+
+grid[16][12] = #000000;
+grid[16][16] = #000000;
+
+grid[17][13] = #000000;
+grid[17][14] = #000000;
+grid[17][15] = #000000;
+
+grid[18][14] = #000000;
+
+grid[21][15] = #000000;
+grid[21][16] = #000000;
+grid[21][17] = #000000;
+
+grid[22][15] = #000000;
+grid[22][16] = #000000;
+grid[22][17] = #000000;
+
+grid[23][14] = #000000;
+grid[23][18] = #000000;
+
+grid[25][13] = #000000;
+grid[25][14] = #000000;
+grid[25][18] = #000000;
+grid[25][19] = #000000;
+
+grid[35][16] = #000000;
+grid[35][17] = #000000;
+grid[36][16] = #000000;
+grid[36][17] = #000000;
+
+// draw grid initially
+let v_: int = drawGrid(grid, width, height);
 
 for (let step: int = 0; step < steps; step = step + 1) {
-    grid = gameOfLifeIter(grid, width, height);
+    // compute one iteration of the game of life into swapbuf
+    v_ = gameOfLifeIter(grid, swapbuf, width, height);
 
-    for (let x: int = 0; x < width; x = x + 1) {
-        for (let y: int = 0; y < height; y = y + 1) {
-            __pixel x, y, grid[x][y];
-        }
-    }
+    __print step;
+
+    // swap grid and swapbuf
+    let tmp: [][]colour = swapbuf;
+    swapbuf = grid;
+    grid = tmp;
+
+    // draw updated grid
+    v_ = drawGrid(grid, width, height);
 
     __delay delay;
 }`,
