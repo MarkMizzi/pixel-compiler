@@ -6,7 +6,7 @@ import { RouterLink, RouterView } from 'vue-router'
   <header
     class="flex flex-wrap md:justify-start md:flex-nowrap sticky top-0 z-50 w-full justify-self-start"
   >
-    <nav class="absolute z-20 top-0 left-0 w-screen bg-slate-900 px-4 py-2 flex flex-row">
+    <nav class="sticky top-0 left-0 w-screen bg-slate-900 px-4 py-2 flex flex-row">
       <div class="flex flex-row justify-start">
         <img alt="Pixel logo" class="logo" width="30" height="30" src="@/assets/logo.svg" />
       </div>
@@ -26,5 +26,5 @@ import { RouterLink, RouterView } from 'vue-router'
     </nav>
   </header>
 
-  <RouterView class="mt-16" />
+  <RouterView />
 </template>
