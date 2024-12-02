@@ -256,7 +256,7 @@
             <span class="code">w</span>
             and height
             <span class="code">h</span>
-            with top-left corner at
+            with bottom left corner at
             <span class="code">x, y</span>
             to the colour
             <span class="code">c</span>.
@@ -733,7 +733,7 @@
           <td>
             Pops four numbers <span class="code">x, y, w, h</span> and a colour
             <span class="code">c</span> off the work stack and colours a rectangle on the screen of
-            width <span class="code">w</span> and height <span class="code">h</span> whose top left
+            width <span class="code">w</span> and height <span class="code">h</span> whose bottom left
             corner is at <span class="code">x, y</span> with colour <span class="code">c</span>.
           </td>
         </tr>
