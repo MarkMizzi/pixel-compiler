@@ -173,17 +173,21 @@ defineExpose({
         ></textarea>
       </div>
       <div class="flex flex-col gap-x-0">
-        <button v-if="!isRunning" class="h-8 w-8 p-2 link-green" @click="runOrContinue()">
+        <button v-if="!isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="runOrContinue()">
+          <div class="tooltip-text">Run</div>
           <span class="material-icons"> play_arrow </span>
         </button>
-        <button v-if="!isRunning" class="h-8 w-8 p-2 link-green" @click="step()">
+        <button v-if="!isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="step()">
+          <div class="tooltip-text">Step</div>
           <span class="material-symbols-outlined"> step </span>
         </button>
-        <button v-if="isRunning" class="h-8 w-8 p-2 link-green" @click="pause()">
+        <button v-if="isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="pause()">
+          <div class="tooltip-text">Pause</div>
           <span class="material-icons"> pause </span>
         </button>
-        <button v-if="isRunning" class="h-8 w-8 p-2 link-green">
-          <span class="material-icons" @click="stop()"> stop </span>
+        <button v-if="isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="stop()">
+          <div class="tooltip-text">Halt</div>
+          <span class="material-icons"> stop </span>
         </button>
       </div>
     </div>

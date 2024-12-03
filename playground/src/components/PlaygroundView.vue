@@ -16,11 +16,14 @@
             execute
           </button>
         </div>
-        <div v-show="selected == 'assembly'" class="flex flex-row w-full p-2 gap-x-2">
-          <AsmView ref="asmView" class="w-full"></AsmView>
-          <div class="flex flex-col gap-x-0">
-            <button class="h-8 w-8 p-2 link-green" @click="assemble()">
-              <span class="material-symbols-outlined"> refresh </span>
+        <div v-show="selected == 'assembly'" class="flex flex-row">
+          <div class="w-full">
+            <AsmView ref="asmView"></AsmView>
+          </div>
+          <div class="flex flex-col p-2 gap-x-0">
+            <button class="h-8 w-8 p-2 link-green tooltip" @click="assemble()">
+              <div class="tooltip-text">Assemble</div>
+              <span class="material-symbols-outlined"> save </span>
             </button>
           </div>
         </div>
