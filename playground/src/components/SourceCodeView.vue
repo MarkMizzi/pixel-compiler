@@ -66,7 +66,7 @@ fun fib(x: int) -> int {
     for (let i: int = 0; i < x; i = i + 1) {
         let tmp: int = b;
         b = a + b;
-        a = b;
+        a = tmp;
     }
     return a;
 }
