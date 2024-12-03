@@ -8,7 +8,7 @@ void print_usage()
 {
 
   const std::string helpMessage =
-      "./pixelc [-o <outfile>] [-xml <outfile>] {<options>} [src]\n"
+      "./pixelc {<options>} [-o <outfile>] [-xml <outfile>] [src]\n"
       "Options:\n"
       "  -o                  Specify output file. By default stdout is used.\n"
       "  -xml                Generate XML from the AST produced. An output "
