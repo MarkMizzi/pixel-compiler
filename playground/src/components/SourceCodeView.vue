@@ -16,6 +16,12 @@
         <option class="bg-slate-900 link-green" value="wall clock">wall clock</option>
         <option class="bg-slate-900 link-green" value="clear">clear</option>
       </select>
+      <input
+        v-model="compilerOpts"
+        type="text"
+        class="bg-slate-900 text-slate-200"
+        placeholder="compiler flags..."
+      />
     </div>
     <CodeEditor
       ref="srcCodeEditor"
@@ -31,15 +37,16 @@ import CodeEditor from './CodeEditor.vue'
 import { onMounted, ref, type Component, type Ref } from 'vue'
 
 const props = defineProps<{
-  compile: (s: string) => void
+  compile: (srcCode: string, compilerOpts?: string) => void
 }>()
 
 // once the component is mounted this will automatically be set to
 // point to child component with ref="srcCodeEditor"
 const srcCodeEditor: Ref<Component | null> = ref(null)
+const compilerOpts = ref('')
 
 const onPressCompile = () => {
-  props.compile((srcCodeEditor.value as typeof CodeEditor).getCode())
+  props.compile((srcCodeEditor.value as typeof CodeEditor).getCode(), compilerOpts.value)
 }
 
 // once the component is mounted, we add highlighting for Pixel language

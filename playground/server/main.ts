@@ -7,7 +7,16 @@ import fs from 'node:fs'
 import { StatusCodes } from 'http-status-codes'
 
 interface CompilerInput {
-  srcCode: string | undefined
+  srcCode: string
+  compilerOpts?: string
+}
+
+function validateCompilerInput(m: any): m is CompilerInput {
+  return (
+    'srcCode' in m &&
+    typeof m.srcCode === 'string' &&
+    (!('compilerOpts' in m) || typeof m.compilerOpts === 'string')
+  )
 }
 
 interface CompilerOutput {
@@ -27,8 +36,8 @@ const port = 8080
 app.use(express.static('dist'))
 
 app.post('/compile', function (req: Request, res: Response) {
-  const input = req.body as CompilerInput
-  if (input.srcCode === undefined) {
+  const input = req.body
+  if (!validateCompilerInput(input)) {
     res.status(StatusCodes.BAD_REQUEST).send('Invalid compilation request.')
     return
   }
@@ -38,7 +47,7 @@ app.post('/compile', function (req: Request, res: Response) {
   const xmlOutFile = tmp.fileSync({ mode: 0o644, prefix: 'pixel-xml-', postfix: '.xml' })
 
   try {
-    fs.writeFileSync(sourceFile.name, input!.srcCode, { encoding: 'ascii' })
+    fs.writeFileSync(sourceFile.name, input.srcCode, { encoding: 'ascii' })
   } catch (err) {
     console.log(err)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send('Internal Server Error. Try again later.')
@@ -46,7 +55,7 @@ app.post('/compile', function (req: Request, res: Response) {
   }
 
   exec(
-    `../pixelc -o ${asmOutFile.name} -xml ${xmlOutFile.name} ${sourceFile.name}`,
+    `../pixelc ${input.compilerOpts || ''} -o ${asmOutFile.name} -xml ${xmlOutFile.name} ${sourceFile.name}`,
     (error: ExecException | null, stdout: string, stderr: string) => {
       const output: CompilerOutput = {
         asmOutput: fs.readFileSync(asmOutFile.name, { encoding: 'ascii' }),

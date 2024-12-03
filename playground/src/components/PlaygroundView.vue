@@ -61,12 +61,13 @@ export default defineComponent({
     return { selected: 'assembly' }
   },
   methods: {
-    compile(srcCode: string) {
+    compile(srcCode: string, compilerOpts?: string) {
       fetch('/compile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          srcCode: srcCode
+          srcCode,
+          compilerOpts
         })
       })
         .then(async (response) => {
