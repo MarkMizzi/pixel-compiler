@@ -10,8 +10,8 @@ fun Race(p1_c: colour, p2_c : colour, score_max  : int) -> int {
 
     while ((p1_score < score_max) and (p2_score < score_max))
     {
-        let p1_toss: int = __randi 1000;
-        let p2_toss: int = __randi 1000;
+        let p1_toss: int = __randi 10;
+        let p2_toss: int = __randi 10;
 
         if (p1_toss > p2_toss) {
            p1_score = p1_score + 1;
@@ -21,6 +21,8 @@ fun Race(p1_c: colour, p2_c : colour, score_max  : int) -> int {
 
         __pixel 1, p1_score, p1_c;
         __pixel 2, p2_score,  p2_c;
+
+        __delay 60;
     }
 
     let winner: int = 1;
@@ -38,6 +40,6 @@ __pixelr 0, 0, __width, __height, #ffffff;
 
 let c1 : colour = #00ff00; // green
 let c2: colour = #0000ff; // blue
-let m : int = __height;
+let m : int = __height - 1;
 let w : int = Race(c1, c2, m);
 __print w;
