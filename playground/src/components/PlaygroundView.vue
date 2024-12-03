@@ -16,7 +16,14 @@
             execute
           </button>
         </div>
-        <AsmView v-show="selected == 'assembly'" ref="asmView"></AsmView>
+        <div v-show="selected == 'assembly'" class="flex flex-row w-full p-2 gap-x-2">
+          <AsmView ref="asmView" class="w-full"></AsmView>
+          <div class="flex flex-col gap-x-0">
+            <button class="h-8 w-8 p-2 link-green" @click="assemble()">
+              <span class="material-symbols-outlined"> refresh </span>
+            </button>
+          </div>
+        </div>
         <AstXmlView v-show="selected == 'astxml'" ref="astXmlView"></AstXmlView>
         <PixelVMView v-show="selected == 'run'" ref="pixelVMView"></PixelVMView>
       </div>
@@ -100,6 +107,26 @@ export default defineComponent({
         .catch((error) => {
           $toast.error(`${error}`)
         })
+    },
+    // assemble code contained in the Assembly view at the behest of the user.
+    // DO NOT use this function for compiled Pixel asm code
+    assemble() {
+      const astXmlView = this.$refs.astXmlView as typeof AstXmlView
+      const asmView = this.$refs.asmView as typeof AsmView
+      const pixelVMView = this.$refs.pixelVMView as typeof PixelVMView
+
+      try {
+        // load the assembly code in the assembly view into the VM
+        const content = asmView.getContent()
+        pixelVMView.setProgram(content)
+        $toast.success('Assembled and loaded program.')
+
+        // since Pixel asm code loaded in VM is now written and assembled by user, AST does not match it.
+        // AST is for Pixel source code not for Pixel ASM.
+        astXmlView.setContent('<!-- Compile a program -->')
+      } catch (error) {
+        $toast.error(`${error}`)
+      }
     }
   }
 })

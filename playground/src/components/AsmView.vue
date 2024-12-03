@@ -19,6 +19,9 @@ export default defineComponent({
   methods: {
     setContent(assembly: string) {
       this.content = assembly
+    },
+    getContent(): string {
+      return this.content
     }
   }
 })
@@ -29,7 +32,7 @@ export default defineComponent({
     ref="assemblyEditor"
     v-model="content"
     class="border-2 border-slate-700"
-    :readonly="true"
+    :readonly="false"
     mode="null"
   ></CodeEditor>
 </template>
