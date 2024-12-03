@@ -19,7 +19,7 @@
       <input
         v-model="compilerOpts"
         type="text"
-        class="bg-slate-900 text-slate-200"
+        class="bg-slate-900 text-slate-200 w-40 md:w-48 lg:w-64"
         placeholder="compiler flags..."
       />
     </div>
