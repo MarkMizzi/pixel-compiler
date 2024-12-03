@@ -240,20 +240,20 @@ __pixel clock_origin_x + rcos_theta(clock_radius-2, 330), clock_origin_y + rsin_
 let hand_length: int = clock_radius - 5;
 
 let clock_pos: int = 12;
-let ticks: int = 8;
+let ticks: int = 300;
 
 
 for (let i: int = 0; i < ticks; i = i + 1) {
     // render clock hand
     for (let r: int = 1; r < hand_length; r = r + 1) {
-        __pixel clock_origin_x + rcos_theta(r, 6*clock_pos), clock_origin_y + rsin_theta(r, 6*clock_pos), #ff0000;
+        __pixel clock_origin_x - rcos_theta(imod(r, 60), 6*clock_pos), clock_origin_y + rsin_theta(imod(r, 60), 6*clock_pos), #ff0000;
     }
 
-    __delay 60000;
+    __delay 600;
 
     // erase clock hand
     for (let r: int = 1; r < hand_length; r = r + 1) {
-        __pixel clock_origin_x + rcos_theta(r, 6*clock_pos), clock_origin_y + rsin_theta(r, 6*clock_pos), #000000;
+        __pixel clock_origin_x - rcos_theta(imod(r, 60), 6*clock_pos), clock_origin_y + rsin_theta(imod(r, 60), 6*clock_pos), #000000;
     }
 
     clock_pos = imod(clock_pos + 1, 60);
