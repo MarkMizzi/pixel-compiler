@@ -93,7 +93,7 @@ export class PixelVM {
     this.state.paused = false
   }
 
-  public async step() {
+  private async step() {
     if (this.state.halted) throw Error('Trying to execute step in halted VM.')
 
     const { funcName, pc } = this.state.callStack[this.state.callStack.length - 1]
@@ -751,6 +751,27 @@ export class PixelVM {
     await this.step()
   }
 
+  public async stepOut() {
+    if (this.state.halted) {
+      this.reset()
+      this.state.halted = false
+      this.state.paused = true
+    } else if (!this.state.paused) {
+      throw Error('Cannot step over a function while the Pixel VM is running.')
+    }
+
+    // unpause while stepping out
+    this.state.paused = false;
+    // as soon as stack size dips lower than initial size (or the machine halts)
+    // we have stepped out of the function.
+    const currCallStackSize = this.state.callStack.length;
+    while (!this.state.halted && !this.state.paused && this.state.callStack.length >= currCallStackSize) {
+      await this.step()
+    }
+    // pause now that we have stepped out
+    this.state.paused = true;
+  }
+
   public setWidth(width: number) {
     if (!this.state.halted) throw Error('Cannot set width of Pixel VM screen while it is running.')
     if (this.state.screenHandle.width < width)
@@ -775,5 +796,9 @@ export class PixelVM {
 
   public getHeight(): number {
     return this.state.height
+  }
+
+  public isHalted(): boolean {
+    return this.state.halted;
   }
 }

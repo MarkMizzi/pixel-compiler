@@ -27,6 +27,7 @@
   background-color: black;
   color: #fff;
   text-align: right;
+  white-space: nowrap;
   border-radius: 6px;
   padding: 7px;
   position: absolute;
