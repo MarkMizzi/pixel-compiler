@@ -23,7 +23,11 @@
           <div class="flex flex-col p-2 gap-x-0">
             <button class="h-8 w-8 p-2 link-green tooltip" @click="assemble()">
               <div class="tooltip-text">Assemble</div>
-              <span class="material-symbols-outlined"> save </span>
+              <link
+                rel="stylesheet"
+                href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=build"
+              />
+              <span class="material-symbols-outlined"> build </span>
             </button>
           </div>
         </div>
