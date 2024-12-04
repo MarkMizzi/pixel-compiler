@@ -16,6 +16,7 @@
         <option class="bg-slate-900 link-green" value="wall clock">wall clock</option>
         <option class="bg-slate-900 link-green" value="bubblesort">bubblesort</option>
         <option class="bg-slate-900 link-green" value="quicksort">quicksort</option>
+        <option class="bg-slate-900 link-green" value="heapsort">heapsort</option>
         <option class="bg-slate-900 link-green" value="clear">clear</option>
       </select>
       <input
@@ -1506,6 +1507,152 @@ __delay 20;
 
 // sort the array
 v_ = quicksort(arr, 0, __width - 1);`,
+
+  heapsort: `// clear the screen
+__pixelr 0, 0, __width, __height, #000000;
+
+// create an array of random integers to sort
+let arr: []int = __newarr int, __width;
+
+for (let i: int = 0; i < __width; i = i + 1) {
+   arr[i] = __randi __height;
+}
+
+fun drawElem(arr: []int, i: int, c: colour) -> int {
+   // clear rest of the column first
+   __pixelr i, 0, 1, __height, #000000;
+   // draw this item
+   __pixelr i, 0, 1, arr[i], c;
+   // return a dummy value
+   return 0;
+}
+
+fun swap(arr: []int, i: int, j: int) -> int {
+
+   // we only need to redraw columns that will change,
+   // i.e. the swapped ones.
+   let v_: int = drawElem(arr, i, #b3f5bc);
+   v_ = drawElem(arr, j, #b3f5bc);
+   // delay execution for a little to show animation
+   __delay 10;
+
+   // swap arr[i] and arr[j]
+   let tmp: int = arr[i];
+   arr[i] = arr[j];
+   arr[j] = tmp;
+
+   // we only need to redraw columns that have changed,
+   // i.e. the swapped ones.
+   v_ = drawElem(arr, i, #b3f5bc);
+   v_ = drawElem(arr, j, #b3f5bc);
+   // delay execution for a little to show animation
+   __delay 10;
+
+   // draw as white again
+   v_ = drawElem(arr, i, #ffffff);
+   v_ = drawElem(arr, j, #ffffff);
+
+   // return dummy value
+   return 0;
+}
+
+// Function to draw our array of random integers
+fun draw(arr: []int) -> int {
+   for (let i: int = 0; i < __width; i = i + 1) {
+      let v_: int = drawElem(arr, i, #ffffff);
+   }
+
+   // return a dummy value as we must return something.
+   return 0;
+}
+
+// perform integer division using Euclids algorithm.
+fun idiv(n: int, d: int) -> int {
+    // hack to handle division when n is negative.
+    let negative: bool = n < 0;
+    if (negative) {
+       n = -n;
+    }
+
+    let r: int = n;
+    let q: int = 0;
+
+    while (r >= d) {
+        r = r - d;
+        q = q + 1;
+    }
+
+    if (negative) {
+       return -q;
+    }
+
+    return q;
+}
+
+// parent index of an object in the heap
+fun parentIdx(idx: int) -> int {
+   return idiv(idx, 2);
+}
+
+// child index of an object in the heap
+fun lChildIdx(idx: int) -> int {
+   return idx * 2;
+}
+
+fun rChildIdx(idx: int) -> int {
+   return idx * 2 + 1;
+}
+
+// Repair the heap whose root element is at index 'start,
+// assuming the heaps rooted at its children are valid.
+fun siftDown(arr: []int, start: int, end: int) -> int {
+   let root: int = start;
+   while (lChildIdx(root) < end) {
+      let child: int = lChildIdx(root);
+      
+      // If there is a right child and that child is greater
+      if ((child+1 < end) and (arr[child] < arr[child+1])) {
+         child = child + 1;
+      }
+    
+      if (arr[root] < arr[child]) {
+         let v_: int = swap(arr, root, child);
+         root = child;         // repeat to continue sifting down the child now
+      } else {
+         return 0;
+      }
+   }
+
+   // return dummy value
+   return 0;
+}
+
+fun heapsort(arr: []int, count: int) -> int {
+
+   let start: int = idiv(count, 2);
+   let end: int = count;
+
+   while (end > 1) {
+      if (start > 0) { // Heap construction
+         start = start - 1;
+      } else { // Heap extraction
+         end = end - 1;
+         let v_: int = swap(arr, end, 0);
+      }
+      let v_: int = siftDown(arr, start, end);
+   }
+
+   // return dummy value
+   return 0;
+}
+
+// initial draw of array
+let v_: int = draw(arr);
+// delay execution for a little to show animation
+__delay 20;
+
+// sort the array
+v_ = heapsort(arr, __width);`,
 
   clear: `// clear screen to a specific colour
 __pixelr 0, 0, __width, __height, #000000;`
