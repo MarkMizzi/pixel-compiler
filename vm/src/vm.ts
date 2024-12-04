@@ -100,9 +100,11 @@ export class PixelVM {
     const func = this.program.get(funcName)
     if (func === undefined) throw ReferenceError('Function at the top of the stack was not found.')
 
-    const instr = func[pc]
-
     try {
+      if (pc < 0 || pc >= func.length)
+        throw RangeError(`Out of bounds PC ${pc}, should be in range [0, ${func.length})`)
+      
+      const instr = func[pc]
       switch (instr.opcode) {
         // mathematical operations
         case PixIROpcode.ADD: {
