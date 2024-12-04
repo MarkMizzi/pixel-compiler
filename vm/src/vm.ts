@@ -101,8 +101,12 @@ export class PixelVM {
     if (func === undefined) throw ReferenceError('Function at the top of the stack was not found.')
 
     try {
-      if (pc < 0 || pc >= func.length)
-        throw RangeError(`Out of bounds PC ${pc}, should be in range [0, ${func.length})`)
+      if (pc < 0)
+        throw RangeError(`Program counter ${pc} is out of bounds (< 0), program jumped too far back.`)
+      if (pc >= func.length)
+        throw RangeError(
+          `Program counter ${pc} is larger than biggest possible value in this function ${func.length - 1}. Program jumped too far or function did not return before the last instruction in the function body was reached.`
+        )
       
       const instr = func[pc]
       switch (instr.opcode) {
