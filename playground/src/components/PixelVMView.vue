@@ -199,23 +199,48 @@ defineExpose({
       <div class="flex flex-col gap-x-0">
         <button v-if="!isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="runOrContinue()">
           <div class="tooltip-text">Run</div>
-          <span class="material-icons"> play_arrow </span>
+          <!-- google for fast loading, but we have a self-hosted fallback for icons. -->
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,0,0,0&icon_names=play_arrow"
+          />
+          <span class="material-symbols-outlined"> play_arrow </span>
         </button>
         <button v-if="!isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="step()">
+          <!-- google for fast loading, but we have a self-hosted fallback for icons. -->
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,0,0,0&icon_names=step"
+          />
           <div class="tooltip-text">Step</div>
           <span class="material-symbols-outlined"> step </span>
         </button>
         <button v-if="!isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="stepOut()">
+          <!-- google for fast loading, but we have a self-hosted fallback for icons. -->
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,0,0,0&icon_names=step_out"
+          />
           <div class="tooltip-text">Step Out</div>
           <span class="material-symbols-outlined"> step_out </span>
         </button>
         <button v-if="isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="pause()">
+          <!-- google for fast loading, but we have a self-hosted fallback for icons. -->
           <div class="tooltip-text">Pause</div>
-          <span class="material-icons"> pause </span>
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,0,0,0&icon_names=pause"
+          />
+          <span class="material-symbols-outlined"> pause </span>
         </button>
         <button v-if="isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="stop()">
+          <!-- google for fast loading, but we have a self-hosted fallback for icons. -->
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,0,0,0&icon_names=stop"
+          />
           <div class="tooltip-text">Halt</div>
-          <span class="material-icons"> stop </span>
+          <span class="material-symbols-outlined"> stop </span>
         </button>
       </div>
     </div>
