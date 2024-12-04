@@ -14,6 +14,8 @@
         <option class="bg-slate-900 link-green" value="typography">typography</option>
         <option class="bg-slate-900 link-green" value="game of life">game of life</option>
         <option class="bg-slate-900 link-green" value="wall clock">wall clock</option>
+        <option class="bg-slate-900 link-green" value="bubblesort">bubblesort</option>
+        <option class="bg-slate-900 link-green" value="quicksort">quicksort</option>
         <option class="bg-slate-900 link-green" value="clear">clear</option>
       </select>
       <input
@@ -144,7 +146,7 @@ __print w;`,
      // all array elements must be initialized
      updated[0] = false;
      updated[n-1] = false;
-     
+
      for (let i: int = 1; i < n-1; i = i + 1) {
          let count: int = 0;
          if (row[i-1]) {
@@ -607,13 +609,13 @@ let letters: []int = __newarr int, len;
 letters[0] = 19;   // T
 letters[1] = 7;    // H
 letters[2] = 4;    // E
-letters[3] = 28;   // 
+letters[3] = 28;   //
 letters[4] = 15;   // P
 letters[5] = 8;    // I
 letters[6] = 23;   // X
 letters[7] = 4;    // E
 letters[8] = 11;   // L
-letters[9] = 28;   // 
+letters[9] = 28;   //
 letters[10] = 11;  // L
 letters[11] = 0;   // A
 letters[12] = 13;  // N
@@ -622,23 +624,23 @@ letters[14] = 20;  // U
 letters[15] = 0;   // A
 letters[16] = 6;   // G
 letters[17] = 4;   // E
-letters[18] = 28;  // 
+letters[18] = 28;  //
 letters[19] = 8;   // I
 letters[20] = 18;  // S
-letters[21] = 28;  // 
+letters[21] = 28;  //
 letters[22] = 0;   // A
-letters[23] = 28;  // 
+letters[23] = 28;  //
 letters[24] = 7;   // H
 letters[25] = 8;   // I
 letters[26] = 6;   // G
 letters[27] = 7;   // H
-letters[28] = 28;  // 
+letters[28] = 28;  //
 letters[29] = 11;  // L
 letters[30] = 4;   // E
 letters[31] = 21;  // V
 letters[32] = 4;   // E
 letters[33] = 11;  // L
-letters[34] = 28;  // 
+letters[34] = 28;  //
 letters[35] = 11;  // L
 letters[36] = 0;   // A
 letters[37] = 13;  // N
@@ -647,11 +649,11 @@ letters[39] = 20;  // U
 letters[40] = 0;   // A
 letters[41] = 6;   // G
 letters[42] = 4;   // E
-letters[43] = 28;  // 
-letters[44] = 28;  // 
-letters[45] = 28;  // 
-letters[46] = 28;  // 
-letters[47] = 28;  // 
+letters[43] = 28;  //
+letters[44] = 28;  //
+letters[45] = 28;  //
+letters[46] = 28;  //
+letters[47] = 28;  //
 letters[48] = 19;  // T
 letters[49] = 0;   // A
 letters[50] = 17;  // R
@@ -661,23 +663,23 @@ letters[53] = 19;  // T
 letters[54] = 8;   // I
 letters[55] = 13;  // N
 letters[56] = 6;   // G
-letters[57] = 28;  // 
+letters[57] = 28;  //
 letters[58] = 19;  // T
 letters[59] = 7;   // H
 letters[60] = 4;   // E
-letters[61] = 28;  // 
+letters[61] = 28;  //
 letters[62] = 15;  // P
 letters[63] = 8;   // I
 letters[64] = 23;  // X
 letters[65] = 4;   // E
 letters[66] = 11;  // L
-letters[67] = 28;  // 
+letters[67] = 28;  //
 letters[68] = 21;  // V
 letters[69] = 12;  // M
 letters[70] = 27;  // ,
-letters[71] = 28;  // 
+letters[71] = 28;  //
 letters[72] = 0;   // A
-letters[73] = 28;  // 
+letters[73] = 28;  //
 letters[74] = 11;  // L
 letters[75] = 14;  // O
 letters[76] = 22;  // W
@@ -687,19 +689,19 @@ letters[79] = 4;   // E
 letters[80] = 21;  // V
 letters[81] = 4;   // E
 letters[82] = 11;  // L
-letters[83] = 28;  // 
+letters[83] = 28;  //
 letters[84] = 18;  // S
 letters[85] = 19;  // T
 letters[86] = 0;   // A
 letters[87] = 2;   // C
 letters[88] = 10;  // K
-letters[89] = 28;  // 
+letters[89] = 28;  //
 letters[90] = 1;   // B
 letters[91] = 0;   // A
 letters[92] = 18;  // S
 letters[93] = 4;   // E
 letters[94] = 3;   // D
-letters[95] = 28;  // 
+letters[95] = 28;  //
 letters[96] = 21;  // V
 letters[97] = 8;   // I
 letters[98] = 17;  // R
@@ -707,7 +709,7 @@ letters[99] = 19;  // T
 letters[100] = 20; // U
 letters[101] = 0;  // A
 letters[102] = 11; // L
-letters[103] = 28; // 
+letters[103] = 28; //
 letters[104] = 12; // M
 letters[105] = 0;  // A
 letters[106] = 2;  // C
@@ -715,15 +717,15 @@ letters[107] = 7;  // H
 letters[108] = 8;  // I
 letters[109] = 13; // N
 letters[110] = 4;  // E
-letters[111] = 28; // 
+letters[111] = 28; //
 letters[112] = 22; // W
 letters[113] = 8;  // I
 letters[114] = 19; // T
 letters[115] = 7;  // H
 letters[116] = 28; //
 letters[117] = 0;  // A
-letters[118] = 28; // 
-letters[119] = 28; // 
+letters[118] = 28; //
+letters[119] = 28; //
 letters[120] = 6;  // G
 letters[121] = 17; // R
 letters[122] = 0;  // A
@@ -733,7 +735,7 @@ letters[125] = 8;  // I
 letters[126] = 2;  // C
 letters[127] = 0;  // A
 letters[128] = 11; // L
-letters[129] = 28; // 
+letters[129] = 28; //
 letters[130] = 8;  // I
 letters[131] = 13; // N
 letters[132] = 19; // T
@@ -759,10 +761,10 @@ y = __height - 40;
 letters[0] = 19;   // T
 letters[1] = 7;    // H
 letters[2] = 4;    // E
-letters[3] = 28;   // 
+letters[3] = 28;   //
 letters[4] = 21;   // V
 letters[5] = 12;   // M
-letters[6] = 28;   // 
+letters[6] = 28;   //
 letters[7] = 8;    // I
 letters[8] = 13;   // N
 letters[9] = 18;   // S
@@ -774,12 +776,12 @@ letters[14] = 19;  // T
 letters[15] = 8;   // I
 letters[16] = 14;  // O
 letters[17] = 13;  // N
-letters[18] = 28;  // 
+letters[18] = 28;  //
 letters[19] = 18;  // S
 letters[20] = 4;   // E
 letters[21] = 19;  // T
-letters[22] = 28;  // 
-letters[23] = 28;  // 
+letters[22] = 28;  //
+letters[23] = 28;  //
 letters[24] = 8;   // I
 letters[25] = 13;  // N
 letters[26] = 2;   // C
@@ -788,7 +790,7 @@ letters[28] = 20;  // U
 letters[29] = 3;   // D
 letters[30] = 4;   // E
 letters[31] = 18;  // S
-letters[32] = 28;  // 
+letters[32] = 28;  //
 letters[33] = 8;   // I
 letters[34] = 13;  // N
 letters[35] = 18;  // S
@@ -801,13 +803,13 @@ letters[41] = 8;   // I
 letters[42] = 14;  // O
 letters[43] = 13;  // N
 letters[44] = 18;  // S
-letters[45] = 28;  // 
-letters[46] = 28;  // 
-letters[47] = 28;  // 
+letters[45] = 28;  //
+letters[46] = 28;  //
+letters[47] = 28;  //
 letters[48] = 5;   // F
 letters[49] = 14;  // O
 letters[50] = 17;  // R
-letters[51] = 28;  // 
+letters[51] = 28;  //
 letters[52] = 2;   // C
 letters[53] = 11;  // L
 letters[54] = 4;   // E
@@ -816,11 +818,11 @@ letters[56] = 17;  // R
 letters[57] = 8;   // I
 letters[58] = 13;  // N
 letters[59] = 6;   // G
-letters[60] = 28;  // 
+letters[60] = 28;  //
 letters[61] = 19;  // T
 letters[62] = 7;   // H
 letters[63] = 4;   // E
-letters[64] = 28;  // 
+letters[64] = 28;  //
 letters[65] = 3;   // D
 letters[66] = 8;   // I
 letters[67] = 18;  // S
@@ -829,18 +831,18 @@ letters[69] = 11;  // L
 letters[70] = 0;   // A
 letters[71] = 24;  // Y
 letters[72] = 27;  // ,
-letters[73] = 28;  // 
+letters[73] = 28;  //
 letters[74] = 0;   // A
 letters[75] = 18;  // S
-letters[76] = 28;  // 
+letters[76] = 28;  //
 letters[77] = 22;  // W
 letters[78] = 4;   // E
 letters[79] = 11;  // L
 letters[80] = 11;  // L
-letters[81] = 28;  // 
+letters[81] = 28;  //
 letters[82] = 0;   // A
 letters[83] = 18;  // S
-letters[84] = 28;  // 
+letters[84] = 28;  //
 letters[85] = 18;  // S
 letters[86] = 4;   // E
 letters[87] = 19;  // T
@@ -849,9 +851,9 @@ letters[89] = 8;   // I
 letters[90] = 13;  // N
 letters[91] = 6;   // G
 letters[92] = 28;  //
-letters[93] = 28;  // 
-letters[94] = 28;  // 
-letters[95] = 28;  // 
+letters[93] = 28;  //
+letters[94] = 28;  //
+letters[95] = 28;  //
 letters[96] = 18;  // S
 letters[97] = 15;  // P
 letters[98] = 4;   // E
@@ -860,22 +862,22 @@ letters[100] = 8;  // I
 letters[101] = 5;  // F
 letters[102] = 8;  // I
 letters[103] = 2;  // C
-letters[104] = 28; // 
+letters[104] = 28; //
 letters[105] = 15; // P
 letters[106] = 8;  // I
 letters[107] = 23; // X
 letters[108] = 4;  // E
 letters[109] = 11; // L
 letters[110] = 18; // S
-letters[111] = 28; // 
+letters[111] = 28; //
 letters[112] = 14; // O
 letters[113] = 17; // R
-letters[114] = 28; // 
-letters[115] = 28; // 
-letters[116] = 28; // 
-letters[117] = 28; // 
-letters[118] = 28; // 
-letters[119] = 28; // 
+letters[114] = 28; //
+letters[115] = 28; //
+letters[116] = 28; //
+letters[117] = 28; //
+letters[118] = 28; //
+letters[119] = 28; //
 letters[120] = 17; // R
 letters[121] = 4;  // E
 letters[122] = 6;  // G
@@ -883,7 +885,7 @@ letters[123] = 8;  // I
 letters[124] = 14; // O
 letters[125] = 13; // N
 letters[126] = 18; // S
-letters[127] = 28; // 
+letters[127] = 28; //
 letters[128] = 22; // W
 letters[129] = 8;  // I
 letters[130] = 19; // T
@@ -1317,6 +1319,173 @@ for (let i: int = 0; i < ticks; i = i + 1) {
 
     clock_pos = imod(clock_pos + 1, 60);
 }`,
+
+  bubblesort: `
+// clear the screen
+__pixelr 0, 0, __width, __height, #000000;
+
+// create an array of random integers to sort
+let arr: []int = __newarr int, __width;
+
+for (let i: int = 0; i < __width; i = i + 1) {
+   arr[i] = __randi __height;
+}
+
+fun drawElem(arr: []int, i: int) -> int {
+   // clear rest of the column first
+   __pixelr i, 0, 1, __height, #000000;
+   // draw this item
+   __pixelr i, 0, 1, arr[i], #ffffff;
+   // return a dummy value
+   return 0;
+}
+
+// Function to draw our array of random integers
+fun draw(arr: []int) -> int {
+   for (let i: int = 0; i < __width; i = i + 1) {
+      let v_: int = drawElem(arr, i);
+   }
+
+   // return a dummy value as we must return something.
+   return 0;
+}
+
+fun swap(arr: []int, i: int, j: int) -> int {
+   // swap arr[i] and arr[j]
+   let tmp: int = arr[i];
+   arr[i] = arr[j];
+   arr[j] = tmp;
+
+   // after each swap array has changed, so we redraw
+   // we only need to redraw columns that have changed,
+   // i.e. the swapped ones.
+   let v_: int = drawElem(arr, i);
+   v_ = drawElem(arr, j);
+   // delay execution for a little to show animation
+   __delay 20;
+
+   // return dummy value
+   return 0;
+}
+
+fun bubblesort(arr: []int) -> int {
+   for (let pass: int = 0; pass < __width; pass = pass + 1) {
+     for (let i: int = 1; i < __width - pass; i = i + 1) {
+        if (arr[i] < arr[i-1]) {
+           let v_: int = swap(arr, i, i-1);
+        }
+     }
+   }
+
+   // return dummy value
+   return 0;
+}
+
+// initial draw of array
+let v_: int = draw(arr);
+// delay execution for a little to show animation
+__delay 20;
+
+// sort the array
+v_ = bubblesort(arr);`,
+
+  quicksort: `
+// clear the screen
+__pixelr 0, 0, __width, __height, #000000;
+
+// create an array of random integers to sort
+let arr: []int = __newarr int, __width;
+
+for (let i: int = 0; i < __width; i = i + 1) {
+   arr[i] = __randi __height;
+}
+
+fun drawElem(arr: []int, i: int) -> int {
+   // clear rest of the column first
+   __pixelr i, 0, 1, __height, #000000;
+   // draw this item
+   __pixelr i, 0, 1, arr[i], #ffffff;
+   // return a dummy value
+   return 0;
+}
+
+// Function to draw our array of random integers
+fun draw(arr: []int) -> int {
+   for (let i: int = 0; i < __width; i = i + 1) {
+      let v_: int = drawElem(arr, i);
+   }
+
+   // return a dummy value as we must return something.
+   return 0;
+}
+
+fun partition(arr: []int, lo: int, hi: int) -> int {
+   // choose the last element as the pivot
+   let pivot: int = arr[hi];
+
+   // temporary pivot index
+   let i: int = lo;
+
+   for (let j: int = lo; j < hi; j = j + 1) {
+      if (arr[j] <= pivot) {
+         // swap arr[i] and arr[j]
+         let tmp: int = arr[i];
+         arr[i] = arr[j];
+         arr[j] = tmp;
+
+         // after each swap array has changed, so we redraw
+         // we only need to redraw columns that have changed,
+         // i.e. the swapped ones.
+         let v_: int = drawElem(arr, i);
+         v_ = drawElem(arr, j);
+         // delay execution for a little to show animation
+         __delay 20;
+
+         // move temporary pivot index forward
+         i = i + 1;
+      }
+   }
+
+   // swap pivot with the last element
+   let tmp: int = arr[i];
+   arr[i] = arr[hi];
+   arr[hi] = tmp;
+
+   // after each swap array has changed, so we redraw
+   // we only need to redraw columns that have changed,
+   // i.e. the swapped ones.
+   let v_: int = drawElem(arr, i);
+   v_ = drawElem(arr, hi);
+   // delay execution for a little to show animation
+   __delay 20;
+
+   return i; // the pivot index
+}
+
+fun quicksort(arr: []int, lo: int, hi: int) -> int {
+  if ((lo >= hi) or (lo < 0)) {
+     // return a dummy value
+     return 0;
+  }
+
+  let pivot: int = partition(arr, lo, hi);
+
+   // sort left side of pivot
+   let v_: int = quicksort(arr, lo, pivot - 1);
+   // sort right side of pivot
+   v_ = quicksort(arr, pivot + 1, hi);
+
+   // return a dummy value
+   return 0;
+}
+
+// initial draw of array
+let v_: int = draw(arr);
+// delay execution for a little to show animation
+__delay 20;
+
+// sort the array
+v_ = quicksort(arr, 0, __width - 1);`,
 
   clear: `// clear screen to a specific colour
 __pixelr 0, 0, __width, __height, #000000;`
