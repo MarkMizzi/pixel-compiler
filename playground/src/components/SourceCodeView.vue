@@ -1331,11 +1331,11 @@ for (let i: int = 0; i < __width; i = i + 1) {
    arr[i] = __randi __height;
 }
 
-fun drawElem(arr: []int, i: int) -> int {
+fun drawElem(arr: []int, i: int, c: colour) -> int {
    // clear rest of the column first
    __pixelr i, 0, 1, __height, #000000;
    // draw this item
-   __pixelr i, 0, 1, arr[i], #ffffff;
+   __pixelr i, 0, 1, arr[i], c;
    // return a dummy value
    return 0;
 }
@@ -1343,7 +1343,7 @@ fun drawElem(arr: []int, i: int) -> int {
 // Function to draw our array of random integers
 fun draw(arr: []int) -> int {
    for (let i: int = 0; i < __width; i = i + 1) {
-      let v_: int = drawElem(arr, i);
+      let v_: int = drawElem(arr, i, #ffffff);
    }
 
    // return a dummy value as we must return something.
@@ -1351,18 +1351,29 @@ fun draw(arr: []int) -> int {
 }
 
 fun swap(arr: []int, i: int, j: int) -> int {
+
+   // we only need to redraw columns that will change,
+   // i.e. the swapped ones.
+   let v_: int = drawElem(arr, i, #b3f5bc);
+   v_ = drawElem(arr, j, #b3f5bc);
+   // delay execution for a little to show animation
+   __delay 10;
+
    // swap arr[i] and arr[j]
    let tmp: int = arr[i];
    arr[i] = arr[j];
    arr[j] = tmp;
 
-   // after each swap array has changed, so we redraw
    // we only need to redraw columns that have changed,
    // i.e. the swapped ones.
-   let v_: int = drawElem(arr, i);
-   v_ = drawElem(arr, j);
+   v_ = drawElem(arr, i, #b3f5bc);
+   v_ = drawElem(arr, j, #b3f5bc);
    // delay execution for a little to show animation
-   __delay 20;
+   __delay 10;
+
+   // draw as white again
+   v_ = drawElem(arr, i, #ffffff);
+   v_ = drawElem(arr, j, #ffffff);
 
    // return dummy value
    return 0;
@@ -1400,19 +1411,48 @@ for (let i: int = 0; i < __width; i = i + 1) {
    arr[i] = __randi __height;
 }
 
-fun drawElem(arr: []int, i: int) -> int {
+fun drawElem(arr: []int, i: int, c: colour) -> int {
    // clear rest of the column first
    __pixelr i, 0, 1, __height, #000000;
    // draw this item
-   __pixelr i, 0, 1, arr[i], #ffffff;
+   __pixelr i, 0, 1, arr[i], c;
    // return a dummy value
+   return 0;
+}
+
+fun swap(arr: []int, i: int, j: int) -> int {
+
+   // we only need to redraw columns that will change,
+   // i.e. the swapped ones.
+   let v_: int = drawElem(arr, i, #b3f5bc);
+   v_ = drawElem(arr, j, #b3f5bc);
+   // delay execution for a little to show animation
+   __delay 10;
+
+   // swap arr[i] and arr[j]
+   let tmp: int = arr[i];
+   arr[i] = arr[j];
+   arr[j] = tmp;
+
+   // we only need to redraw columns that have changed,
+   // i.e. the swapped ones.
+   v_ = drawElem(arr, i, #b3f5bc);
+   v_ = drawElem(arr, j, #b3f5bc);
+   // delay execution for a little to show animation
+   __delay 10;
+
+   // draw as white again
+   v_ = drawElem(arr, i, #ffffff);
+   v_ = drawElem(arr, j, #ffffff);
+
+   // return dummy value
    return 0;
 }
 
 // Function to draw our array of random integers
 fun draw(arr: []int) -> int {
    for (let i: int = 0; i < __width; i = i + 1) {
-      let v_: int = drawElem(arr, i);
+      let v_: int = drawElem(arr, i, #ffffff);
    }
 
    // return a dummy value as we must return something.
@@ -1429,17 +1469,7 @@ fun partition(arr: []int, lo: int, hi: int) -> int {
    for (let j: int = lo; j < hi; j = j + 1) {
       if (arr[j] <= pivot) {
          // swap arr[i] and arr[j]
-         let tmp: int = arr[i];
-         arr[i] = arr[j];
-         arr[j] = tmp;
-
-         // after each swap array has changed, so we redraw
-         // we only need to redraw columns that have changed,
-         // i.e. the swapped ones.
-         let v_: int = drawElem(arr, i);
-         v_ = drawElem(arr, j);
-         // delay execution for a little to show animation
-         __delay 20;
+         let v_: int = swap(arr, i, j);
 
          // move temporary pivot index forward
          i = i + 1;
@@ -1447,17 +1477,7 @@ fun partition(arr: []int, lo: int, hi: int) -> int {
    }
 
    // swap pivot with the last element
-   let tmp: int = arr[i];
-   arr[i] = arr[hi];
-   arr[hi] = tmp;
-
-   // after each swap array has changed, so we redraw
-   // we only need to redraw columns that have changed,
-   // i.e. the swapped ones.
-   let v_: int = drawElem(arr, i);
-   v_ = drawElem(arr, hi);
-   // delay execution for a little to show animation
-   __delay 20;
+   let v_: int = swap(arr, i, hi);
 
    return i; // the pivot index
 }
