@@ -17,6 +17,8 @@
         <option class="bg-slate-900 link-green" value="bubblesort">bubblesort</option>
         <option class="bg-slate-900 link-green" value="quicksort">quicksort</option>
         <option class="bg-slate-900 link-green" value="heapsort">heapsort</option>
+        <option class="bg-slate-900 link-green" value="double pendulum">double pendulum</option>
+        <option class="bg-slate-900 link-green" value="nbody">nbody</option>
         <option class="bg-slate-900 link-green" value="clear">clear</option>
       </select>
       <input
@@ -1653,6 +1655,533 @@ __delay 20;
 
 // sort the array
 v_ = heapsort(arr, __width);`,
+
+  'double pendulum': `/* Simulation of a double pendulum (chaotic behaviour may be exhibited)
+ * ASSUMES THAT WIDTH OF SCREEN >= HEIGHT.
+ */
+
+// perform integer division using Euclids algorithm.
+fun idiv(n: int, d: int) -> int {
+    // hack to handle division when n is negative.
+    let negative: bool = n < 0;
+    if (negative) {
+       n = -n;
+    }
+
+    let r: int = n;
+    let q: int = 0;
+
+    while (r >= d) {
+        r = r - d;
+        q = q + 1;
+    }
+
+    if (negative) {
+       return -q;
+    }
+
+    return q;
+}
+
+/* Convert floats to integers (rounding to the nearest even).
+ * Because of Pixel's type casting rules this function has to be implemented using a
+ * binary search on integers in some region... quite unwieldy
+ * Note that we also take advantage of the fact that x / 1 converts x from an int to a float
+ */
+fun f2int(f: float, fmin: int, fmax: int) -> int {
+   // stop algorithm from looping forever if f is not in expected range
+   if (f >= fmax / 1) {
+      return fmax;
+   }
+   if (f <= fmin / 1) {
+      return fmin;
+   }
+
+   let i: int = idiv(fmin + fmax, 2);
+   let ftest: float = i / 1; // convert i to float by dividing by 1
+   while (((f - ftest) > 0.5) or ((f - ftest) <= -0.5)) {
+      if ((f - ftest) > 0.0) {
+         // i is smaller than f
+         fmin = i;
+      } else {
+         // i is larger than f
+         fmax = i;
+      }
+      i = idiv(fmin + fmax, 2);
+      ftest = i / 1; // convert i to float by dividing by 1
+   }
+
+   return i;
+}
+
+// convert an x coordinate on the screen from a float to an int 
+// so we can use it with __pixel.
+fun xcoord(x: float) -> int {
+   return f2int(x, 0, __width);
+}
+
+// convert a y coordinate on the screen from a float to an int 
+// so we can use it with __pixel.
+fun ycoord(y: float) -> int {
+   return f2int(y, 0, __height);
+}
+
+/* Compute sine function using the CORDIC algorithm first described in
+ * https://dl.acm.org/doi/pdf/10.1145/1457838.1457886
+ * Very efficient simple algorithm for computing sine based on successive rotations by
+ * increasingly smaller angles, until required precision is reached.
+ */
+fun sin(theta: float) -> float {
+   // iterations of CORDIC algorithm we apply; tradeoff between speed and precision.
+   let iters: int = 14;
+   let lut: []float = __newarr float, iters;
+
+   // populate LUT with LUT[i] = atan(2^{-i})
+   lut[0] = 0.7853981633974483;
+   lut[1] = 0.4636476090008061;
+   lut[2] = 0.24497866312686414;
+   lut[3] = 0.12435499454676144;
+   lut[4] = 0.06241880999595735;
+   lut[5] = 0.031239833430268277;
+   lut[6] = 0.015623728620476831;
+   lut[7] = 0.007812341060101111;
+   lut[8] = 0.0039062301319669718;
+   lut[9] = 0.0019531225164788188;
+   lut[10] = 0.0009765621895593195;
+   lut[11] = 0.0004882812111948983;
+   lut[12] = 0.00024414062014936177;
+   lut[13] = 0.00012207031189367021;
+
+   // convert theta to a "primary angle", i.e. one in (-pi, pi]
+   let pi: float = 3.14159265358979323846;
+   while (theta <= -pi) {
+      theta = theta + 2.0 * pi;
+   }
+   while (theta > pi) {
+      theta = theta - 2.0 * pi;
+   }
+
+   // use symmetry inherent to sin(x) to further reduce angle to range [-pi/2, pi/2]
+   // this should make algorithm slightly more accurate.
+   if (theta > pi / 2.0) {
+      theta = pi - theta;
+   }
+   if (theta < -pi / 2.0) {
+      theta = (-pi) - theta;
+   }
+
+   // track angle that effective rotation of x, y has achieved each iter.
+   // This tells us if we have undershot or overshot theta
+   let alpha: float = 0.0;
+   let x: float = 1.0;
+   let y: float = 0.0;
+
+   // 2^{-i}
+   let p2i: float = 1.0;
+   // should we rotate clockwise or anticlockwise to get closer to theta?
+   let sigma: float = 0.0;
+   for (let i: int = 0; i < iters; i = i + 1) {
+      if (alpha > theta) {
+         // we overshot theta, go anticlockwise
+         sigma = -1.0;
+      } else {
+         // we undershot theta, go clockwise
+         sigma = 1.0;
+      }
+      // modify angle we are computing x, y for
+      alpha = alpha + sigma * lut[i];
+      // update x, y so that they are rotated by new alpha
+      let xtmp: float = x - sigma * p2i * y;
+      let ytmp: float = y + sigma * p2i * x;
+      x = xtmp;
+      y = ytmp;
+
+      p2i = p2i / 2.0;
+   }
+
+   // Each rotation also adds a little bit of magnitude to x, y
+   // So we multiply by a normalizing constant at the end.
+   let k: float = 0.6072529365170103;
+   return y * k;
+}
+  
+fun cos(theta: float) -> float {
+   return sin(1.57079632679 - theta);
+}
+
+fun abs(x: float) -> float {
+   if (x < 0.0) {
+      return -x;
+   }
+   return x;
+}
+
+/// Use Bresenham's algorithm to draw a line
+
+fun drawLineLow(x0: int, y0: int, x1: int, y1: int) -> int {
+   let dx: int = x1 - x0;
+   let dy: int = y1 - y0;
+    
+   let ystep: int = 1;
+   if (dy < 0) {
+      ystep = -1;
+      dy = -dy;
+   }
+
+   let D: int = (2 * dy) - dx;
+   let y: int = y0;
+   for (let x: int = x0; x <= x1; x = x + 1) {
+      __pixel x, y, #ffffff;
+      if (D > 0) {
+         y = y + ystep;
+         D = D + (2 * (dy - dx));
+      } else {
+         D = D + 2 * dy;
+      }
+   }
+
+   // return dummy value
+   return 0;
+}
+
+fun drawLineHigh(x0: int, y0: int, x1: int, y1: int) -> int {
+   let dx: int = x1 - x0;
+   let dy: int = y1 - y0;
+   let xstep: int = 1;
+   if (dx < 0) {
+      xstep = -1;
+      dx = -dx;
+   }
+
+   let D: int = (2 * dx) - dy;
+   let x: int = x0;
+   for (let y: int = y0; y <= y1; y = y + 1) {
+      __pixel x, y, #ffffff;
+      if (D > 0) {
+         x = x + xstep;
+         D = D + (2 * (dx - dy));
+      } else {
+         D = D + 2 * dx;
+      }
+   }
+
+   return 0;
+}
+
+fun drawLine(x0: float, y0: float, x1: float, y1: float) -> int {
+   if (abs(y1 - y0) < abs(x1 - x0)) {
+      if (x0 > x1) {
+        let v_: int = drawLineLow(xcoord(x1), ycoord(y1), xcoord(x0), ycoord(y0));
+      } else {
+        let v_: int = drawLineLow(xcoord(x0), ycoord(y0), xcoord(x1), ycoord(y1));
+      }
+   } else {
+      if (y0 > y1) {
+        let v_: int = drawLineHigh(xcoord(x1), ycoord(y1), xcoord(x0), ycoord(y0));
+      } else {
+        let v_: int = drawLineHigh(xcoord(x0), ycoord(y0), xcoord(x1), ycoord(y1));
+      }
+   }
+
+   // return dummy value
+   return 0;
+}
+
+/// drawing the double pendulum itself
+
+fun drawPendulum(l1: float, l2: float, theta1: float, theta2: float) -> int {
+   // clear the screen
+   __pixelr 0, 0, __width, __height, #000000;
+
+   // origin of pendulum 1
+   let x0: float = __width / 2;
+   let y0: float = __height / 2;
+   // extremal point of pendulum 1 (taken as if start is centered at origin)
+   let x1: float = l1 * sin(theta1) + x0;
+   let y1: float = l1 * cos(theta1) + y0;
+   // extremal point of pendulum 2 (taken as if start is centered at origin)
+   let x2: float = l2 * sin(theta2) + x1;
+   let y2: float = l2 * cos(theta2) + y1;
+
+   let v_: int = drawLine(x0, y0, x1, y1);
+   v_ = drawLine(x1, y1, x2, y2);
+
+   // delay so that animation shows
+   __delay 10;
+   // return a dummy value
+   return 0;
+}
+
+/// Initial conditions
+
+let pi: float = 3.14159265358979323846;
+
+// add random val in range +-0.125 to initial theta1
+let rand1: float = ((__randi 1000) / 1000 - 0.5) * 0.25;
+let theta1: float = 0.25 * pi + rand1;
+// add random val in range +-0.125 to initial theta2
+let rand2: float = ((__randi 1000) / 1000 - 0.5) * 0.25;
+let theta2: float = 0.3 * pi + rand2;
+
+// Initial canonical momenta of the system
+let p1: float = 1.0;
+let p2: float = 0.0;
+
+// Masses of the pendulum
+let m1: float = 1.0;
+let m2: float = 1.0;
+
+// Lengths of the pendulums
+let l1: float = 2.0 * (__height / 6);
+let l2: float = (__height / 6);
+
+let v_: int = drawPendulum(l1, l2, theta1, theta2);
+
+/// Actual simulation
+
+// How long should we run the simulation for
+let ticks: int = 10000;
+// time step
+let dt: float = 0.05;
+
+// Gravitional constant
+let g: float = -9.81;
+
+for (let tick: int = 0; tick < ticks; tick = tick + 1) {
+   // Use Hamiltonian equations of motion to compute 
+   // updated velocities and changes in canonical momenta.
+   // https://dassencio.org/46
+   let s1: float = sin(theta1 - theta2);
+   let s2: float = sin(2.0 * (theta1 - theta2));
+   let c1: float = cos(theta1 - theta2);
+
+   let h1: float = p1 * p2 * s1 / (l1 * l2 * (m1 + m2 * s1 * s1));
+   let h2: float = (m2 * l2 * l2 * p1 * p1 + (m1 + m2) * l1 * l1 * p2 * p2 - 2.0 * m2 * l1 * l2 * p1 * p2 * c1) / (2.0 * l1 * l1 * l2 * l2 * (m1 + m2 * s1 * s1) * (m1 + m2 * s1 * s1));
+
+   let theta1_dot: float = (l2 * p1 - l1 * p2 * c1) / (l1 * l1 * l2 * (m1 + m2 * s1 * s1));
+   let theta2_dot: float = (-m2 * l2 * p1 * c1 + (m1 + m2) * l1 * p2) / (m2 * l1 * l2 * l2 * (m1 + m2 * s1 * s1));
+
+   let p1_dot: float = -(m1 + m2) * g * l1 * sin(theta1) - h1 + h2 * s2;
+   let p2_dot: float = -m2 * g * l2 * sin(theta2) + h1 - h2 * s2;
+
+   // update canonical positions and momenta of the system using Euler's method
+   theta1 = theta1 + dt * theta1_dot;
+   theta2 = theta2 + dt * theta2_dot;
+   p1 = p1 + dt * p1_dot;
+   p2 = p2 + dt * p2_dot;
+
+   // draw updated pendulum
+   v_ = drawPendulum(l1, l2, theta1, theta2);
+}`,
+
+  nbody: `/* N-body simulation for the solar system.
+ * NOTE: Multiplied all masses by 10e-11 and G by 10e11, this kept numbers in valid IEEE754 ranges.
+ *    Otherwise positions, velocities and masses are accurately given in SI units.
+ */
+
+// perform integer division using Euclids algorithm.
+fun idiv(n: int, d: int) -> int {
+    // hack to handle division when n is negative.
+    let negative: bool = n < 0;
+    if (negative) {
+       n = -n;
+    }
+
+    let r: int = n;
+    let q: int = 0;
+
+    while (r >= d) {
+        r = r - d;
+        q = q + 1;
+    }
+
+    if (negative) {
+       return -q;
+    }
+
+    return q;
+}
+
+/* Convert floats to integers (rounding to the nearest even).
+ * Because of Pixel's type casting rules this function has to be implemented using a
+ * binary search on integers in some region... quite unwieldy
+ * Note that we also take advantage of the fact that x / 1 converts x from an int to a float
+ */
+fun f2int(f: float, fmin: int, fmax: int) -> int {
+   // stop algorithm from looping forever if f is not in expected range
+   if (f >= fmax / 1) {
+      return fmax;
+   }
+   if (f <= fmin / 1) {
+      return fmin;
+   }
+
+   let i: int = idiv(fmin + fmax, 2);
+   let ftest: float = i / 1; // convert i to float by dividing by 1
+   while (((f - ftest) > 0.5) or ((f - ftest) <= -0.5)) {
+      if ((f - ftest) > 0.0) {
+         // i is smaller than f
+         fmin = i;
+      } else {
+         // i is larger than f
+         fmax = i;
+      }
+      i = idiv(fmin + fmax, 2);
+      ftest = i / 1; // convert i to float by dividing by 1
+   }
+
+   return i;
+}
+
+// convert an x coordinate on the screen from a float to an int 
+// so we can use it with __pixel.
+fun xcoord(x: float) -> int {
+   return f2int(x, 0, __width - 1);
+}
+
+// convert a y coordinate on the screen from a float to an int 
+// so we can use it with __pixel.
+fun ycoord(y: float) -> int {
+   return f2int(y, 0, __height - 1);
+}
+
+// Compute sqrt(x) using Heron's method
+// While there are more efficient methods, these were
+// found to not be stable (to converge) for the large
+// numbers involved.
+fun sqrt(x: float) -> float {
+   let estimate: float = x;
+
+   let iters: int = 100;
+   for (let i: int = 0; i < iters; i = i+1) {
+      estimate = 0.5 * (estimate + x / estimate);
+   }
+
+   return estimate;
+}
+
+// return |(x, y)| where (x, y) is a 2d vector.
+fun magnitude(x: float, y: float) -> float {
+   return sqrt(x * x + y * y);
+}
+
+// Compute acceleration of body j on body i in direction of pos1 (can be used with x or y positions)
+// A body cannot exert an acceleration on itself.
+fun acc(masses: []float, pos1: []float, pos2: []float, i: int, j: int) -> float {
+   if (i == j) {
+      return 0.0;
+   }
+
+   // distance between bodies in direction of pos1
+   let d: float = pos1[j] - pos1[i];
+   // magnitude of actual 2d distance between bodies
+   let mag: float = magnitude(pos1[j] - pos1[i], pos2[j] - pos2[i]);
+
+   // universal gravitational constant
+   let G: float = 6.6743;
+   return (G * masses[j] * d) / (mag * mag * mag);
+}
+
+// draw a body
+fun draw(x: float, y: float, xmin: float, xmax: float, ymin: float, ymax: float, c: colour) -> int {
+   // scale x, y to screen dimensions
+   let x_: float = (x - xmin) * (__width / 1) / (xmax - xmin);
+   let y_: float = (y - ymin) * (__height / 1) / (ymax - ymin);
+
+   __pixel xcoord(x_), ycoord(y_), c;
+   __delay 5;
+
+   // return dummy value
+   return 0;
+}
+
+let bodies: int = 5;
+
+let masses: []float = __newarr float, bodies;
+// the sun
+masses[0] = 19890000000000000000.0;
+// Mercury
+masses[1] = 3300000000000.0;
+// Venus
+masses[2] = 48690000000000.0;
+// Earth
+masses[3] = 59700000000000.0;
+// Mars
+masses[4] = 6740000000000.0;
+
+/// Positions of bodies
+
+let x: []float = __newarr float, bodies;
+x[0] = 0.0;
+x[1] = 57895000000.0;
+x[2] = 108160800000.0;
+x[3] = 149600000000.0;
+x[4] = 227990400000.0;
+
+let y: []float = __newarr float, bodies;
+y[0] = 0.0;
+y[1] = 0.0;
+y[2] = 0.0;
+y[3] = 0.0;
+y[4] = 0.0;
+
+/// Velocities of bodies
+
+let vx: []float = __newarr float, bodies;
+vx[0] = 0.0;
+vx[1] = 0.0;
+vx[2] = 0.0;
+vx[3] = 0.0;
+vx[4] = 0.0;
+
+let vy: []float = __newarr float, bodies;
+vy[0] = 0.0;
+vy[1] = 47360.0;
+vy[2] = 35020.0;
+vy[3] = 29780.0;
+vy[4] = 24070.0;
+
+/// Actual simulation
+
+__pixelr 0, 0, __width, __height, #000000;
+
+// time step (in seconds), set to 1 Earth day
+let h: float = 86400.0;
+
+// time simulation runs for is one Earth year
+let ticks: int = 365;
+
+for (let t: int = 0; t < ticks; t = t + 1) {
+   // update velocities of all bodies
+   // We use Euler's method to compute new velocities.
+   for (let i: int = 0; i < bodies; i = i + 1) {
+      for (let j: int = 0; j < bodies; j = j + 1) {
+         vx[i] = vx[i] + h * acc(masses, x, y, i, j);
+         vy[i] = vy[i] + h * acc(masses, y, x, i, j);
+      }
+   }
+
+   // update velocities and positions of all bodies.
+   // We use the Euler method to compute new positions
+   for (let i: int = 0; i < bodies; i = i + 1) {
+      x[i] = x[i] + h * vx[i];
+      y[i] = y[i] + h * vy[i];
+   }
+
+   // maximum distance from origin
+   let dmax: float = 250000000000.0;
+   // draw updated positions of bodies
+   // Sun
+   let v_: int = draw(x[0], y[0], -dmax, dmax, -dmax, dmax, #d5d1e9);
+   // Mercury
+   v_ = draw(x[1], y[1], -dmax, dmax, -dmax, dmax, #dde4ee);
+   // Venus
+   v_ = draw(x[2], y[2], -dmax, dmax, -dmax, dmax, #f3f5a9);
+   // Earth
+   v_ = draw(x[3], y[3], -dmax, dmax, -dmax, dmax, #f5c595);
+   // Mars
+   v_ = draw(x[4], y[4], -dmax, dmax, -dmax, dmax, #f5a7a6);
+}`,
 
   clear: `// clear screen to a specific colour
 __pixelr 0, 0, __width, __height, #000000;`
