@@ -903,7 +903,52 @@ letters[135] = 8;  // I
 letters[136] = 19; // T
 letters[137] = 26; // .
 
-res = render_text(x, y, #0070ff, letters, len);`,
+res = render_text(x, y, #0070ff, letters, len);
+
+len = 11;
+letters = __newarr int, len;
+
+x = 1;
+y = __height - 80;
+
+letters[0] = 8;   // I
+letters[1] = 28;  // 
+letters[2] = 11;  // L
+letters[3] = 14;  // O
+letters[4] = 21;  // V
+letters[5] = 4;   // E
+letters[6] = 28;  //
+letters[7] = 18;  // S
+letters[8] = 20;  // U
+letters[9] = 18;  // S
+letters[10] = 20; // U
+
+res = render_text(x, y, #9575cd, letters, len);
+
+// draw heart after the text
+x = len * 4 + 5;
+__pixel x,     y,     #9575cd;
+__pixel x,     y - 1, #9575cd;
+__pixel x,     y - 2, #9575cd;
+__pixel x + 1, y,     #9575cd;
+__pixel x + 1, y - 1, #9575cd;
+__pixel x + 1, y - 2, #9575cd;
+__pixel x + 1, y - 3, #9575cd;
+__pixel x + 2, y - 1, #9575cd;
+__pixel x + 2, y - 2, #9575cd;
+__pixel x + 2, y - 3, #9575cd;
+__pixel x + 2, y - 4, #9575cd;
+__pixel x + 3, y - 1, #9575cd;
+__pixel x + 3, y - 2, #9575cd;
+__pixel x + 3, y - 3, #9575cd;
+__pixel x + 3, y - 4, #9575cd;
+__pixel x + 4, y,     #9575cd;
+__pixel x + 4, y - 1, #9575cd;
+__pixel x + 4, y - 2, #9575cd;
+__pixel x + 4, y - 3, #9575cd;
+__pixel x + 5, y,     #9575cd;
+__pixel x + 5, y - 1, #9575cd;
+__pixel x + 5, y - 2, #9575cd;`,
 
   'game of life': `/* Demonstration of Gosper glider gun.
  * SET SCREEN DIMENSIONS TO 40 x 30 FOR BEST RESULTS.
