@@ -20,6 +20,7 @@
         <option class="bg-slate-900 link-green" value="double pendulum">double pendulum</option>
         <option class="bg-slate-900 link-green" value="nbody">nbody</option>
         <option class="bg-slate-900 link-green" value="echo">echo</option>
+        <option class="bg-slate-900 link-green" value="unicode">unicode</option>
         <option class="bg-slate-900 link-green" value="clear">clear</option>
       </select>
       <input
@@ -2158,6 +2159,40 @@ for (let t: int = 0; t < ticks; t = t + 1) {
 
 while (true) {
    __putchar __getchar;
+}`,
+
+   unicode: `// Find unicode code point of characters.
+
+// Unicode (or equivalently ASCII) code points of '=', ' ', '\\n' and '\\t'
+let equals: int = 61;
+let space: int = 32;
+let newline: int = 10;
+let tab: int = 9;
+
+// Unicode (or equivalently ASCII) code points of '\\', 'n' and 't'
+let slash: int = 92;
+let n: int = 110;
+let t: int = 116;
+
+while (true) {
+   let c: int = __getchar;
+   if (c == tab) {
+      // special way of printing tab
+      __putchar slash;
+      __putchar t;
+   } else {
+      if (c == newline) {
+         // special way of printing newline
+         __putchar slash;
+         __putchar n;
+      } else {
+         __putchar c;
+      }
+   }
+   __putchar space;
+   __putchar equals;
+   __putchar space;
+   __print c;
 }`,
 
   clear: `// clear screen to a specific colour
