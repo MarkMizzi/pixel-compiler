@@ -321,10 +321,9 @@ namespace codegen
   void CodeGenerator::visit(ast::Float2IntNode &node)
   {
     rvisitChildren(&node);
-    // The __float2int operator is a NO-OP (no extra instructions issued)
-    // since the underlying VM uses only floating point types.
-    // It is there simply to allow us to get around the limitations of Pixel's
-    // type system, which strictly forbids type casting.
+    // while the Pixel VM only uses IEEE754 floating point numbers, we still need to round
+    // the number to a whole number.
+    addInstr({PixIROpcode::ROUND});
   }
 
   void CodeGenerator::visit(ast::AssignmentStmt &node)
@@ -622,6 +621,8 @@ namespace codegen
       return "max";
     case MIN:
       return "min";
+    case ROUND:
+      return "round";
     case IRND:
       return "irnd";
     case LT:

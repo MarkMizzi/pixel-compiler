@@ -35,6 +35,7 @@ namespace codegen
     DEC,
     MAX,
     MIN,
+    ROUND,
     IRND,
     LT,
     LE,

@@ -9,6 +9,7 @@ export enum PixIROpcode {
   DEC = 'dec',
   MAX = 'max',
   MIN = 'min',
+  ROUND = 'round',
   // get random number
   IRND = 'irnd',
   // logical operations
@@ -52,7 +53,7 @@ export enum PixIROpcode {
   LDA = 'lda',
   // low level I/O operations
   GETCHAR = 'getchar',
-  PUTCHAR = 'putchar'
+  PUTCHAR = 'putchar',
 }
 
 /* Data type enum used to tag VM data so that it can be type-checked at runtime. */

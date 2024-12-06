@@ -541,6 +541,15 @@
           </td>
         </tr>
         <tr>
+          <td><span class="code">round</span></td>
+          <td><span class="code">a ..</span></td>
+          <td><span class="code">round(a) ..</span></td>
+          <td>
+            Pops a number off the work stack, rounds it to the nearest whole number, and pushes the
+            result onto the work stack.
+          </td>
+        </tr>
+        <tr>
           <td><span class="code">irnd</span></td>
           <td><span class="code">a ..</span></td>
           <td><span class="code">rand(0,a) ..</span></td>

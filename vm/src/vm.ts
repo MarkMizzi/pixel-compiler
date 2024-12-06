@@ -244,6 +244,21 @@ export class PixelVM {
           break
         }
 
+        case PixIROpcode.ROUND: {
+          const x = this.safePop()
+
+          checkDataType(x, [PixIRDataType.NUMBER])
+
+          this.state.workStack.push({
+            dtype: PixIRDataType.NUMBER,
+            val: Math.round(x.val as number)
+          })
+
+          // update pc
+          this.state.callStack[this.state.callStack.length - 1].pc++
+          break
+        }
+
         // get random number
         case PixIROpcode.IRND: {
           const x = this.safePop()
