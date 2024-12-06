@@ -19,6 +19,7 @@
         <option class="bg-slate-900 link-green" value="quicksort">quicksort</option>
         <option class="bg-slate-900 link-green" value="double pendulum">double pendulum</option>
         <option class="bg-slate-900 link-green" value="nbody">nbody</option>
+        <option class="bg-slate-900 link-green" value="lorenz attractor">lorenz attractor</option>
         <option class="bg-slate-900 link-green" value="echo">echo</option>
         <option class="bg-slate-900 link-green" value="unicode">unicode</option>
         <option class="bg-slate-900 link-green" value="clear">clear</option>
@@ -1405,7 +1406,7 @@ __delay 20;
 // sort the array
 v_ = bubblesort(arr);`,
 
-   heapsort: `// clear the screen
+  heapsort: `// clear the screen
 __pixelr 0, 0, __width, __height, #000000;
 
 // create an array of random integers to sort
@@ -2082,14 +2083,62 @@ for (let t: int = 0; t < ticks; t = t + 1) {
    v_ = draw(x[4], y[4], -dmax, dmax, -dmax, dmax, #f5a7a6);
 }`,
 
-   echo: `// Program that "echoes" everything the user types.
+  'lorenz attractor': `/* Lorenz attractor. (Prototypical) Example of a chaotic system
+ * Set screen size to 300 by 300 or larger for best results.
+ */
+
+fun draw(x: float, y: float, xmin: float, xmax: float, ymin: float, ymax: float, c: colour) -> int {
+   // scale x, y to screen dimensions
+   let x_: float = (x - xmin) * (__width / 1) / (xmax - xmin);
+   let y_: float = (y - ymin) * (__height / 1) / (ymax - ymin);
+
+   __pixel (__float2int x_), (__float2int y_), c;
+   __delay 2;
+
+   // return dummy value
+   return 0;
+}
+
+__pixelr 0, 0, __width, __height, #000000;
+
+// time step (in seconds)
+let dt: float = 0.01;
+
+// time simulation runs for
+let ticks: int = 100000;
+
+let sigma: float = 10.0;
+let rho: float = 28.0;
+let beta: float = 8 / 3;
+
+let x: float = 2.0 + ((__randi 1000) / 1000) * 0.01;
+let y: float = 1.0 + ((__randi 1000) / 1000) * 0.01;
+let z: float = 1.0 + ((__randi 1000) / 1000) * 0.01;
+
+for (let t: int = 0; t < ticks; t = t + 1) {
+   // compute velocities
+   let dx_dt: float = sigma * (y - x);
+   let dy_dt: float = x * (rho - z) - y;
+   let dz_dt: float = x * y - beta * z;
+
+    // update positions of all bodies.
+    // We use the Euler method to compute new positions
+    x = x + dt * dx_dt;
+    y = y + dt * dy_dt;
+    z = z + dt * dz_dt;
+
+   // draw updated position
+   let v_: int = draw(x, y, -30.0, 30.0, -30.0, 30.0, #10898d);
+}`,
+
+  echo: `// Program that "echoes" everything the user types.
 // Demonstrates Pixel's low-level I/O facilities.
 
 while (true) {
    __putchar __getchar;
 }`,
 
-   unicode: `// Find unicode code point of characters.
+  unicode: `// Find unicode code point of characters.
 
 // Unicode (or equivalently ASCII) code points of '=', ' ', '\\n' and '\\t'
 let equals: int = 61;
