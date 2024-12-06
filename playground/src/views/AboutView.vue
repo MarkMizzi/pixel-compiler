@@ -73,7 +73,7 @@
       &lt; NewArrExpr &gt; ::= &quot;__newarr&quot; &lt; Type &gt; &quot;,&quot; &lt; Expr &gt;
       <br />
       &lt; SubExpr &gt; ::= &quot;(&quot; &lt; Expr &gt; &quot;)&quot; <br />
-      &lt; Unary &gt; ::= ( &quot;-&quot; | &quot;not&quot; ) &lt; Expr &gt; <br />
+      &lt; Unary &gt; ::= ( &quot;-&quot; | &quot;not&quot; ) &lt; Factor &gt; <br />
       &lt; Factor &gt; ::= <br />
       &emsp;&lt; Literal &gt; | <br />
       &emsp;&lt; Identifier &gt; | <br />

@@ -181,7 +181,7 @@ namespace parser
     case lexer::MINUS_TOK:
     {
       lexer::Token tok = consume();
-      ast::ExprNodePtr subexpr = parseExpr();
+      ast::ExprNodePtr subexpr = parseFactor();
       return std::make_unique<ast::UnaryExprNode>(
           ast::UnaryExprNode::UnaryOp::MINUS, std::move(subexpr),
           tok.loc.merge(subexpr->loc));
@@ -190,7 +190,7 @@ namespace parser
     case lexer::NOT:
     {
       lexer::Token tok = consume();
-      ast::ExprNodePtr subexpr = parseExpr();
+      ast::ExprNodePtr subexpr = parseFactor();
       return std::make_unique<ast::UnaryExprNode>(
           ast::UnaryExprNode::UnaryOp::NOT, std::move(subexpr),
           tok.loc.merge(subexpr->loc));
