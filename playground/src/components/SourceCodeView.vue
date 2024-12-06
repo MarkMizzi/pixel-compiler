@@ -20,6 +20,7 @@
         <option class="bg-slate-900 link-green" value="double pendulum">double pendulum</option>
         <option class="bg-slate-900 link-green" value="nbody">nbody</option>
         <option class="bg-slate-900 link-green" value="lorenz attractor">lorenz attractor</option>
+        <option class="bg-slate-900 link-green" value="sierpinski">sierpinski</option>
         <option class="bg-slate-900 link-green" value="echo">echo</option>
         <option class="bg-slate-900 link-green" value="unicode">unicode</option>
         <option class="bg-slate-900 link-green" value="clear">clear</option>
@@ -2174,6 +2175,56 @@ for (let t: int = 0; t < ticks; t = t + 1) {
 
    // draw updated position
    let v_: int = draw(x, y, -30.0, 30.0, -30.0, 30.0, #10898d);
+}`,
+
+  sierpinski: `/* Generate Sierpinski triangle using chaos iteration method.
+ * https://en.wikipedia.org/wiki/Sierpi%C5%84ski_triangle
+ */
+  
+// clear the screen
+__pixelr 0, 0, __width, __height, #000000;
+
+/// 3 extremal points of an equilateral triangle on a screen
+
+let x: []int = __newarr int, 3;
+let y: []int = __newarr int, 3;
+
+x[0] = __float2int (__width / 2);
+y[0] = 0;
+
+x[1] = 0;
+y[1] = __height - 1;
+
+x[2] = __width - 1;
+y[2] = __height - 1;
+
+// gradient of the two sides not parallel to x axis.
+let D1: int = __float2int ((x[0] - x[1]) / (y[0] - y[1]));
+let D2: int = __float2int ((x[0] - x[2]) / (y[0] - y[2]));
+
+// find a random point inside the triangle.
+// Since half of the points are in it takes ~2 iters to 
+// find such a point.
+let x_: int = __randi __width;
+let y_: int = __randi __height;
+while ((x_ < D1 * y_ + x[0]) or (x_ > D2 * y_ + x[0])) {
+   x_ = __randi __width;
+   y_ = __randi __height;
+}
+
+let ticks: int = 10000;
+
+for (let t: int = 0; t < ticks; t = t + 1) {
+   // pick randomly between extremal points
+   let i: int = __randi 2;
+
+   // update x_, y_ to be midpoint between
+   // old x_, y_ and extremal point chosen.
+   x_ = __float2int ((x_ + x[i]) / 2);
+   y_ = __float2int ((y_ + y[i]) / 2);
+
+   __pixel x_, y_, #ffffff;
+   __delay 1;
 }`,
 
   echo: `// Program that "echoes" everything the user types.
