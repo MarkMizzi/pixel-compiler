@@ -1916,11 +1916,15 @@ for (let tick: int = 0; tick < ticks; tick = tick + 1) {
    let s2: float = sin(2.0 * (theta1 - theta2));
    let c1: float = cos(theta1 - theta2);
 
-   let h1: float = p1 * p2 * s1 / (l1 * l2 * (m1 + m2 * s1 * s1));
-   let h2: float = (m2 * l2 * l2 * p1 * p1 + (m1 + m2) * l1 * l1 * p2 * p2 - 2.0 * m2 * l1 * l2 * p1 * p2 * c1) / (2.0 * l1 * l1 * l2 * l2 * (m1 + m2 * s1 * s1) * (m1 + m2 * s1 * s1));
+   let sql1: float = l1 * l1;
+   let sql2: float = l2 * l2;
 
-   let theta1_dot: float = (l2 * p1 - l1 * p2 * c1) / (l1 * l1 * l2 * (m1 + m2 * s1 * s1));
-   let theta2_dot: float = (-m2 * l2 * p1 * c1 + (m1 + m2) * l1 * p2) / (m2 * l1 * l2 * l2 * (m1 + m2 * s1 * s1));
+   let h0: float = m1 + m2 * s1 * s1;
+   let h1: float = p1 * p2 * s1 / (l1 * l2 * h0);
+   let h2: float = (m2 * sql2 * p1 * p1 + (m1 + m2) * sql1 * p2 * p2 - 2.0 * m2 * l1 * l2 * p1 * p2 * c1) / (2.0 * sql1 * sql2 * h0 * h0);
+
+   let theta1_dot: float = (l2 * p1 - l1 * p2 * c1) / (sql1 * l2 * h0);
+   let theta2_dot: float = (-m2 * l2 * p1 * c1 + (m1 + m2) * l1 * p2) / (m2 * l1 * sql2 * h0);
 
    let p1_dot: float = -(m1 + m2) * g * l1 * sin(theta1) - h1 + h2 * s2;
    let p2_dot: float = -m2 * g * l2 * sin(theta2) + h1 - h2 * s2;
