@@ -267,7 +267,7 @@ export class PixelVM {
 
           this.state.workStack.push({
             dtype: PixIRDataType.NUMBER,
-            val: Math.random() * (x.val as number)
+            val: Math.round(Math.random() * (x.val as number))
           })
 
           // update pc
