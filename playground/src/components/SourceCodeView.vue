@@ -2216,7 +2216,7 @@ let ticks: int = 10000;
 
 for (let t: int = 0; t < ticks; t = t + 1) {
    // pick randomly between extremal points
-   let i: int = __randi 2;
+   let i: int = __randi 3;
 
    // update x_, y_ to be midpoint between
    // old x_, y_ and extremal point chosen.
