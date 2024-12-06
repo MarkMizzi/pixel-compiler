@@ -313,6 +313,20 @@ namespace codegen
     addInstr({PixIROpcode::LDA});
   }
 
+  void CodeGenerator::visit(ast::GetCharNode &)
+  {
+    addInstr({PixIROpcode::GETCHAR});
+  }
+
+  void CodeGenerator::visit(ast::Float2IntNode &node)
+  {
+    rvisitChildren(&node);
+    // The __float2int operator is a NO-OP (no extra instructions issued)
+    // since the underlying VM uses only floating point types.
+    // It is there simply to allow us to get around the limitations of Pixel's
+    // type system, which strictly forbids type casting.
+  }
+
   void CodeGenerator::visit(ast::AssignmentStmt &node)
   {
     rvisitChildren(&node);
@@ -373,6 +387,12 @@ namespace codegen
       addInstr({PixIROpcode::CFRAME});
     }
     addInstr({PixIROpcode::RET});
+  }
+
+  void CodeGenerator::visit(ast::PutCharStmt &node)
+  {
+    rvisitChildren(&node);
+    addInstr({PixIROpcode::PUTCHAR});
   }
 
   void CodeGenerator::visit(ast::IfElseStmt &node)
@@ -662,6 +682,10 @@ namespace codegen
       return "sta";
     case LDA:
       return "lda";
+    case PUTCHAR:
+      return "putchar";
+    case GETCHAR:
+      return "getchar";
     }
     return ""; // please compiler
   }

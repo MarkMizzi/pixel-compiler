@@ -66,6 +66,9 @@ namespace codegen
     ALLOCA,
     STA,
     LDA,
+    // Low level I/O operations
+    GETCHAR,
+    PUTCHAR,
   };
 
   std::string to_string(const PixIROpcode type);
@@ -214,6 +217,8 @@ namespace codegen
     void visit(ast::RandiExprNode &node) override;
     void visit(ast::NewArrExprNode &node) override;
     void visit(ast::ArrayAccessNode &node) override;
+    void visit(ast::GetCharNode &node) override;
+    void visit(ast::Float2IntNode &node) override;
 
     void visit(ast::AssignmentStmt &node) override;
     void visit(ast::VariableDeclStmt &node) override;
@@ -222,6 +227,7 @@ namespace codegen
     void visit(ast::PixelStmt &node) override;
     void visit(ast::PixelRStmt &node) override;
     void visit(ast::ReturnStmt &node) override;
+    void visit(ast::PutCharStmt &node) override;
     void visit(ast::IfElseStmt &node) override;
     void visit(ast::ForStmt &node) override;
     void visit(ast::WhileStmt &node) override;

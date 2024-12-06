@@ -716,6 +716,80 @@ export class PixelVM {
           this.state.callStack[this.state.callStack.length - 1].pc++
           break
         }
+
+        case PixIROpcode.GETCHAR: {
+          // https://stackoverflow.com/questions/44746592/is-there-a-way-to-write-async-await-code-that-responds-to-onkeypress-events
+          let val: number = 0;
+          while (val === 0) {
+            // loop until we get a non-nul character
+
+            // timer for invocations of readKey()
+            let timer: number = 0
+
+            const readKey = () => new Promise(
+              (resolve, reject) => {
+                timer = setTimeout(() => reject(), 200)
+                window.addEventListener('keydown', resolve, { once: true })
+              }
+            )
+
+            let key: string = ''
+            // we wait for a key press from the user
+            // each 200ms we check if the VM has halted or paused.
+            while (key === '') {
+              try {
+                // we wait for a key from user with timeout of 200ms
+                key = (await readKey() as KeyboardEvent).key
+              } catch (e) {
+                // if timeout expires, we catch the promise rejection.
+              }
+              // clear timeout
+              clearTimeout(timer)
+
+              // if the VM was halted or paused while we were waiting, we return
+              // Note that we do NOT advance the PC in case the VM was paused,
+              // as we have not yet processed a char and we need to resume at the
+              // start of the getchar instruction.
+              if (this.state.halted || this.state.paused)
+                return
+            }
+
+            if (key.length > 1) {
+              // the key we got is a special key, process it
+              switch (key) {
+                // These are the only special keys we handle.
+                // For a full list, see here:
+                // https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values
+                case "Enter":
+                  val = "\n".charCodeAt(0);
+                  break;
+                case "Tab":
+                  val = "\t".charCodeAt(0);
+                  break;
+              }
+            } else {
+              // for regular characters we just get the unicode point from the char itself.
+              val = key.charCodeAt(0);
+            }
+          }
+
+          this.state.workStack.push({ dtype: PixIRDataType.NUMBER, val })
+
+          this.state.callStack[this.state.callStack.length - 1].pc++
+          break
+        }
+
+        case PixIROpcode.PUTCHAR: {
+          const x = this.safePop()
+
+          checkDataType(x, [PixIRDataType.NUMBER])
+
+          const charCode = Math.round(x.val as number);
+          this.state.loggerHandle.value += `${String.fromCharCode(charCode)}`
+
+          this.state.callStack[this.state.callStack.length - 1].pc++
+          break
+        }
       }
     } catch (e) {
       // any errors are fatal and halt the VM

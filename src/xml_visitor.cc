@@ -172,6 +172,16 @@ namespace ast
                            " isLValue=\"" << node.isLValue << "\"");
   }
 
+  void XMLVisitor::visit(GetCharNode &node)
+  {
+    XML_ELEM_WITH_CONTENT(node, "GetCharNode", "", "");
+  }
+
+  void XMLVisitor::visit(Float2IntNode &node)
+  {
+    XML_ELEM_WITH_CHILDREN(node, "Float2IntNode", "");
+  }
+
   void XMLVisitor::visit(AssignmentStmt &node)
   {
     XML_ELEM_WITH_CHILDREN(node, "AssignmentStmt", "");
@@ -205,6 +215,11 @@ namespace ast
   void XMLVisitor::visit(ReturnStmt &node)
   {
     XML_ELEM_WITH_CHILDREN(node, "ReturnStmt", "");
+  }
+
+  void XMLVisitor::visit(PutCharStmt &node)
+  {
+    XML_ELEM_WITH_CHILDREN(node, "PutCharStmt", "");
   }
 
   void XMLVisitor::visit(IfElseStmt &node)

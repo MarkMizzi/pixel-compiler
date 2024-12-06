@@ -16,6 +16,7 @@ Statement {
   PrintStatement Semicolon | 
   DelayStatement Semicolon |
   PixelStatement Semicolon |
+  PutCharStatement Semicolon |
   IfStatement |
   ForStatement |
   WhileStatement |
@@ -35,6 +36,10 @@ DelayStatement { kw<"__delay"> Expr }
 PixelStatement {
   kw<"__pixelr"> Expr Comma Expr Comma Expr Comma Expr Comma Expr
   kw<"__pixel"> Expr Comma Expr Comma Expr
+}
+
+PutCharStatement {
+  kw<"__putchar"> Expr
 }
 
 RtrnStatement {
@@ -93,8 +98,10 @@ Factor {
   kw<"__width"> |
   kw<"__height"> |
   kw<"__read"> Factor |
-  LValue
-  NewArrExpr
+  LValue |
+  NewArrExpr |
+  kw<"__getchar"> |
+  kw<"__float2int"> Factor
 }
 
 LValue {

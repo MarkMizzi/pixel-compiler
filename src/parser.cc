@@ -241,6 +241,17 @@ namespace parser
                                                    std::move(arrSizeExpr), loc);
     }
 
+    case lexer::GETCHAR:
+      return std::make_unique<ast::GetCharNode>(consume().loc);
+
+    case lexer::FLOAT2INT:
+    {
+      lexer::Token tok = consume();
+      ast::ExprNodePtr subexpr = parseExpr();
+      return std::make_unique<ast::Float2IntNode>(std::move(subexpr),
+                                                  tok.loc.merge(subexpr->loc));
+    }
+
     default:
       throw ParserError("Failed in parseFactor", consume().loc);
     }
@@ -489,6 +500,19 @@ namespace parser
         std::move(expr), loc.merge(semicolon.loc));
   }
 
+  ast::StmtNodePtr Parser::parsePutChar()
+  {
+    Location loc = consume().loc;
+
+    ast::ExprNodePtr expr = parseExpr();
+
+    lexer::Token semicolon = consume();
+    CHECK_TOKEN(semicolon, lexer::SEMICOLON_TOK);
+
+    return std::make_unique<ast::PutCharStmt>(std::move(expr),
+                                              loc.merge(semicolon.loc));
+  }
+
   ast::StmtNodePtr Parser::parseIfElse()
   {
     Location loc = consume().loc; // consume if token.
@@ -654,6 +678,8 @@ namespace parser
       return parsePixel();
     case lexer::PIXELR:
       return parsePixelR();
+    case lexer::PUTCHAR:
+      return parsePutChar();
     case lexer::IF:
       return parseIfElse();
     case lexer::FOR:

@@ -49,7 +49,10 @@ export enum PixIROpcode {
   // array operations
   ALLOCA = 'alloca',
   STA = 'sta',
-  LDA = 'lda'
+  LDA = 'lda',
+  // low level I/O operations
+  GETCHAR = 'getchar',
+  PUTCHAR = 'putchar'
 }
 
 /* Data type enum used to tag VM data so that it can be type-checked at runtime. */

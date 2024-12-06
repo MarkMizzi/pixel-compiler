@@ -463,6 +463,27 @@ namespace ast
     std::vector<ASTNode *> children() override { return {operand.get()}; };
   };
 
+  class GetCharNode : public ExprNode
+  {
+  public:
+    using ExprNode::ExprNode;
+
+    void accept(AbstractVisitor *v) override { v->visit(*this); }
+    std::vector<ASTNode *> children() override { return {}; };
+  };
+
+  class Float2IntNode : public ExprNode
+  {
+  public:
+    ExprNodePtr operand;
+
+    Float2IntNode(ExprNodePtr &&operand, Location loc)
+        : ExprNode(loc), operand(std::move(operand)) {}
+
+    void accept(AbstractVisitor *v) override { v->visit(*this); }
+    std::vector<ASTNode *> children() override { return {operand.get()}; };
+  };
+
   class StmtNode : public ASTNode
   {
   public:
@@ -573,6 +594,18 @@ namespace ast
     ExprNodePtr expr;
 
     ReturnStmt(ExprNodePtr &&expr, Location loc)
+        : StmtNode(loc), expr(std::move(expr)) {}
+
+    void accept(AbstractVisitor *v) override { v->visit(*this); }
+    std::vector<ASTNode *> children() override { return {expr.get()}; };
+  };
+
+  class PutCharStmt : public StmtNode
+  {
+  public:
+    ExprNodePtr expr;
+
+    PutCharStmt(ExprNodePtr &&expr, Location loc)
         : StmtNode(loc), expr(std::move(expr)) {}
 
     void accept(AbstractVisitor *v) override { v->visit(*this); }

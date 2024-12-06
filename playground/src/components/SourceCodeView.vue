@@ -19,6 +19,7 @@
         <option class="bg-slate-900 link-green" value="heapsort">heapsort</option>
         <option class="bg-slate-900 link-green" value="double pendulum">double pendulum</option>
         <option class="bg-slate-900 link-green" value="nbody">nbody</option>
+        <option class="bg-slate-900 link-green" value="echo">echo</option>
         <option class="bg-slate-900 link-green" value="clear">clear</option>
       </select>
       <input
@@ -1683,47 +1684,16 @@ fun idiv(n: int, d: int) -> int {
     return q;
 }
 
-/* Convert floats to integers (rounding to the nearest even).
- * Because of Pixel's type casting rules this function has to be implemented using a
- * binary search on integers in some region... quite unwieldy
- * Note that we also take advantage of the fact that x / 1 converts x from an int to a float
- */
-fun f2int(f: float, fmin: int, fmax: int) -> int {
-   // stop algorithm from looping forever if f is not in expected range
-   if (f >= fmax / 1) {
-      return fmax;
-   }
-   if (f <= fmin / 1) {
-      return fmin;
-   }
-
-   let i: int = idiv(fmin + fmax, 2);
-   let ftest: float = i / 1; // convert i to float by dividing by 1
-   while (((f - ftest) > 0.5) or ((f - ftest) <= -0.5)) {
-      if ((f - ftest) > 0.0) {
-         // i is smaller than f
-         fmin = i;
-      } else {
-         // i is larger than f
-         fmax = i;
-      }
-      i = idiv(fmin + fmax, 2);
-      ftest = i / 1; // convert i to float by dividing by 1
-   }
-
-   return i;
-}
-
 // convert an x coordinate on the screen from a float to an int 
 // so we can use it with __pixel.
 fun xcoord(x: float) -> int {
-   return f2int(x, 0, __width);
+   return __float2int x;
 }
 
 // convert a y coordinate on the screen from a float to an int 
 // so we can use it with __pixel.
 fun ycoord(y: float) -> int {
-   return f2int(y, 0, __height);
+   return __float2int y;
 }
 
 /* Compute sine function using the CORDIC algorithm first described in
@@ -2181,6 +2151,13 @@ for (let t: int = 0; t < ticks; t = t + 1) {
    v_ = draw(x[3], y[3], -dmax, dmax, -dmax, dmax, #f5c595);
    // Mars
    v_ = draw(x[4], y[4], -dmax, dmax, -dmax, dmax, #f5a7a6);
+}`,
+
+   echo: `// Program that "echoes" everything the user types.
+// Demonstrates Pixel's low-level I/O facilities.
+
+while (true) {
+   __putchar __getchar;
 }`,
 
   clear: `// clear screen to a specific colour

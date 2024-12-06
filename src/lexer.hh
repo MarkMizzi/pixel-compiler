@@ -47,6 +47,9 @@ namespace lexer
     DELAY,      // __delay
     PIXELR,     // __pixelr
     PIXEL,      // __pixel
+    GETCHAR,    // __getchar
+    PUTCHAR,    // __putchar
+    FLOAT2INT,  // __float2int
     RETURN,     // return
     IF,         // if
     ELSE,       // else

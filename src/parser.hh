@@ -79,6 +79,7 @@ namespace parser
     ast::StmtNodePtr parseDelay();
     ast::StmtNodePtr parsePixel();
     ast::StmtNodePtr parsePixelR();
+    ast::StmtNodePtr parsePutChar();
     ast::StmtNodePtr parseIfElse();
     ast::StmtNodePtr parseFor();
     ast::StmtNodePtr parseWhile();

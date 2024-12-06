@@ -85,7 +85,10 @@
       &emsp;&quot;__height&quot; | <br />
       &emsp;&quot;__read&quot; &lt; Expr &gt; &quot;,&quot; &lt; Expr &gt; | <br />
       &emsp;&lt; ArrayAccessExpr &gt; | <br />
-      &emsp;&lt; NewArrExpr &gt; <br /><br />
+      &emsp;&lt; NewArrExpr &gt; | <br />
+      &emsp;&quot;__getchar&quot; | <br />
+      &emsp;&quot;__float2int&quot; &lt; Expr &gt; <br /><br />
+
 
       &lt; Term &gt; ::= &lt; Factor &gt; { &lt; MultiplicativeOp &gt; &lt; Factor &gt; } <br />
       &lt; SimpleExpr &gt; ::= &lt; Term &gt; { &lt; AdditiveOp &gt; &lt; Term &gt; } <br />
@@ -132,6 +135,7 @@
       &emsp;&lt; PrintStatement &gt; &quot;;&quot; | <br />
       &emsp;&lt; DelayStatement &gt; &quot;;&quot; | <br />
       &emsp;&lt; PixelStatement &gt; &quot;;&quot; | <br />
+      &emsp;&quot;__putchar&quot; &lt; Expr &gt; &quot;;&quot; | <br />
       &emsp;&lt; IfStatement &gt; | <br />
       &emsp;&lt; ForStatement &gt; | <br />
       &emsp;&lt; WhileStatement &gt; | <br />
@@ -271,6 +275,30 @@
             <span class="code">x, y</span>
             to the colour
             <span class="code">c</span>.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="code">__getchar</span></td>
+          <td>N/A</td>
+          <td><span class="code">int</span></td>
+          <td>
+            Get the next character from stdin. This is returned as a Unicode code point.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="code">__putchar x</span></td>
+          <td><span class="code">int</span></td>
+          <td>N/A</td>
+          <td>
+            Print the character with Unicode code point <span class="code">x</span> in the output log.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="code">__float2int x</span></td>
+          <td><span class="code">float</span></td>
+          <td><span class="code">int</span></td>
+          <td>
+            Convert floating point number <span class="code">x</span> to an integer, rounding to the nearest number.
           </td>
         </tr>
       </tbody>
@@ -800,6 +828,23 @@
             <span class="code">i</span> off the work stack, then pushes the item at the
             <span class="code">i</span>th location in array <span class="code">a</span> onto the
             work stack.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="code">getchar</span></td>
+          <td><span class="code">..</span></td>
+          <td><span class="code">c ..</span></td>
+          <td>
+            Gets a character from stdin and pushes its Unicode code point onto the work stack.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="code">putchar</span></td>
+          <td><span class="code">c ..</span></td>
+          <td><span class="code">..</span></td>
+          <td>
+            Pops floating point number <span class="code">c</span>, rounds it to the nearest 
+            integer, and prints the character with that Unicode code point to the output log.
           </td>
         </tr>
       </tbody>

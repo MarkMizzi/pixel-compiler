@@ -31,7 +31,6 @@ set(SRC_FILES
   src/compiler.hh
   src/lexer.cc
   src/parser.cc
-  src/ast.cc
   src/visitor.cc
   src/xml_visitor.cc
   src/semantic_visitor.cc

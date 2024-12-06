@@ -11,6 +11,7 @@ export const highlighting = styleTags({
   __delay: tags.keyword,
   __pixelr: tags.keyword,
   __pixel: tags.keyword,
+  __putchar: tags.keyword,
   return: tags.keyword,
   if: tags.keyword,
   else: tags.keyword,
@@ -22,6 +23,8 @@ export const highlighting = styleTags({
   __height: tags.keyword,
   __read: tags.keyword,
   __newarr: tags.keyword,
+  __getchar: tags.keyword,
+  __float2int: tags.keyword,
 
   and: tags.operator,
   or: tags.operator,

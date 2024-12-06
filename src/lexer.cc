@@ -282,6 +282,9 @@ namespace lexer
       {"__delay", TokenType::DELAY},
       {"__pixelr", TokenType::PIXELR},
       {"__pixel", TokenType::PIXEL},
+      {"__getchar", TokenType::GETCHAR},
+      {"__putchar", TokenType::PUTCHAR},
+      {"__float2int", TokenType::FLOAT2INT},
       {"return", TokenType::RETURN},
       {"if", TokenType::IF},
       {"else", TokenType::ELSE},
@@ -575,6 +578,12 @@ namespace lexer
       return "fun";
     case NEWARR:
       return "__newarr";
+    case GETCHAR:
+      return "__getchar";
+    case PUTCHAR:
+      return "__putchar";
+    case FLOAT2INT:
+      return "__float2int";
 
       // operators, special characters
     case COMMA_TOK:

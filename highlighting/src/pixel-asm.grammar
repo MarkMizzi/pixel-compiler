@@ -74,7 +74,9 @@ Data {
     "print" |
     "alloca" |
     "sta" |
-    "lda"
+    "lda" |
+    "putchar" |
+    "getchar"
   }
 
   Number { $[0-9]* "."? $[0-9]+ }

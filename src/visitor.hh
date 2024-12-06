@@ -27,6 +27,8 @@ namespace ast
   class RandiExprNode;
   class NewArrExprNode;
   class ArrayAccessNode;
+  class GetCharNode;
+  class Float2IntNode;
 
   class AssignmentStmt;
   class VariableDeclStmt;
@@ -35,6 +37,7 @@ namespace ast
   class PixelStmt;
   class PixelRStmt;
   class ReturnStmt;
+  class PutCharStmt;
   class IfElseStmt;
   class ForStmt;
   class WhileStmt;
@@ -69,6 +72,8 @@ namespace ast
     virtual void visit(RandiExprNode &node) = 0;
     virtual void visit(NewArrExprNode &node) = 0;
     virtual void visit(ArrayAccessNode &node) = 0;
+    virtual void visit(GetCharNode &node) = 0;
+    virtual void visit(Float2IntNode &node) = 0;
 
     virtual void visit(AssignmentStmt &node) = 0;
     virtual void visit(VariableDeclStmt &node) = 0;
@@ -77,6 +82,7 @@ namespace ast
     virtual void visit(PixelStmt &node) = 0;
     virtual void visit(PixelRStmt &node) = 0;
     virtual void visit(ReturnStmt &node) = 0;
+    virtual void visit(PutCharStmt &node) = 0;
     virtual void visit(IfElseStmt &node) = 0;
     virtual void visit(ForStmt &node) = 0;
     virtual void visit(WhileStmt &node) = 0;

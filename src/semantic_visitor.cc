@@ -269,6 +269,20 @@ namespace ast
         {&node, dynamic_cast<ArrayTypeNode *>(arrType.get())->contained->copy()});
   }
 
+  void SemanticVisitor::visit(GetCharNode &node)
+  {
+    typeCheckerTable().insert({&node, std::make_unique<IntTypeNode>()});
+  }
+
+  void SemanticVisitor::visit(Float2IntNode &node)
+  {
+    visitChildren(&node);
+
+    CHECK_TYPE(node.operand.get(), FloatTypeNode());
+
+    typeCheckerTable().insert({&node, std::make_unique<IntTypeNode>()});
+  }
+
   void SemanticVisitor::visit(AssignmentStmt &node)
   {
     visitChildren(&node);
@@ -352,6 +366,13 @@ namespace ast
                               retType->to_string() + ", got " + type->to_string(),
                           node.loc);
     }
+  }
+
+  void SemanticVisitor::visit(PutCharStmt &node)
+  {
+    visitChildren(&node);
+
+    CHECK_TYPE(node.expr.get(), IntTypeNode());
   }
 
   void SemanticVisitor::visit(IfElseStmt &node)

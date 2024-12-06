@@ -133,6 +133,8 @@ namespace ast
     void visit(RandiExprNode &node) override;
     void visit(NewArrExprNode &node) override;
     void visit(ArrayAccessNode &node) override;
+    void visit(GetCharNode &node) override;
+    void visit(Float2IntNode &node) override;
 
     void visit(AssignmentStmt &node) override;
     void visit(VariableDeclStmt &node) override;
@@ -141,6 +143,7 @@ namespace ast
     void visit(PixelStmt &node) override;
     void visit(PixelRStmt &node) override;
     void visit(ReturnStmt &node) override;
+    void visit(PutCharStmt &node) override;
     void visit(IfElseStmt &node) override;
     void visit(ForStmt &node) override;
     void visit(WhileStmt &node) override;
