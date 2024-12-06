@@ -1662,41 +1662,6 @@ v_ = heapsort(arr, __width);`,
  * ASSUMES THAT WIDTH OF SCREEN >= HEIGHT.
  */
 
-// perform integer division using Euclids algorithm.
-fun idiv(n: int, d: int) -> int {
-    // hack to handle division when n is negative.
-    let negative: bool = n < 0;
-    if (negative) {
-       n = -n;
-    }
-
-    let r: int = n;
-    let q: int = 0;
-
-    while (r >= d) {
-        r = r - d;
-        q = q + 1;
-    }
-
-    if (negative) {
-       return -q;
-    }
-
-    return q;
-}
-
-// convert an x coordinate on the screen from a float to an int 
-// so we can use it with __pixel.
-fun xcoord(x: float) -> int {
-   return __float2int x;
-}
-
-// convert a y coordinate on the screen from a float to an int 
-// so we can use it with __pixel.
-fun ycoord(y: float) -> int {
-   return __float2int y;
-}
-
 /* Compute sine function using the CORDIC algorithm first described in
  * https://dl.acm.org/doi/pdf/10.1145/1457838.1457886
  * Very efficient simple algorithm for computing sine based on successive rotations by
@@ -1787,6 +1752,26 @@ fun abs(x: float) -> float {
    return x;
 }
 
+fun clipScreenX(x: int) -> int {
+   if (x < 0) {
+      return 0;
+   }
+   if (x > __width - 1) {
+      return __width - 1;
+   }
+   return x;
+}
+
+fun clipScreenY(y: int) -> int {
+   if (y < 0) {
+      return 0;
+   }
+   if (y > __height - 1) {
+      return __height - 1;
+   }
+   return y;
+}
+
 /// Use Bresenham's algorithm to draw a line
 
 fun drawLineLow(x0: int, y0: int, x1: int, y1: int) -> int {
@@ -1802,7 +1787,7 @@ fun drawLineLow(x0: int, y0: int, x1: int, y1: int) -> int {
    let D: int = (2 * dy) - dx;
    let y: int = y0;
    for (let x: int = x0; x <= x1; x = x + 1) {
-      __pixel x, y, #ffffff;
+      __pixel clipScreenX(x), clipScreenY(y), #ffffff;
       if (D > 0) {
          y = y + ystep;
          D = D + (2 * (dy - dx));
@@ -1827,7 +1812,7 @@ fun drawLineHigh(x0: int, y0: int, x1: int, y1: int) -> int {
    let D: int = (2 * dx) - dy;
    let x: int = x0;
    for (let y: int = y0; y <= y1; y = y + 1) {
-      __pixel x, y, #ffffff;
+      __pixel clipScreenX(x), clipScreenY(y), #ffffff;
       if (D > 0) {
          x = x + xstep;
          D = D + (2 * (dx - dy));
@@ -1840,17 +1825,22 @@ fun drawLineHigh(x0: int, y0: int, x1: int, y1: int) -> int {
 }
 
 fun drawLine(x0: float, y0: float, x1: float, y1: float) -> int {
+   let x0i: int = __float2int x0;
+   let x1i: int = __float2int x1;
+   let y0i: int = __float2int y0;
+   let y1i: int = __float2int y1;
+
    if (abs(y1 - y0) < abs(x1 - x0)) {
       if (x0 > x1) {
-        let v_: int = drawLineLow(xcoord(x1), ycoord(y1), xcoord(x0), ycoord(y0));
+        let v_: int = drawLineLow(x1i, y1i, x0i, y0i);
       } else {
-        let v_: int = drawLineLow(xcoord(x0), ycoord(y0), xcoord(x1), ycoord(y1));
+        let v_: int = drawLineLow(x0i, y0i, x1i, y1i);
       }
    } else {
       if (y0 > y1) {
-        let v_: int = drawLineHigh(xcoord(x1), ycoord(y1), xcoord(x0), ycoord(y0));
+        let v_: int = drawLineHigh(x1i, y1i, x0i, y0i);
       } else {
-        let v_: int = drawLineHigh(xcoord(x0), ycoord(y0), xcoord(x1), ycoord(y1));
+        let v_: int = drawLineHigh(x0i, y0i, x1i, y1i);
       }
    }
 
@@ -1862,7 +1852,7 @@ fun drawLine(x0: float, y0: float, x1: float, y1: float) -> int {
 
 fun drawPendulum(l1: float, l2: float, theta1: float, theta2: float) -> int {
    // clear the screen
-   __pixelr 0, 0, __width, __height, #000000;
+   __pixelr 0, 0, __width, __height, #800020;
 
    // origin of pendulum 1
    let x0: float = __width / 2;
@@ -1887,11 +1877,11 @@ fun drawPendulum(l1: float, l2: float, theta1: float, theta2: float) -> int {
 
 let pi: float = 3.14159265358979323846;
 
-// add random val in range +-0.125 to initial theta1
-let rand1: float = ((__randi 1000) / 1000 - 0.5) * 0.25;
+// add random val in range +-0.075 to initial theta1
+let rand1: float = ((__randi 1000) / 1000 - 0.5) * 0.125;
 let theta1: float = 0.25 * pi + rand1;
-// add random val in range +-0.125 to initial theta2
-let rand2: float = ((__randi 1000) / 1000 - 0.5) * 0.25;
+// add random val in range +-0.075 to initial theta2
+let rand2: float = ((__randi 1000) / 1000 - 0.5) * 0.125;
 let theta2: float = 0.3 * pi + rand2;
 
 // Initial canonical momenta of the system
@@ -1950,72 +1940,6 @@ for (let tick: int = 0; tick < ticks; tick = tick + 1) {
  *    Otherwise positions, velocities and masses are accurately given in SI units.
  */
 
-// perform integer division using Euclids algorithm.
-fun idiv(n: int, d: int) -> int {
-    // hack to handle division when n is negative.
-    let negative: bool = n < 0;
-    if (negative) {
-       n = -n;
-    }
-
-    let r: int = n;
-    let q: int = 0;
-
-    while (r >= d) {
-        r = r - d;
-        q = q + 1;
-    }
-
-    if (negative) {
-       return -q;
-    }
-
-    return q;
-}
-
-/* Convert floats to integers (rounding to the nearest even).
- * Because of Pixel's type casting rules this function has to be implemented using a
- * binary search on integers in some region... quite unwieldy
- * Note that we also take advantage of the fact that x / 1 converts x from an int to a float
- */
-fun f2int(f: float, fmin: int, fmax: int) -> int {
-   // stop algorithm from looping forever if f is not in expected range
-   if (f >= fmax / 1) {
-      return fmax;
-   }
-   if (f <= fmin / 1) {
-      return fmin;
-   }
-
-   let i: int = idiv(fmin + fmax, 2);
-   let ftest: float = i / 1; // convert i to float by dividing by 1
-   while (((f - ftest) > 0.5) or ((f - ftest) <= -0.5)) {
-      if ((f - ftest) > 0.0) {
-         // i is smaller than f
-         fmin = i;
-      } else {
-         // i is larger than f
-         fmax = i;
-      }
-      i = idiv(fmin + fmax, 2);
-      ftest = i / 1; // convert i to float by dividing by 1
-   }
-
-   return i;
-}
-
-// convert an x coordinate on the screen from a float to an int 
-// so we can use it with __pixel.
-fun xcoord(x: float) -> int {
-   return f2int(x, 0, __width - 1);
-}
-
-// convert a y coordinate on the screen from a float to an int 
-// so we can use it with __pixel.
-fun ycoord(y: float) -> int {
-   return f2int(y, 0, __height - 1);
-}
-
 // Compute sqrt(x) using Heron's method
 // While there are more efficient methods, these were
 // found to not be stable (to converge) for the large
@@ -2059,7 +1983,7 @@ fun draw(x: float, y: float, xmin: float, xmax: float, ymin: float, ymax: float,
    let x_: float = (x - xmin) * (__width / 1) / (xmax - xmin);
    let y_: float = (y - ymin) * (__height / 1) / (ymax - ymin);
 
-   __pixel xcoord(x_), ycoord(y_), c;
+   __pixel (__float2int x_), (__float2int y_), c;
    __delay 5;
 
    // return dummy value
