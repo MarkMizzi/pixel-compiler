@@ -265,9 +265,15 @@ export class PixelVM {
 
           checkDataType(x, [PixIRDataType.NUMBER])
 
+          if (x.val as number <= 0) {
+            throw RangeError(
+              `Argument to irnd instruction is ${dataToString(x)} <= 0, must be > 0`
+            )
+          }
+
           this.state.workStack.push({
             dtype: PixIRDataType.NUMBER,
-            val: Math.round(Math.random() * (x.val as number))
+            val: Math.round(Math.random() * (x.val as number - 1))
           })
 
           // update pc
