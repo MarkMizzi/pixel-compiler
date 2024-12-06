@@ -15,8 +15,8 @@
         <option class="bg-slate-900 link-green" value="game of life">game of life</option>
         <option class="bg-slate-900 link-green" value="wall clock">wall clock</option>
         <option class="bg-slate-900 link-green" value="bubblesort">bubblesort</option>
-        <option class="bg-slate-900 link-green" value="quicksort">quicksort</option>
         <option class="bg-slate-900 link-green" value="heapsort">heapsort</option>
+        <option class="bg-slate-900 link-green" value="quicksort">quicksort</option>
         <option class="bg-slate-900 link-green" value="double pendulum">double pendulum</option>
         <option class="bg-slate-900 link-green" value="nbody">nbody</option>
         <option class="bg-slate-900 link-green" value="echo">echo</option>
@@ -1405,114 +1405,7 @@ __delay 20;
 // sort the array
 v_ = bubblesort(arr);`,
 
-  quicksort: `
-// clear the screen
-__pixelr 0, 0, __width, __height, #000000;
-
-// create an array of random integers to sort
-let arr: []int = __newarr int, __width;
-
-for (let i: int = 0; i < __width; i = i + 1) {
-   arr[i] = __randi __height;
-}
-
-fun drawElem(arr: []int, i: int, c: colour) -> int {
-   // clear rest of the column first
-   __pixelr i, 0, 1, __height, #000000;
-   // draw this item
-   __pixelr i, 0, 1, arr[i], c;
-   // return a dummy value
-   return 0;
-}
-
-fun swap(arr: []int, i: int, j: int) -> int {
-
-   // we only need to redraw columns that will change,
-   // i.e. the swapped ones.
-   let v_: int = drawElem(arr, i, #b3f5bc);
-   v_ = drawElem(arr, j, #b3f5bc);
-   // delay execution for a little to show animation
-   __delay 10;
-
-   // swap arr[i] and arr[j]
-   let tmp: int = arr[i];
-   arr[i] = arr[j];
-   arr[j] = tmp;
-
-   // we only need to redraw columns that have changed,
-   // i.e. the swapped ones.
-   v_ = drawElem(arr, i, #b3f5bc);
-   v_ = drawElem(arr, j, #b3f5bc);
-   // delay execution for a little to show animation
-   __delay 10;
-
-   // draw as white again
-   v_ = drawElem(arr, i, #ffffff);
-   v_ = drawElem(arr, j, #ffffff);
-
-   // return dummy value
-   return 0;
-}
-
-// Function to draw our array of random integers
-fun draw(arr: []int) -> int {
-   for (let i: int = 0; i < __width; i = i + 1) {
-      let v_: int = drawElem(arr, i, #ffffff);
-   }
-
-   // return a dummy value as we must return something.
-   return 0;
-}
-
-fun partition(arr: []int, lo: int, hi: int) -> int {
-   // choose the last element as the pivot
-   let pivot: int = arr[hi];
-
-   // temporary pivot index
-   let i: int = lo;
-
-   for (let j: int = lo; j < hi; j = j + 1) {
-      if (arr[j] <= pivot) {
-         // swap arr[i] and arr[j]
-         let v_: int = swap(arr, i, j);
-
-         // move temporary pivot index forward
-         i = i + 1;
-      }
-   }
-
-   // swap pivot with the last element
-   let v_: int = swap(arr, i, hi);
-
-   return i; // the pivot index
-}
-
-fun quicksort(arr: []int, lo: int, hi: int) -> int {
-  if ((lo >= hi) or (lo < 0)) {
-     // return a dummy value
-     return 0;
-  }
-
-  let pivot: int = partition(arr, lo, hi);
-
-   // sort left side of pivot
-   let v_: int = quicksort(arr, lo, pivot - 1);
-   // sort right side of pivot
-   v_ = quicksort(arr, pivot + 1, hi);
-
-   // return a dummy value
-   return 0;
-}
-
-// initial draw of array
-let v_: int = draw(arr);
-// delay execution for a little to show animation
-__delay 20;
-
-// sort the array
-v_ = quicksort(arr, 0, __width - 1);`,
-
-  heapsort: `// clear the screen
+   heapsort: `// clear the screen
 __pixelr 0, 0, __width, __height, #000000;
 
 // create an array of random integers to sort
@@ -1657,6 +1550,113 @@ __delay 20;
 
 // sort the array
 v_ = heapsort(arr, __width);`,
+
+  quicksort: `
+// clear the screen
+__pixelr 0, 0, __width, __height, #000000;
+
+// create an array of random integers to sort
+let arr: []int = __newarr int, __width;
+
+for (let i: int = 0; i < __width; i = i + 1) {
+   arr[i] = __randi __height;
+}
+
+fun drawElem(arr: []int, i: int, c: colour) -> int {
+   // clear rest of the column first
+   __pixelr i, 0, 1, __height, #000000;
+   // draw this item
+   __pixelr i, 0, 1, arr[i], c;
+   // return a dummy value
+   return 0;
+}
+
+fun swap(arr: []int, i: int, j: int) -> int {
+
+   // we only need to redraw columns that will change,
+   // i.e. the swapped ones.
+   let v_: int = drawElem(arr, i, #b3f5bc);
+   v_ = drawElem(arr, j, #b3f5bc);
+   // delay execution for a little to show animation
+   __delay 10;
+
+   // swap arr[i] and arr[j]
+   let tmp: int = arr[i];
+   arr[i] = arr[j];
+   arr[j] = tmp;
+
+   // we only need to redraw columns that have changed,
+   // i.e. the swapped ones.
+   v_ = drawElem(arr, i, #b3f5bc);
+   v_ = drawElem(arr, j, #b3f5bc);
+   // delay execution for a little to show animation
+   __delay 10;
+
+   // draw as white again
+   v_ = drawElem(arr, i, #ffffff);
+   v_ = drawElem(arr, j, #ffffff);
+
+   // return dummy value
+   return 0;
+}
+
+// Function to draw our array of random integers
+fun draw(arr: []int) -> int {
+   for (let i: int = 0; i < __width; i = i + 1) {
+      let v_: int = drawElem(arr, i, #ffffff);
+   }
+
+   // return a dummy value as we must return something.
+   return 0;
+}
+
+fun partition(arr: []int, lo: int, hi: int) -> int {
+   // choose the last element as the pivot
+   let pivot: int = arr[hi];
+
+   // temporary pivot index
+   let i: int = lo;
+
+   for (let j: int = lo; j < hi; j = j + 1) {
+      if (arr[j] <= pivot) {
+         // swap arr[i] and arr[j]
+         let v_: int = swap(arr, i, j);
+
+         // move temporary pivot index forward
+         i = i + 1;
+      }
+   }
+
+   // swap pivot with the last element
+   let v_: int = swap(arr, i, hi);
+
+   return i; // the pivot index
+}
+
+fun quicksort(arr: []int, lo: int, hi: int) -> int {
+  if ((lo >= hi) or (lo < 0)) {
+     // return a dummy value
+     return 0;
+  }
+
+  let pivot: int = partition(arr, lo, hi);
+
+   // sort left side of pivot
+   let v_: int = quicksort(arr, lo, pivot - 1);
+   // sort right side of pivot
+   v_ = quicksort(arr, pivot + 1, hi);
+
+   // return a dummy value
+   return 0;
+}
+
+// initial draw of array
+let v_: int = draw(arr);
+// delay execution for a little to show animation
+__delay 20;
+
+// sort the array
+v_ = quicksort(arr, 0, __width - 1);`,
 
   'double pendulum': `/* Simulation of a double pendulum (chaotic behaviour may be exhibited)
  * ASSUMES THAT WIDTH OF SCREEN >= HEIGHT.
