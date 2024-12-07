@@ -255,16 +255,10 @@ defineExpose({
             fill="none"
           >
             <path
-              d="M8.5 18H9.5C10.0523 18 10.5 17.5523 10.5 17V7C10.5 6.44772 10.0523 6 9.5 6H8.5C7.94772 6 7.5 6.44772 7.5 7V17C7.5 17.5523 7.94772 18 8.5 18Z"
-              stroke="hsla(160, 100%, 37%, 1)"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M14.5 18H15.5C16.0523 18 16.5 17.5523 16.5 17V7C16.5 6.44772 16.0523 6 15.5 6H14.5C13.9477 6 13.5 6.44772 13.5 7V17C13.5 17.5523 13.9477 18 14.5 18Z"
-              stroke="hsla(160, 100%, 37%, 1)"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M10.5 6H6V18H10.5V6ZM7.5 16.5V7.5H9V16.5H7.5ZM18 6H13.5V18H18V6ZM15 16.5V7.5H16.5V16.5H15Z"
+              fill="hsla(160, 100%, 37%, 1)"
             />
           </svg>
         </button>
