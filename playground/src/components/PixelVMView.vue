@@ -199,23 +199,99 @@ defineExpose({
       <div class="flex flex-col gap-x-0">
         <button v-if="!isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="runOrContinue()">
           <div class="tooltip-text">Run</div>
-          <span class="material-symbols-outlined"> play_arrow </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="1.6rem"
+            height="1.6rem"
+            viewBox="0 0 16 16"
+            fill="hsla(160, 100%, 37%, 1)"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M4.25 3l1.166-.624 8 5.333v1.248l-8 5.334-1.166-.624V3zm1.5 1.401v7.864l5.898-3.932L5.75 4.401z"
+            />
+          </svg>
         </button>
         <button v-if="!isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="step()">
           <div class="tooltip-text">Step</div>
-          <span class="material-symbols-outlined"> step </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="1.6rem"
+            height="1.6rem"
+            viewBox="0 0 16 16"
+            fill="hsla(160, 100%, 37%, 1)"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M14.25 5.75v-4h-1.5v2.542c-1.145-1.359-2.911-2.209-4.84-2.209-3.177 0-5.92 2.307-6.16 5.398l-.02.269h1.501l.022-.226c.212-2.195 2.202-3.94 4.656-3.94 1.736 0 3.244.875 4.05 2.166h-2.83v1.5h4.163l.962-.975V5.75h-.004zM8 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"
+            />
+          </svg>
         </button>
         <button v-if="!isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="stepOut()">
           <div class="tooltip-text">Step Out</div>
-          <span class="material-symbols-outlined"> step_out </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="1.6rem"
+            height="1.6rem"
+            viewBox="0 0 16 16"
+            fill="hsla(160, 100%, 37%, 1)"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M8 1h-.542L3.553 4.905l1.061 1.06 2.637-2.61v6.177h1.498V3.355l2.637 2.61 1.061-1.06L8.542 1H8zm1.956 12.013a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"
+            />
+          </svg>
         </button>
         <button v-if="isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="pause()">
           <div class="tooltip-text">Pause</div>
-          <span class="material-symbols-outlined"> pause </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="1.6rem"
+            height="1.6rem"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path
+              d="M8.5 18H9.5C10.0523 18 10.5 17.5523 10.5 17V7C10.5 6.44772 10.0523 6 9.5 6H8.5C7.94772 6 7.5 6.44772 7.5 7V17C7.5 17.5523 7.94772 18 8.5 18Z"
+              stroke="hsla(160, 100%, 37%, 1)"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M14.5 18H15.5C16.0523 18 16.5 17.5523 16.5 17V7C16.5 6.44772 16.0523 6 15.5 6H14.5C13.9477 6 13.5 6.44772 13.5 7V17C13.5 17.5523 13.9477 18 14.5 18Z"
+              stroke="hsla(160, 100%, 37%, 1)"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
         </button>
         <button v-if="isRunning" class="h-8 w-8 p-2 link-green tooltip" @click="stop()">
           <div class="tooltip-text">Halt</div>
-          <span class="material-symbols-outlined"> stop </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            width="1.6rem"
+            height="1.6rem"
+            viewBox="0 0 76 76"
+            version="1.1"
+            baseProfile="full"
+            enable-background="new 0 0 76.00 76.00"
+            xml:space="preserve"
+          >
+            <rect
+              x="24"
+              y="24"
+              fill="hsla(160, 100%, 37%, 1)"
+              fill-opacity="1"
+              stroke-width="0.2"
+              stroke-linejoin="round"
+              width="28"
+              height="28"
+            />
+          </svg>
         </button>
       </div>
     </div>
