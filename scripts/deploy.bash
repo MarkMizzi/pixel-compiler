@@ -3,9 +3,13 @@
 # set pipelining mode for errors
 set -e
 
-### Start docker container
-
 CONTAINER_NAME=pixel_playground
+
+### Build docker container
+
+sudo docker build -t ${CONTAINER_NAME} .
+
+### Start docker container
 
 # Kill any running playground containers.
 # https://stackoverflow.com/questions/32073971/stopping-docker-containers-by-image-name-ubuntu
@@ -14,8 +18,6 @@ if [ ! -z "${RUNNING_CONTAINERS}" ]
 then
     sudo docker rm `sudo docker stop ${RUNNING_CONTAINERS}`
 fi
-
-sudo docker build -t ${CONTAINER_NAME} .
 sudo docker run -p 8080:8080 -d ${CONTAINER_NAME}
 
 ### Install NGINX configuration
