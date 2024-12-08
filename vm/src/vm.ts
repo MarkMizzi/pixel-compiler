@@ -858,7 +858,7 @@ export class PixelVM {
       this.state.halted = false
       this.state.paused = true
     } else if (!this.state.paused) {
-      throw Error('Cannot step over a function while the Pixel VM is running.')
+      throw Error('Cannot step out of a function while the Pixel VM is running.')
     }
 
     // unpause while stepping out
