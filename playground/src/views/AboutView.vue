@@ -89,7 +89,6 @@
       &emsp;&quot;__getchar&quot; | <br />
       &emsp;&quot;__float2int&quot; &lt; Expr &gt; <br /><br />
 
-
       &lt; Term &gt; ::= &lt; Factor &gt; { &lt; MultiplicativeOp &gt; &lt; Factor &gt; } <br />
       &lt; SimpleExpr &gt; ::= &lt; Term &gt; { &lt; AdditiveOp &gt; &lt; Term &gt; } <br />
       &lt; Expr &gt; ::= &lt; SimpleExpr &gt; { &lt; RelationalOp &gt; &lt; SimpleExpr &gt; }
@@ -281,16 +280,15 @@
           <td><span class="code">__getchar</span></td>
           <td>N/A</td>
           <td><span class="code">int</span></td>
-          <td>
-            Get the next character from stdin. This is returned as a Unicode code point.
-          </td>
+          <td>Get the next character from stdin. This is returned as a Unicode code point.</td>
         </tr>
         <tr>
           <td><span class="code">__putchar x</span></td>
           <td><span class="code">int</span></td>
           <td>N/A</td>
           <td>
-            Print the character with Unicode code point <span class="code">x</span> in the output log.
+            Print the character with Unicode code point <span class="code">x</span> in the output
+            log.
           </td>
         </tr>
         <tr>
@@ -298,7 +296,8 @@
           <td><span class="code">float</span></td>
           <td><span class="code">int</span></td>
           <td>
-            Convert floating point number <span class="code">x</span> to an integer, rounding to the nearest number.
+            Convert floating point number <span class="code">x</span> to an integer, rounding to the
+            nearest number.
           </td>
         </tr>
       </tbody>
@@ -554,8 +553,8 @@
           <td><span class="code">a ..</span></td>
           <td><span class="code">rand(0,a) ..</span></td>
           <td>
-            Pops a number off the work stack, and pushes a random (floating point) number between 0
-            and that number (exclusive) onto the work stack.
+            Pops a number off the work stack, and pushes a random whole number between 0 and that
+            number (exclusive) onto the work stack.
           </td>
         </tr>
         <tr>
@@ -692,9 +691,9 @@
           <td>
             Pops a function label and a number <span class="code">n</span> off the work stack. It
             then pops <span class="code">n</span> items off the work stack, creates a new frame
-            containing them, and pushes it onto the work stack. It then pushes a new item containing
-            the function label onto the call stack, effectively calling the function with arguments
-            <span class="code">a1 .. an</span>.
+            containing them, and pushes it onto the frame stack. It then pushes a new item
+            containing the function label onto the call stack, effectively calling the function with
+            arguments <span class="code">a1 .. an</span>.
           </td>
         </tr>
         <tr>
@@ -770,8 +769,9 @@
           <td>
             Pops four numbers <span class="code">x, y, w, h</span> and a colour
             <span class="code">c</span> off the work stack and colours a rectangle on the screen of
-            width <span class="code">w</span> and height <span class="code">h</span> whose bottom left
-            corner is at <span class="code">x, y</span> with colour <span class="code">c</span>.
+            width <span class="code">w</span> and height <span class="code">h</span> whose bottom
+            left corner is at <span class="code">x, y</span> with colour
+            <span class="code">c</span>.
           </td>
         </tr>
         <tr>
@@ -852,7 +852,7 @@
           <td><span class="code">c ..</span></td>
           <td><span class="code">..</span></td>
           <td>
-            Pops floating point number <span class="code">c</span>, rounds it to the nearest 
+            Pops floating point number <span class="code">c</span>, rounds it to the nearest
             integer, and prints the character with that Unicode code point to the output log.
           </td>
         </tr>
