@@ -40,6 +40,7 @@ WORKDIR /playground
 # Install deps and build playground app
 RUN npm install
 RUN npm run build
+RUN npm prune --production
 
 # Clean up typescript files as these are not needed in build.
 WORKDIR /
