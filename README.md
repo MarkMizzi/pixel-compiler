@@ -53,3 +53,35 @@ Once all this is done, simply run
 ./scripts/deploy.bash
 ```
 on the machine where you want to host the playground.
+
+## Showcase
+
+The Pixel playgrond has a code editor with syntax highlighting, and is also capable of displaying the compiled bytecode of a program:
+<img width="1798" height="917" alt="image" src="https://github.com/user-attachments/assets/afe60c93-e421-4adc-acec-c8d7263c9425" />
+
+In addition, you can also view the parsed syntax tree for a program:
+<img width="1798" height="917" alt="image" src="https://github.com/user-attachments/assets/4b3e1404-6cc1-4de3-9162-205e652b1d63" />
+
+A compiled program can be executed in the virtual machine:
+<img width="1791" height="929" alt="Screenshot from 2026-01-12 22-56-43" src="https://github.com/user-attachments/assets/43b859ff-0d90-41b2-be1c-58cf4317973e" />
+
+Below you can see execution of some sample programs.
+
+### Double Pendulum
+
+![double-pendulum](https://github.com/user-attachments/assets/eb4d01fb-46b9-4f50-bab1-d21ea999bc6c)
+
+This one was quite challenging to implement as it required programming $\sin(x)$ and $\cos(x)$ functions from scratch:
+<img width="1791" height="929" alt="Screenshot from 2026-01-12 22-56-02" src="https://github.com/user-attachments/assets/d0a63c26-926e-4673-b56a-173e60735555" />
+
+### Quicksort
+
+![quicksort](https://github.com/user-attachments/assets/d46528ae-2824-4cdb-b156-2b75a60c7eef)
+
+### Game of Life
+
+![gameoflife](https://github.com/user-attachments/assets/5e84a75c-6ae8-4cb7-995f-6543c61f21f9)
+
+### Lorentz Attractor
+
+![lorentz](https://github.com/user-attachments/assets/343c0413-d780-4e61-8c15-a63fba2cc14b)
